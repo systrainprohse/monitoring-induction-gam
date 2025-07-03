@@ -5,19 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📋 Monitoring Induksi</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
 </head>
 <body>
+
+  <header class="minimal-header">
+  <h1>SITE PT. GANDA ALAM MAKMUR</h1>
+  <nav>
+    <a href="#pendaftaran">Pendaftaran</a>
+    <a href="#spdk">SPDK</a>
+    <a href="#ceckhlist_induksi">Checklist</a>
+    <a href="#hasil_induksi">Induksi</a>
+    <a href="#score_induksi">Skor</a>
+    <a href="#grafik">Grafik</a>
+  </nav>
+</header>
   <div class="container">
 
-    <h1>📋 Monitoring Induksi Peserta</h1>
+    <h1>📋 Monitoring Induksi, SPDK, CHECKLISTK, KELENGKAPAN MINE PERMIT</h1>
     <div class="loader" id="loader"></div>
 
     <!-- 🧭 Navigasi Tab -->
     <div class="tabs">
-      <button class="tab-btn active" onclick="openTab('pendaftaran')">📄 Pendaftaran</button>
+      <button class="tab-btn" onclick="openTab('pendaftaran')">📄 Pendaftaran</button>
       <button class="tab-btn" onclick="openTab('spdk')">📝 SPDK</button>
       <button class="tab-btn" onclick="openTab('ceckhlist_induksi')">✅ Checklist</button>
-      <button class="tab-btn" onclick="openTab('hasil_induksi')">📘 Induksi</button>
+      <button class="tab-btn active" onclick="openTab('hasil_induksi')">📘 Induksi</button>
       <button class="tab-btn" onclick="openTab('score_induksi')">📊 Skor</button>
       <button class="tab-btn" onclick="openTab('grafik')">📈 Grafik</button>
     </div>
@@ -95,12 +110,22 @@
 
     <!-- 📈 Tab Grafik -->
     <div id="grafik" class="tab-content">
-      <canvas id="chartScore"></canvas>
+      <canvas id="chartScore1"></canvas>  <!-- Grafik Cuti & New Hire -->
+      <canvas id="chartScore2"></canvas>  <!-- Grafik SCORE_TERTINGGI & SCORE_TERENDAH -->
     </div>
+
+
 
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
+
+  <footer class="minimal-footer">
+  <p>© 2025 Induksi Monitoring. All rights reserved.</p>
+  <p>AHMAD FAQIH I</p>
+  <p>HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT</p>
+</footer>
+
 </body>
 </html>
