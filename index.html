@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📋 Monitoring Induksi</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+
+    <h1>📋 Monitoring Induksi Peserta</h1>
+    <div class="loader" id="loader"></div>
+
+    <!-- 🧭 Navigasi Tab -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="openTab('pendaftaran')">📄 Pendaftaran</button>
+      <button class="tab-btn" onclick="openTab('spdk')">📝 SPDK</button>
+      <button class="tab-btn" onclick="openTab('ceckhlist_induksi')">✅ Checklist</button>
+      <button class="tab-btn" onclick="openTab('hasil_induksi')">📘 Induksi</button>
+      <button class="tab-btn" onclick="openTab('score_induksi')">📊 Skor</button>
+      <button class="tab-btn" onclick="openTab('grafik')">📈 Grafik</button>
+    </div>
+
+    <!-- 🔎 Konten Tab -->
+    <div id="pendaftaran" class="tab-content active">
+      <div class="filter-container">
+        <label>🏢</label>
+        <select id="filter-pendaftaran" onchange="applyFilter('pendaftaran')"></select>
+        <label>📅</label>
+        <input type="date" id="startDate-pendaftaran" onchange="applyFilter('pendaftaran')" />
+        <span>s.d.</span>
+        <input type="date" id="endDate-pendaftaran" onchange="applyFilter('pendaftaran')" />
+      </div>
+      <div class="table-wrapper">
+        <table id="table-pendaftaran"></table>
+      </div>
+    </div>
+
+    <div id="spdk" class="tab-content">
+      <div class="filter-container">
+        <label>🏢</label>
+        <select id="filter-spdk" onchange="applyFilter('spdk')"></select>
+        <label>📅</label>
+        <input type="date" id="startDate-spdk" onchange="applyFilter('spdk')" />
+        <span>s.d.</span>
+        <input type="date" id="endDate-spdk" onchange="applyFilter('spdk')" />
+      </div>
+      <div class="table-wrapper">
+        <table id="table-spdk"></table>
+      </div>
+    </div>
+
+    <div id="ceckhlist_induksi" class="tab-content">
+      <div class="filter-container">
+        <label>🏢</label>
+        <select id="filter-ceckhlist_induksi" onchange="applyFilter('ceckhlist_induksi')"></select>
+        <label>📅</label>
+        <input type="date" id="startDate-ceckhlist_induksi" onchange="applyFilter('ceckhlist_induksi')" />
+        <span>s.d.</span>
+        <input type="date" id="endDate-ceckhlist_induksi" onchange="applyFilter('ceckhlist_induksi')" />
+      </div>
+      <div class="table-wrapper">
+        <table id="table-ceckhlist_induksi"></table>
+      </div>
+    </div>
+
+    <div id="hasil_induksi" class="tab-content">
+      <div class="filter-container">
+        <label>🏢</label>
+        <select id="filter-hasil_induksi" onchange="applyFilter('hasil_induksi')"></select>
+        <label>📅</label>
+        <input type="date" id="startDate-hasil_induksi" onchange="applyFilter('hasil_induksi')" />
+        <span>s.d.</span>
+        <input type="date" id="endDate-hasil_induksi" onchange="applyFilter('hasil_induksi')" />
+      </div>
+      <div class="table-wrapper">
+        <table id="table-hasil_induksi"></table>
+      </div>
+    </div>
+
+    <div id="score_induksi" class="tab-content">
+      <div class="filter-container">
+        <label>🏢</label>
+        <select id="filter-score_induksi" onchange="applyFilter('score_induksi')"></select>
+        <label>📅</label>
+        <input type="date" id="startDate-score_induksi" onchange="applyFilter('score_induksi')" />
+        <span>s.d.</span>
+        <input type="date" id="endDate-score_induksi" onchange="applyFilter('score_induksi')" />
+      </div>
+      <div class="table-wrapper">
+        <table id="table-score_induksi"></table>
+      </div>
+    </div>
+
+    <!-- 📈 Tab Grafik -->
+    <div id="grafik" class="tab-content">
+      <canvas id="chartScore"></canvas>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

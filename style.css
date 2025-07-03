@@ -1,0 +1,238 @@
+:root {
+  --primary: #007bff;
+  --bg: #f5f7fa;
+  --card-bg: #ffffff;
+  --text-dark: #333;
+  --text-muted: #666;
+  --border: #dfe3e8;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 13.5px; /* dari sebelumnya 14px atau 16px */
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  color: var(--text-dark);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  table th, table td {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
+
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.tab-btn {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #fff;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-btn:hover {
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.tab-content {
+  display: none;
+  animation: fadein 0.4s;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* 🔍 Filter Bar */
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+  margin-bottom: 22px;
+}
+
+.filter-container label {
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.filter-container select,
+.filter-container input[type="date"] {
+  padding: 7px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  min-width: 160px;
+  transition: border 0.2s ease;
+}
+
+.filter-container select:focus,
+.filter-container input[type="date"]:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.filter-container span {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* 🧾 Tabel */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  margin-bottom: 28px;
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+table.loaded {
+  opacity: 1;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--primary);
+  color: white;
+  z-index: 1;
+}
+
+
+th, td {
+  padding: 12px 14px;
+  font-size: 13.5px;
+  border-bottom: 1px solid #e0e4ea;
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f7f9fc;
+}
+
+/* 🔄 Loading Spinner */
+.loader {
+  display: none;
+  margin: 20px auto;
+  width: 40px;
+  height: 40px;
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* 📈 Chart area */
+canvas {
+  background: #fff;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* ✨ Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Buat wrapper tabel responsif */
+.table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-bottom: 24px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.03);
+}
+
+/* Perkecil font dan padding */
+table th,
+table td {
+  font-size: 13px;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+
+/* Tabel jadi lebih rapi dan tidak terlalu tinggi */
+table td {
+  line-height: 1.4;
+}
+
+/* Kolom teks panjang bisa pindah baris */
+table td.wrap {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Header sticky (opsional, jika kamu ingin header tetap muncul saat scroll) */
+.table-wrapper table {
+  min-width: 720px;  /* bisa disesuaikan: 600px - 900px */
+  width: 100%;
+  table-layout: auto;
+}
+
+td.red {
+  background-color: #ffe6e6;
+  color: #b30000;
+  font-weight: bold;
+}
