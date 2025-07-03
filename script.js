@@ -4,20 +4,23 @@ const SHEET_SOURCES = {
   ceckhlist_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_checklist" },
   hasil_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_result" },
   score_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_score" },
-  grafik: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_result" },
+  grafik: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "DashboardGrafik" },
   setting: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "setting" }
 };
 
 const kolomTampilkan = {
-  pendaftaran: ["tanggal", "perusahaan", "NAMA", "JENIS INDUKSI", "HARI", "DATE"],
+  pendaftaran: ["tanggal", "perusahaan", "NAMA", "JABATAN", "JENIS INDUKSI", "HARI", "DATE"],
   spdk: ["tanggal", "perusahaan", "NAMA", "SPDK", "KETERANGAN", "APPROVAL"],
-  ceckhlist_induksi: ["tanggal", "perusahaan", "nama"],
-  hasil_induksi: ["tanggal", "perusahaan", "NAMA", "JABATAN", "KATEGORI", "S. SIMPER", "SCORE K3", "S. JABATAN","S.RATA-RATA"],
-  score_induksi: ["tanggal", "perusahaan", "skor_rata2"]
+  ceckhlist_induksi: ["tanggal", "perusahaan", "NAMA", "CHECKLIST", "KETERANGAN", "APPROVAL"],
+  hasil_induksi: ["tanggal", "perusahaan", "NAMA", "JABATAN", "KATEGORI", "S. SIMPER", "SCORE K3", "S. JABATAN", "S.RATA-RATA"],
+  score_induksi: ["tanggal", "perusahaan", "skor_rata2"],
+   grafik: ["TANGGAL INDUKSI", "CUTI", "NEW HIRE", "NAMA JABATAN", "SCORE_TERENDAH", "SCORE_TERTINGGI"]
 };
 
 const sheetDataCache = {};
 let perusahaanList = [];
+let allOriginalData = {}; // <— Tambahkan ini
+
 
 function openTab(tabId) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -70,16 +73,44 @@ function renderTable(data, tableId) {
   const allowed = kolomTampilkan[key] || Object.keys(data[0]);
 
   const thead = `<thead><tr>${allowed.map(h => `<th>${h}</th>`).join("")}</tr></thead>`;
-  const tbody = `<tbody>${data.map(row =>
-    `<tr>${allowed.map(h => {
-      const nilai = row[h] || "";
-      const isScore = h.toLowerCase().includes("rata") || h.toLowerCase().includes("skor");
-      const angka = parseFloat(nilai);
-      const warna = isScore && angka < 75 ? "red" : "";
-      return `<td class="${warna}">${nilai}</td>`;
-    }).join("")}</tr>`
-  ).join("")}</tbody>`;
+  
+  // Set to track unique names
+  const uniqueNames = new Set();
+  
+  // Generate the table rows (tbody)
+  const tbody = `<tbody>${data.map(row => {
+    const name = row["NAMA"] || "";
 
+    // Check if name is already in the Set, if yes, skip this row
+    if (uniqueNames.has(name)) {
+      return ""; // Return empty string to skip the row
+    }
+
+    uniqueNames.add(name); // Add name to the Set if it's unique
+
+    return `<tr>${allowed.map(h => {
+      const nilai = row[h] || "";
+      const hLower = h.toLowerCase();
+      const valueLower = nilai.toString().toLowerCase();
+      const isScore = hLower.includes("rata") || hLower.includes("skor");
+      const angka = parseFloat(nilai);
+
+      let warna = "";
+      let emoji = "";
+
+      if (isScore && angka < 75) {
+        warna = "red";
+      } else if (valueLower === "approved") {
+        warna = "approved";
+        emoji = "✅ ";
+      } else if (valueLower === "hold") {
+        warna = "hold";
+        emoji = "⚠️ ";
+      }
+
+      return `<td class="${warna}">${emoji}${nilai}</td>`;
+    }).join("")}</tr>`;
+  }).join("")}</tbody>`;
 
   table.innerHTML = thead + tbody;
 
@@ -92,6 +123,8 @@ function renderTable(data, tableId) {
   table.classList.remove("loaded");
   setTimeout(() => table.classList.add("loaded"), 10);
 }
+
+
 
 function applyFilter(key) {
   const perusahaan = document.getElementById(`filter-${key}`)?.value || "all";
@@ -123,7 +156,45 @@ function renderFilteredOnly(data, tableId, key) {
 
   const thead = `<thead><tr>${allowed.map(h => `<th>${h}</th>`).join("")}</tr></thead>`;
   const tbody = `<tbody>${data.map(row =>
-    `<tr>${allowed.map(h => `<td>${row[h] || ""}</td>`).join("")}</tr>`
+    `<tr>${allowed.map(h => {
+      const nilai = row[h] || "";
+      const hLower = h.toLowerCase();
+      const valueLower = nilai.toString().toLowerCase();
+      const isScore = hLower.includes("rata") || hLower.includes("skor");
+      const angka = parseFloat(nilai);
+
+      let warna = "";
+      let emoji = "";
+
+      if (isScore && angka < 75) {
+          warna = "red";
+      } else if (isScore && angka >= 75) {
+          warna = "green";  // Warna hijau jika angka >= 75
+      } else if (valueLower === "approved") {
+          warna = "approved";
+          emoji = "✅ ";
+      } else if (valueLower === "hold") {
+          warna = "hold";
+          emoji = "⚠️ ";
+      }
+
+      const tdElement = document.createElement("td");
+tdElement.textContent = nilai;
+const tr = document.createElement("tr");
+
+allowed.forEach(h => {
+  const tdElement = document.createElement("td");
+  const nilai = row[h] || "";
+  tdElement.textContent = nilai;
+  tr.appendChild(tdElement);
+});
+
+table.appendChild(tr);;
+
+
+
+      return `<td class="${warna}">${emoji}${nilai}</td>`;
+    }).join("")}</tr>`
   ).join("")}</tbody>`;
 
   table.innerHTML = thead + tbody;
@@ -136,37 +207,138 @@ async function init() {
     if (key === "setting") continue;
     const data = await fetchSheetByKey(key);
 
-    if (key !== "grafik") {
-      renderTable(data, `table-${key}`);
-    } else {
-      const canvas = document.getElementById("chartScore");
-      if (!canvas) continue;
-      const ctx = canvas.getContext("2d");
-      const labels = data.map(d => d.Kategori || "");
-      const values = data.map(d => parseFloat(d.Nilai) || 0);
+    if (key === "grafik") {
+      // Grafik 1: Statistik Induksi (Kategori & Nilai)
+      const canvasStatistik = document.getElementById("chartScore");
+      if (canvasStatistik) {
+        const ctxStatistik = canvasStatistik.getContext("2d");
+        const kategoriLabels = data.map(d => d.Kategori || "");
+        const nilaiData = data.map(d => parseFloat(d.Nilai) || 0);
 
-      new Chart(ctx, {
-        type: "bar",
+        new Chart(ctxStatistik, {
+          type: "bar",
+          data: {
+            labels: kategoriLabels,
+            datasets: [{
+              label: "Statistik Induksi",
+              data: nilaiData,
+              backgroundColor: "#007BFF"
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true },
+              tooltip: { mode: "index" }
+            },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+
+      // Grafik 2: Cuti/New Hire & Skor Tertinggi/Terendah
+      const canvas1 = document.getElementById("chartScore1");
+      const canvas2 = document.getElementById("chartScore2");
+      if (!canvas1 || !canvas2) continue;
+
+      const ctx1 = canvas1.getContext("2d");
+      const ctx2 = canvas2.getContext("2d");
+
+      const labels = data.map(d => d["TANGGAL INDUKSI"] || "");
+      const cutiData = data.map(d => parseFloat(d["CUTI"]) || 0);
+      const newHireData = data.map(d => parseFloat(d["NEW HIRE"]) || 0);
+      const scoreTertinggi = data.map(d => parseFloat(d["SCORE_TERTINGGI"]) || 0);
+      const scoreTerendah = data.map(d => parseFloat(d["SCORE_TERENDAH"]) || 0);
+      const jabatanLabels = data.map(d => d["NAMA JABATAN"] || "");
+
+      new Chart(ctx1, {
+        type: "line",
         data: {
           labels,
-          datasets: [{
-            label: "Statistik Induksi",
-            data: values,
-            backgroundColor: "#007BFF"
-          }]
+          datasets: [
+            {
+              label: "Cuti",
+              data: cutiData,
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+              borderColor: "rgba(255, 99, 132, 1)",
+              fill: true,
+              pointRadius: 5
+            },
+            {
+              label: "New Hire",
+              data: newHireData,
+              backgroundColor: "rgba(54, 162, 235, 0.2)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              fill: true,
+              pointRadius: 5
+            }
+          ]
         },
         options: {
           responsive: true,
           plugins: {
             legend: { display: true },
-            tooltip: { mode: "index" }
+            tooltip: { mode: "index" },
+            datalabels: {
+              display: true,
+              align: "top",
+              backgroundColor: "rgba(255,255,255,0.7)",
+              font: { weight: "bold", size: 12 },
+              formatter: value => value.toFixed(0)
+            }
           },
-          scales: { y: { beginAtZero: true } }
+          scales: {
+            x: { type: "category", title: { display: true, text: "Tanggal Induksi" } },
+            y: { beginAtZero: true, title: { display: true, text: "Jumlah" } }
+          }
         }
       });
+
+      new Chart(ctx2, {
+        type: "bar",
+        data: {
+          labels: jabatanLabels,
+          datasets: [
+            {
+              label: "SCORE_TERTINGGI",
+              data: scoreTertinggi,
+              backgroundColor: "rgba(75, 192, 192, 0.2)",
+              borderColor: "rgba(75, 192, 192, 1)"
+            },
+            {
+              label: "SCORE_TERENDAH",
+              data: scoreTerendah,
+              backgroundColor: "rgba(153, 102, 255, 0.2)",
+              borderColor: "rgba(153, 102, 255, 1)"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true },
+            datalabels: {
+              display: true,
+              align: "top",
+              backgroundColor: "rgba(255,255,255,0.7)",
+              font: { weight: "bold", size: 12 },
+              formatter: value => value.toFixed(0)
+            }
+          },
+          scales: {
+            x: { title: { display: true, text: "Jabatan" } },
+            y: { beginAtZero: true, title: { display: true, text: "SCORE" } }
+          }
+        }
+      });
+
+    } else {
+      allOriginalData[key] = data;
+      renderTable(data, `table-${key}`);
     }
   }
 }
+
 
 window.onload = async () => {
   showLoader();
