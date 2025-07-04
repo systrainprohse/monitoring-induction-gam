@@ -1,7 +1,7 @@
 const SHEET_SOURCES = {
   pendaftaran: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "pendaftaran_induksi" },
   spdk: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "spdk" },
-  ceckhlist_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_checklist" },
+  checklist_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_checklist" },
   hasil_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_result" },
   score_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_score" },
   grafik: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "DashboardGrafik" },
@@ -11,7 +11,7 @@ const SHEET_SOURCES = {
 const kolomTampilkan = {
   pendaftaran: ["tanggal", "perusahaan", "NAMA", "JABATAN", "JENIS INDUKSI", "HARI", "DATE"],
   spdk: ["tanggal", "perusahaan", "NAMA", "SPDK", "KETERANGAN", "APPROVAL"],
-  ceckhlist_induksi: ["tanggal", "perusahaan", "NAMA", "CHECKLIST", "KETERANGAN", "APPROVAL"],
+  checklist_induksi: ["tanggal", "perusahaan", "NAMA", "CHECKLIST", "KETERANGAN", "APPROVAL"],
   hasil_induksi: ["tanggal", "perusahaan", "NAMA", "JABATAN", "KATEGORI", "S. SIMPER", "SCORE K3", "S. JABATAN", "S.RATA-RATA"],
   score_induksi: ["tanggal", "perusahaan", "skor_rata2"],
    grafik: ["TANGGAL INDUKSI", "CUTI", "NEW HIRE", "NAMA JABATAN", "SCORE_TERENDAH", "SCORE_TERTINGGI"]
@@ -21,12 +21,16 @@ const sheetDataCache = {};
 let perusahaanList = [];
 let allOriginalData = {}; // <— Tambahkan ini
 
+document.addEventListener("DOMContentLoaded", () => {
+  openTab('hasil_induksi');
+});
 
-function openTab(tabId) {
+
+function openTab(tabId, event) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(tabId)?.classList.add('active');
-  event.target?.classList.add('active');
+ event?.target?.classList.add('active');
 }
 
 function showLoader() {
@@ -37,28 +41,54 @@ function hideLoader() {
 }
 
 async function fetchSheetByKey(key) {
-  const { id, sheet } = SHEET_SOURCES[key];
-  const url = `https://opensheet.elk.sh/${id}/${sheet}`;
+  showLoader();
   try {
+    const { id, sheet } = SHEET_SOURCES[key];
+    const url = `https://opensheet.elk.sh/${id}/${sheet}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Gagal mengambil ${sheet}`);
     return await response.json();
   } catch (err) {
     console.error(err);
     return [];
+  } finally {
+    hideLoader();
   }
 }
 
+
 async function loadPerusahaanList() {
   const data = await fetchSheetByKey("setting");
-  perusahaanList = data.map(d => d["perusahaan"]).filter(p => p);
+
+  // Gunakan Set untuk menghindari duplikat berdasarkan lowercase + trim
+  const seen = new Set();
+  perusahaanList = [];
+
+  data.forEach(d => {
+    const nama = d["perusahaan"];
+    if (!nama) return;
+
+    const key = nama.trim().toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      perusahaanList.push(nama.trim()); // Simpan format asli
+    }
+  });
+
+  perusahaanList.sort(); // Urutkan alfabetis
+  console.log("Perusahaan unik:", perusahaanList);
 }
 
+
 function parseTanggal(str) {
-  if (!str || !str.includes("/")) return new Date(str);
-  const [d, m, y] = str.split("/");
-  return new Date(`${y}-${m}-${d}`);
+  if (!str) return new Date("Invalid");
+  if (str.includes("/")) {
+    const [d, m, y] = str.split("/");
+    return new Date(`${y}-${m}-${d}`);
+  }
+  return new Date(str);
 }
+
 
 function renderTable(data, tableId) {
   const key = tableId.replace("table-", "");
@@ -71,22 +101,13 @@ function renderTable(data, tableId) {
   }
 
   const allowed = kolomTampilkan[key] || Object.keys(data[0]);
+  const uniqueNames = new Set();
 
   const thead = `<thead><tr>${allowed.map(h => `<th>${h}</th>`).join("")}</tr></thead>`;
-  
-  // Set to track unique names
-  const uniqueNames = new Set();
-  
-  // Generate the table rows (tbody)
   const tbody = `<tbody>${data.map(row => {
     const name = row["NAMA"] || "";
-
-    // Check if name is already in the Set, if yes, skip this row
-    if (uniqueNames.has(name)) {
-      return ""; // Return empty string to skip the row
-    }
-
-    uniqueNames.add(name); // Add name to the Set if it's unique
+    if (uniqueNames.has(name)) return "";
+    uniqueNames.add(name);
 
     return `<tr>${allowed.map(h => {
       const nilai = row[h] || "";
@@ -98,9 +119,9 @@ function renderTable(data, tableId) {
       let warna = "";
       let emoji = "";
 
-      if (isScore && angka < 75) {
-        warna = "red";
-      } else if (valueLower === "approved") {
+      if (isScore && angka < 75) warna = "red";
+      else if (isScore && angka >= 75) warna = "green";
+      else if (valueLower === "approved") {
         warna = "approved";
         emoji = "✅ ";
       } else if (valueLower === "hold") {
@@ -114,6 +135,7 @@ function renderTable(data, tableId) {
 
   table.innerHTML = thead + tbody;
 
+  // Isi dropdown filter perusahaan
   const filter = document.getElementById(`filter-${key}`);
   if (filter && perusahaanList.length) {
     filter.innerHTML = `<option value="all">Semua</option>` +
@@ -126,6 +148,7 @@ function renderTable(data, tableId) {
 
 
 
+
 function applyFilter(key) {
   const perusahaan = document.getElementById(`filter-${key}`)?.value || "all";
   const start = document.getElementById(`startDate-${key}`)?.value;
@@ -133,17 +156,23 @@ function applyFilter(key) {
   const data = sheetDataCache[key] || [];
 
   const filtered = data.filter(d => {
-    const matchPerusahaan = perusahaan === "all" || d["perusahaan"] === perusahaan;
+    const perusahaanData = d["perusahaan"] || "";
+    const matchPerusahaan = perusahaan === "all" ||
+      perusahaanData.trim().toLowerCase() === perusahaan.trim().toLowerCase();
+
     const tanggalStr = d["tanggal"] || d["Tanggal"] || "";
     const rowDate = parseTanggal(tanggalStr);
     if (isNaN(rowDate)) return false;
+
     const startTime = start ? new Date(start).getTime() : -Infinity;
     const endTime = end ? new Date(end).getTime() : Infinity;
+
     return matchPerusahaan && rowDate.getTime() >= startTime && rowDate.getTime() <= endTime;
   });
 
   renderFilteredOnly(filtered, `table-${key}`, key);
 }
+
 
 function renderFilteredOnly(data, tableId, key) {
   const table = document.getElementById(tableId);
