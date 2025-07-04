@@ -5,8 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📋 Monitoring Induksi</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<!-- Chart.js v3.9.1 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<!-- Chart.js Plugin Datalabels v2.0.0 -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
 
 </head>
 <body>
@@ -16,12 +20,14 @@
   <nav>
     <a href="#pendaftaran">Pendaftaran</a>
     <a href="#spdk">SPDK</a>
-    <a href="#ceckhlist_induksi">Checklist</a>
+    <a href="#checklist_induksi">Checklist</a>
     <a href="#hasil_induksi">Induksi</a>
     <a href="#score_induksi">Skor</a>
     <a href="#grafik">Grafik</a>
   </nav>
 </header>
+
+
   <div class="container">
 
     <h1>📋 Monitoring Induksi, SPDK, CHECKLISTK, KELENGKAPAN MINE PERMIT</h1>
@@ -29,12 +35,12 @@
 
     <!-- 🧭 Navigasi Tab -->
     <div class="tabs">
-      <button class="tab-btn" onclick="openTab('pendaftaran')">📄 Pendaftaran</button>
-      <button class="tab-btn" onclick="openTab('spdk')">📝 SPDK</button>
-      <button class="tab-btn" onclick="openTab('ceckhlist_induksi')">✅ Checklist</button>
-      <button class="tab-btn active" onclick="openTab('hasil_induksi')">📘 Induksi</button>
-      <button class="tab-btn" onclick="openTab('score_induksi')">📊 Skor</button>
-      <button class="tab-btn" onclick="openTab('grafik')">📈 Grafik</button>
+      <button class="tab-btn" onclick="openTab('pendaftaran', event)">📄 Pendaftaran</button>
+      <button class="tab-btn" onclick="openTab('spdk', event)">📝 SPDK</button>
+      <button class="tab-btn" onclick="openTab('checklist_induksi', event)">✅ Checklist</button>
+      <button class="tab-btn active" onclick="openTab('hasil_induksi', event)">📘 Induksi</button>
+      <button class="tab-btn" onclick="openTab('score_induksi', event)">📊 Skor</button>
+      <button class="tab-btn" onclick="openTab('grafik', event)">📈 Grafik</button>
     </div>
 
     <!-- 🔎 Konten Tab -->
@@ -66,17 +72,17 @@
       </div>
     </div>
 
-    <div id="ceckhlist_induksi" class="tab-content">
+    <div id="checklist_induksi" class="tab-content">
       <div class="filter-container">
         <label>🏢</label>
-        <select id="filter-ceckhlist_induksi" onchange="applyFilter('ceckhlist_induksi')"></select>
+        <select id="filter-checklist_induksi" onchange="applyFilter('checklist_induksi')"></select>
         <label>📅</label>
-        <input type="date" id="startDate-ceckhlist_induksi" onchange="applyFilter('ceckhlist_induksi')" />
+        <input type="date" id="startDate-checklist_induksi" onchange="applyFilter('checklist_induksi')" />
         <span>s.d.</span>
-        <input type="date" id="endDate-ceckhlist_induksi" onchange="applyFilter('ceckhlist_induksi')" />
+        <input type="date" id="endDate-checklist_induksi" onchange="applyFilter('checklist_induksi')" />
       </div>
       <div class="table-wrapper">
-        <table id="table-ceckhlist_induksi"></table>
+        <table id="table-checklist_induksi"></table>
       </div>
     </div>
 
@@ -118,7 +124,6 @@
 
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 
   <footer class="minimal-footer">
