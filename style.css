@@ -7,6 +7,10 @@
   --border: #dfe3e8;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* Minimalist Header */
 .minimal-header {
   padding: 1rem 2rem;
@@ -40,6 +44,13 @@
 .minimal-header nav a:hover {
   color: #000;
 }
+
+.minimal-header nav a.active {
+  color: var(--primary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary);
+}
+
 
 /* Responsive Fonts */
 .minimal-header h1 {
@@ -194,6 +205,12 @@ table.loaded {
   opacity: 1;
 }
 
+tbody tr:hover {
+  background-color: #eef3f9;
+  cursor: pointer;
+}
+
+
 thead {
   position: sticky;
   top: 0;
@@ -213,6 +230,7 @@ th, td {
 tbody tr:nth-child(even) {
   background-color: #f7f9fc;
 }
+
 
 /* 🔄 Loading Spinner */
 .loader {
@@ -262,7 +280,10 @@ table td {
   font-size: 13px;
   padding: 8px 10px;
   white-space: nowrap;
+  border-bottom: 1px solid #e0e4ea;
+  text-align: left;
 }
+
 
 /* Tabel jadi lebih rapi dan tidak terlalu tinggi */
 table td {
@@ -350,3 +371,46 @@ td.green {
   background-color: #d0d0d0;
 }
 
+td.default {
+  color: #333;
+}
+
+body.dark-mode {
+  background-color: #1e1e1e;
+  color: #eee;
+}
+body.dark-mode table {
+  background: #2a2a2a;
+  color: #eee;
+}
+body.dark-mode .tab-btn {
+  background: #333;
+  color: #ccc;
+  border-color: #555;
+}
+body.dark-mode .tab-btn.active {
+  background: #007bff;
+  color: #fff;
+}
+/* Zoom sederhana saat hover pada sel tabel */
+/* Efek zoom hanya pada satu cell saat hover */
+td {
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+td:hover {
+  transform: scale(1.2);
+  background-color: #f0f8ff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  position: relative;
+}
+
+th:hover {
+  transform: scale(1.05);
+  background-color: #001a52;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  position: relative;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
