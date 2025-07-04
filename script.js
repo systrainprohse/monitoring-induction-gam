@@ -24,7 +24,7 @@ let perusahaanList = [];
 let allOriginalData = {}; // <— Tambahkan ini
 
 document.addEventListener("DOMContentLoaded", () => {
-  openTab('hasil_induksi');
+  openTab('newhire');
 });
 
 
@@ -366,6 +366,85 @@ async function init() {
   }
 }
 
+function toggleGroup(groupId) {
+  const group = document.getElementById(groupId);
+  const toggleBtn = group.previousElementSibling;
+
+  const isOpen = group.classList.toggle("show");
+
+  toggleBtn.innerHTML = isOpen
+    ? "📘 Proses Induksi ▴"
+    : "📘 Proses Induksi ▾";
+}
+
+function toggleWAForm() {
+  const form = document.getElementById("wa-form-popup");
+  form.classList.toggle("hidden");
+}
+
+
+function kirimWhatsApp() {
+  const nama = document.getElementById("wa-nama").value.trim();
+  const pesan = document.getElementById("wa-pesan").value.trim();
+
+  if (!nama || !pesan) {
+    alert("Mohon isi nama dan pertanyaan terlebih dahulu.");
+    return;
+  }
+
+  const nomor = "6282223089790"; // Ganti dengan nomor kamu
+  const teks = `Halo, saya ingin bertanya tentang induksi.%0ANama: ${encodeURIComponent(nama)}%0APertanyaan: ${encodeURIComponent(pesan)}`;
+  const url = `https://wa.me/${nomor}?text=${teks}`;
+
+  // Tutup form sebelum membuka WhatsApp
+  document.getElementById("wa-form-popup").classList.add("hidden");
+
+  // Reset input (opsional)
+  document.getElementById("wa-nama").value = "";
+  document.getElementById("wa-pesan").value = "";
+
+  // Buka WhatsApp
+  window.open(url, "_blank");
+}
+
+const safetyMessages = [
+  "⚠️ Gunakan helm dan rompi saat berada di area kerja.",
+  "🦺 Pastikan APD lengkap sebelum memulai aktivitas.",
+  "🚧 Dilarang menggunakan HP saat berkendara di area tambang.",
+  "🧯 Kenali titik kumpul dan jalur evakuasi di area kerja.",
+  "📢 Laporkan segera jika melihat kondisi tidak aman!"
+];
+
+let currentMessage = 0;
+
+function showSafetyMessage(text, duration = 6000) {
+  const alertBox = document.getElementById("safety-alert");
+  const message = alertBox.querySelector(".safety-message");
+  message.innerHTML = text;
+
+  alertBox.classList.remove("hidden");
+  setTimeout(() => alertBox.classList.add("show"), 100);
+
+  setTimeout(() => {
+    alertBox.classList.remove("show");
+    setTimeout(() => alertBox.classList.add("hidden"), 400);
+  }, duration);
+}
+
+function startSafetyRotation() {
+  showSafetyMessage(safetyMessages[currentMessage]);
+
+  currentMessage++;
+  if (currentMessage < safetyMessages.length) {
+    setTimeout(startSafetyRotation, 60000); // 1 menit
+  } else {
+    setTimeout(() => location.reload(), 60000); // Reload setelah pesan terakhir
+  }
+}
+
+window.addEventListener("load", () => {
+  setTimeout(startSafetyRotation, 1000); // Mulai 1 detik setelah halaman load
+});
 
 window.onload = async () => {
   showLoader();
@@ -373,3 +452,26 @@ window.onload = async () => {
   await init();
   hideLoader();
 };
+
+function showSafetyMessage(text, duration = 6000) {
+  const alertBox = document.getElementById("safety-alert");
+  const message = alertBox.querySelector(".safety-message");
+  const sound = document.getElementById("notif-sound");
+
+  message.innerHTML = text;
+
+  alertBox.classList.remove("hidden");
+  setTimeout(() => alertBox.classList.add("show"), 100);
+
+  // 🔊 Mainkan suara
+  if (sound) {
+    sound.currentTime = 0;
+    sound.play().catch(e => console.warn("🔇 Suara diblokir oleh browser:", e));
+  }
+
+  setTimeout(() => {
+    alertBox.classList.remove("show");
+    setTimeout(() => alertBox.classList.add("hidden"), 400);
+  }, duration);
+}
+
