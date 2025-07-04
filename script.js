@@ -474,4 +474,3 @@ function showSafetyMessage(text, duration = 6000) {
     setTimeout(() => alertBox.classList.add("hidden"), 400);
   }, duration);
 }
-
