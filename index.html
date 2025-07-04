@@ -11,6 +11,9 @@
 <!-- Chart.js Plugin Datalabels v2.0.0 -->
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
+<audio id="notif-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3" preload="auto"></audio>
+
+
 
 </head>
 <body>
@@ -34,15 +37,27 @@
     <div class="loader" id="loader"></div>
 
     <!-- 🧭 Navigasi Tab -->
-    <div class="tabs">
-      <button class="tab-btn" onclick="openTab('newhire', event)">📄 Approval Induksi - Permit</button>
-      <button class="tab-btn" onclick="openTab('pendaftaran', event)">📄 Pendaftaran</button>
-      <button class="tab-btn" onclick="openTab('spdk', event)">📝 SPDK</button>
-      <button class="tab-btn" onclick="openTab('checklist_induksi', event)">✅ Checklist</button>
-      <button class="tab-btn active" onclick="openTab('hasil_induksi', event)">📘 Induksi</button>
-      <button class="tab-btn" onclick="openTab('score_induksi', event)">📊 Skor</button>
-      <button class="tab-btn" onclick="openTab('grafik', event)">📈 Grafik</button>
-    </div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('newhire', event)">📄 Approval Induksi - Permit</button>
+        <button class="tab-btn" onclick="openTab('pendaftaran', event)">📄 Pendaftaran</button>
+        <button class="tab-btn" onclick="openTab('spdk', event)">📝 SPDK</button>
+
+        <!-- Grup collapsible -->
+        <div class="tab-group-collapsible">
+          <button class="tab-group-toggle" onclick="toggleGroup('induksi-group')">📘 Proses Induksi ▾</button>
+          <div id="induksi-group" class="tab-subgroup">
+            <button class="tab-btn" onclick="openTab('checklist_induksi', event)">✅ Checklist</button>
+            <button class="tab-btn" onclick="openTab('hasil_induksi', event)">📘 Induksi</button>
+          </div>
+        </div>
+
+
+        <button class="tab-btn" onclick="openTab('score_induksi', event)">📊 Skor</button>
+        <button class="tab-btn" onclick="openTab('grafik', event)">📈 Grafik</button>
+      </div>
+
+
+
 
     <!-- 🔎 Konten Tab -->
 
@@ -150,6 +165,31 @@
   <p>AHMAD FAQIH I</p>
   <p>HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT</p>
 </footer>
+
+<div id="safety-alert" class="safety-toast hidden">
+  <img src="https://img.icons8.com/emoji/48/warning-emoji.png" alt="Warning Icon" />
+  <div class="safety-message">
+    ⚠️ Pesan keselamatan akan muncul di sini.
+  </div>
+</div>
+
+
+<!-- Floating WhatsApp Icon -->
+<div class="whatsapp-float" onclick="toggleWAForm()">
+  <img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp" />
+</div>
+
+<!-- Pop-up Form -->
+<div id="wa-form-popup" class="wa-popup hidden">
+  <label>👤 Nama:</label>
+  <input type="text" id="wa-nama" placeholder="Masukkan nama Anda" />
+  <label>❓ Pertanyaan:</label>
+  <textarea id="wa-pesan" placeholder="Tulis pertanyaan Anda..."></textarea>
+  <button onclick="kirimWhatsApp()">💬 Kirim via WhatsApp</button>
+</div>
+
+
+
 
 </body>
 </html>
