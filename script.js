@@ -5,16 +5,18 @@ const SHEET_SOURCES = {
   hasil_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_result" },
   score_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_score" },
   grafik: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "DashboardGrafik" },
+  newhire: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "new_hire" },
   setting: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "setting" }
 };
 
 const kolomTampilkan = {
+  newhire: ["tanggal",	"NIK",	"NAMA",	"JABATAN",	"perusahaan",	"CHECKLIST	",	"SPDK",	"APV SYS",	"APV HSE",	"STATUS"],
   pendaftaran: ["tanggal", "perusahaan", "NAMA", "JABATAN", "JENIS INDUKSI", "HARI", "DATE"],
   spdk: ["tanggal", "perusahaan", "NAMA", "SPDK", "KETERANGAN", "APPROVAL"],
   checklist_induksi: ["tanggal", "perusahaan", "NAMA", "CHECKLIST", "KETERANGAN", "APPROVAL"],
   hasil_induksi: ["tanggal", "perusahaan", "NAMA", "JABATAN", "KATEGORI", "S. SIMPER", "SCORE K3", "S. JABATAN", "S.RATA-RATA"],
   score_induksi: ["tanggal", "perusahaan", "skor_rata2"],
-   grafik: ["TANGGAL INDUKSI", "CUTI", "NEW HIRE", "NAMA JABATAN", "SCORE_TERENDAH", "SCORE_TERTINGGI"]
+  grafik: ["TANGGAL INDUKSI", "CUTI", "NEW HIRE", "NAMA JABATAN", "SCORE_TERENDAH", "SCORE_TERTINGGI"]
 };
 
 const sheetDataCache = {};
@@ -111,31 +113,13 @@ function renderTable(data, tableId) {
 
     return `<tr>${allowed.map(h => {
       const nilai = row[h] || "";
-      const hLower = h.toLowerCase();
-      const valueLower = nilai.toString().toLowerCase();
-      const isScore = hLower.includes("rata") || hLower.includes("skor");
-      const angka = parseFloat(nilai);
-
-      let warna = "";
-      let emoji = "";
-
-      if (isScore && angka < 75) warna = "red";
-      else if (isScore && angka >= 75) warna = "green";
-      else if (valueLower === "approved") {
-        warna = "approved";
-        emoji = "✅ ";
-      } else if (valueLower === "hold") {
-        warna = "hold";
-        emoji = "⚠️ ";
-      }
-
-      return `<td class="${warna}">${emoji}${nilai}</td>`;
+      const { warna, emoji } = getCellStyle(h, nilai);
+      return `<td class="${warna}" title="${nilai}">${emoji}${nilai}</td>`;
     }).join("")}</tr>`;
   }).join("")}</tbody>`;
 
   table.innerHTML = thead + tbody;
 
-  // Isi dropdown filter perusahaan
   const filter = document.getElementById(`filter-${key}`);
   if (filter && perusahaanList.length) {
     filter.innerHTML = `<option value="all">Semua</option>` +
@@ -149,14 +133,18 @@ function renderTable(data, tableId) {
 
 
 
+
 function applyFilter(key) {
   const perusahaan = document.getElementById(`filter-${key}`)?.value || "all";
   const start = document.getElementById(`startDate-${key}`)?.value;
   const end = document.getElementById(`endDate-${key}`)?.value;
+  const search = document.getElementById(`search-${key}`)?.value?.toLowerCase() || "";
   const data = sheetDataCache[key] || [];
+  
 
   const filtered = data.filter(d => {
-    const perusahaanData = d["perusahaan"] || "";
+    const perusahaanData = d["perusahaan"] || d["Perusahaan"] || "";
+    const nama = (d["NAMA"] || d["Nama"] || "").toLowerCase();
     const matchPerusahaan = perusahaan === "all" ||
       perusahaanData.trim().toLowerCase() === perusahaan.trim().toLowerCase();
 
@@ -167,11 +155,18 @@ function applyFilter(key) {
     const startTime = start ? new Date(start).getTime() : -Infinity;
     const endTime = end ? new Date(end).getTime() : Infinity;
 
-    return matchPerusahaan && rowDate.getTime() >= startTime && rowDate.getTime() <= endTime;
+    return matchPerusahaan &&
+           rowDate.getTime() >= startTime &&
+           rowDate.getTime() <= endTime &&
+           nama.includes(search);
   });
 
   renderFilteredOnly(filtered, `table-${key}`, key);
+  console.log(`🔍 Filtered ${filtered.length} rows for key: ${key}`);
 }
+
+
+
 
 
 function renderFilteredOnly(data, tableId, key) {
@@ -187,42 +182,8 @@ function renderFilteredOnly(data, tableId, key) {
   const tbody = `<tbody>${data.map(row =>
     `<tr>${allowed.map(h => {
       const nilai = row[h] || "";
-      const hLower = h.toLowerCase();
-      const valueLower = nilai.toString().toLowerCase();
-      const isScore = hLower.includes("rata") || hLower.includes("skor");
-      const angka = parseFloat(nilai);
-
-      let warna = "";
-      let emoji = "";
-
-      if (isScore && angka < 75) {
-          warna = "red";
-      } else if (isScore && angka >= 75) {
-          warna = "green";  // Warna hijau jika angka >= 75
-      } else if (valueLower === "approved") {
-          warna = "approved";
-          emoji = "✅ ";
-      } else if (valueLower === "hold") {
-          warna = "hold";
-          emoji = "⚠️ ";
-      }
-
-      const tdElement = document.createElement("td");
-tdElement.textContent = nilai;
-const tr = document.createElement("tr");
-
-allowed.forEach(h => {
-  const tdElement = document.createElement("td");
-  const nilai = row[h] || "";
-  tdElement.textContent = nilai;
-  tr.appendChild(tdElement);
-});
-
-table.appendChild(tr);;
-
-
-
-      return `<td class="${warna}">${emoji}${nilai}</td>`;
+      const { warna, emoji } = getCellStyle(h, nilai);
+      return `<td class="${warna}" title="${nilai}">${emoji}${nilai}</td>`;
     }).join("")}</tr>`
   ).join("")}</tbody>`;
 
@@ -230,6 +191,43 @@ table.appendChild(tr);;
   table.classList.remove("loaded");
   setTimeout(() => table.classList.add("loaded"), 10);
 }
+
+
+function getCellStyle(header, value) {
+  const hLower = header.toLowerCase();
+  const valueLower = value.toString().toLowerCase();
+  const isScore = hLower.includes("rata") || hLower.includes("skor");
+  const isStatus = ["status", "spdk", "apv sys", "apv hse"].includes(hLower);
+  const angka = parseFloat(value);
+
+  let warna = "";
+  let emoji = "";
+
+  if (isScore && !isNaN(angka)) {
+    if (angka < 75) {
+      warna = "red";
+      emoji = "❌ ";
+    } else {
+      warna = "green";
+      emoji = "✅ ";
+    }
+  } else if (isStatus) {
+    if (["approved", "ok", "done"].includes(valueLower)) {
+      warna = "approved";
+      emoji = "✅ ";
+    } else if (["no", "rejected"].includes(valueLower)) {
+      warna = "red";
+      emoji = "❌ ";
+    } else if (valueLower === "hold") {
+      warna = "hold";
+      emoji = "⚠️ ";
+    }
+  }
+
+  return { warna, emoji };
+}
+
+
 
 async function init() {
   for (const key in SHEET_SOURCES) {
