@@ -5,24 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📋 Monitoring Induksi</title>
   <link rel="stylesheet" href="style.css" />
+<!-- Chart.js v3.9.1 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<!-- Chart.js Plugin Datalabels v2.0.0 -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+<audio id="notif-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3" preload="auto"></audio>
+
+
+
 </head>
 <body>
+
+  <header class="minimal-header">
+  <h1>SITE PT. GANDA ALAM MAKMUR</h1>
+   <audio id="intro-audio" src="sounds/intro.mp3" preload="auto"></audio>
+
+    <!-- Splash Screen -->
+  <div class="splash-screen">
+    <div class="splash-logo">🚀</div>
+    <p class="splash-text">Memuat Aplikasi...</p>
+  </div>
+
+  <nav class="navbar fade-in">
+      <a href="index.html" class="nav-button">
+        <i class="fas fa-lightbulb"></i>
+        INDUKSI
+      </a>
+      <a href="pelatihan.html" class="nav-button">
+        <i class="fas fa-chalkboard-teacher"></i>
+        PELATIHAN
+      </a>
+  </nav>
+
+
+</header>
+
+
   <div class="container">
 
-    <h1>📋 Monitoring Induksi Peserta</h1>
+    <h1>📋 Monitoring Induksi, SPDK, CHECKLISTK, KELENGKAPAN MINE PERMIT</h1>
     <div class="loader" id="loader"></div>
 
     <!-- 🧭 Navigasi Tab -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="openTab('pendaftaran')">📄 Pendaftaran</button>
-      <button class="tab-btn" onclick="openTab('spdk')">📝 SPDK</button>
-      <button class="tab-btn" onclick="openTab('ceckhlist_induksi')">✅ Checklist</button>
-      <button class="tab-btn" onclick="openTab('hasil_induksi')">📘 Induksi</button>
-      <button class="tab-btn" onclick="openTab('score_induksi')">📊 Skor</button>
-      <button class="tab-btn" onclick="openTab('grafik')">📈 Grafik</button>
-    </div>
+
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('newhire', event)">📄 Approval Induksi - Permit</button>
+        <button class="tab-btn" onclick="openTab('pendaftaran', event)">📄 Pendaftaran</button>
+
+        <!-- Grup collapsible -->
+        <div class="tab-group-collapsible">
+          <button class="tab-group-toggle" onclick="toggleGroup('induksi-group')">📘 Proses Induksi ▾</button>
+          <div id="induksi-group" class="tab-subgroup">
+            <button class="tab-btn" onclick="openTab('checklist_induksi', event)">✅ Checklist</button>
+            <button class="tab-btn" onclick="openTab('hasil_induksi', event)">📘 Induksi</button>
+            <button class="tab-btn" onclick="openTab('spdk', event)">📝 SPDK</button>
+            <button class="tab-btn" onclick="openTab('remidial', event)">📊 REMIDIAL</button>
+          </div>
+        </div>
+        <button class="tab-btn" onclick="openTab('grafik', event)">📈 Grafik</button>
+      </div>
+
+
+
 
     <!-- 🔎 Konten Tab -->
+
+    <div id="newhire" class="tab-content active">
+      <div class="filter-container">
+        <label>🏢</label>
+        <select id="filter-newhire" onchange="applyFilter('newhire')"></select>
+        <label>📅</label>
+        <input type="date" id="startDate-newhire" onchange="applyFilter('newhire')" />
+        <span>s.d.</span>
+        <input type="date" id="endDate-newhire" onchange="applyFilter('newhire')" />
+        <label>🔍</label>
+        <input type="text" id="search-newhire" placeholder="Cari nama..." oninput="applyFilter('newhire')" />
+      </div>
+
+      <div class="table-wrapper">
+        <table id="table-newhire"></table>
+      </div>
+    </div>
+
     <div id="pendaftaran" class="tab-content active">
       <div class="filter-container">
         <label>🏢</label>
@@ -51,17 +118,17 @@
       </div>
     </div>
 
-    <div id="ceckhlist_induksi" class="tab-content">
+    <div id="checklist_induksi" class="tab-content">
       <div class="filter-container">
         <label>🏢</label>
-        <select id="filter-ceckhlist_induksi" onchange="applyFilter('ceckhlist_induksi')"></select>
+        <select id="filter-checklist_induksi" onchange="applyFilter('checklist_induksi')"></select>
         <label>📅</label>
-        <input type="date" id="startDate-ceckhlist_induksi" onchange="applyFilter('ceckhlist_induksi')" />
+        <input type="date" id="startDate-checklist_induksi" onchange="applyFilter('checklist_induksi')" />
         <span>s.d.</span>
-        <input type="date" id="endDate-ceckhlist_induksi" onchange="applyFilter('ceckhlist_induksi')" />
+        <input type="date" id="endDate-checklist_induksi" onchange="applyFilter('checklist_induksi')" />
       </div>
       <div class="table-wrapper">
-        <table id="table-ceckhlist_induksi"></table>
+        <table id="table-checklist_induksi"></table>
       </div>
     </div>
 
@@ -79,28 +146,80 @@
       </div>
     </div>
 
-    <div id="score_induksi" class="tab-content">
+    <div id="remidial" class="tab-content">
+      <h1>SCORE MINIMAL 75</h1>
       <div class="filter-container">
         <label>🏢</label>
-        <select id="filter-score_induksi" onchange="applyFilter('score_induksi')"></select>
+        <select id="filter-remidial" onchange="applyFilter('remidial')"></select>
         <label>📅</label>
-        <input type="date" id="startDate-score_induksi" onchange="applyFilter('score_induksi')" />
+        <input type="date" id="startDate-remidial" onchange="applyFilter('remidial')" />
         <span>s.d.</span>
-        <input type="date" id="endDate-score_induksi" onchange="applyFilter('score_induksi')" />
+        <input type="date" id="endDate-remidial" onchange="applyFilter('remidial')" />
       </div>
       <div class="table-wrapper">
-        <table id="table-score_induksi"></table>
+        <table id="table-remidial"></table>
       </div>
     </div>
 
     <!-- 📈 Tab Grafik -->
     <div id="grafik" class="tab-content">
-      <canvas id="chartScore"></canvas>
+      <canvas id="chartScore1"></canvas>  <!-- Grafik Cuti & New Hire -->
+      <canvas id="chartScore2"></canvas>  <!-- Grafik SCORE_TERTINGGI & SCORE_TERENDAH -->
     </div>
+
+
 
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+  <footer class="minimal-footer">
+  <p>© 2025 Induksi Monitoring. All rights reserved.</p>
+  <p>AHMAD FAQIH I</p>
+  <p>HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT</p>
+</footer>
+
+
+<!-- Floating WhatsApp Icon -->
+<div class="whatsapp-float" onclick="toggleWAForm()">
+  <img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp" />
+</div>
+
+<!-- Pop-up Form -->
+<div id="wa-form-popup" class="wa-popup hidden">
+  <label>👤 Nama:</label>
+  <input type="text" id="wa-nama" placeholder="Masukkan nama Anda" />
+  <label>❓ Pertanyaan:</label>
+  <textarea id="wa-pesan" placeholder="Tulis pertanyaan Anda..."></textarea>
+  <button onclick="kirimWhatsApp()">💬 Kirim via WhatsApp</button>
+</div>
+
+<!-- 🔻 Banner Modern -->
+<div id="safety-banner" class="safety-banner">
+  <div class="banner-container">
+    <span class="banner-icon">📢</span>
+    <div id="banner-text" class="banner-text">
+      Selalu gunakan APD saat bekerja • Jaga jarak aman • Utamakan keselamatan kerja • Laporkan potensi bahaya ke supervisor •
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  <!-- 🔔 Alert Keselamatan -->
+  <div id="safety-alert" class="safety-toast hidden">
+    <img src="https://img.icons8.com/emoji/48/warning-emoji.png" alt="Warning Icon" />
+    <div class="safety-message">
+      ⚠️ Pesan keselamatan akan muncul di sini.
+    </div>
+  </div>
+
+  <!-- 🔊 Audio Notifikasi -->
+  <audio id="notif-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3" preload="auto"></audio>
+
   <script src="script.js"></script>
+  <script src="jsstyle.js"></script>
 </body>
 </html>

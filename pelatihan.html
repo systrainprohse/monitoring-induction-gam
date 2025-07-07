@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📋 Monitoring Induksi</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pelatihan.css" />
+
+<!-- Chart.js v3.9.1 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<!-- Chart.js Plugin Datalabels v2.0.0 -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+<audio id="notif-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3" preload="auto"></audio>
+
+
+
+</head>
+<body>
+
+  <header class="minimal-header">
+  <h1>SITE PT. GANDA ALAM MAKMUR</h1>
+
+    <!-- Splash Screen -->
+  <div class="splash-screen">
+    <div class="splash-logo">🚀</div>
+    <p class="splash-text">Memuat Aplikasi...</p>
+  </div>
+
+    <nav class="navbar fade-in">
+      <a href="index.html" class="nav-button">
+        <i class="fas fa-lightbulb"></i>
+        INDUKSI
+      </a>
+      <a href="pelatihan.html" class="nav-button">
+        <i class="fas fa-chalkboard-teacher"></i>
+        PELATIHAN
+      </a>
+  </nav>
+
+</header>
+
+
+  <div class="container">
+
+    <h1>📋 Monitoring Pelatihan</h1>
+    <div class="loader" id="loader"></div>
+
+    <!-- 🧭 Navigasi Tab -->
+
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('calendar', event)">📄 Jadwal Pelatihan</button>
+        <button class="tab-btn" onclick="openTab('pendaftaran', event)">📄 Pendaftaran Pelatihan</button>
+        <button class="tab-btn" onclick="openTab('grafik', event)">📈 Monitoring Pelatihan</button>
+        <button class="tab-btn" onclick="openTab('grafik', event)">📈 Kompetensi Manpower</button>
+      </div>
+
+
+
+
+    <!-- 🔎 Konten Tab -->
+     <div class="filter-bar">
+    <label for="filterPIC">Filter PIC:</label>
+    <select id="filterPIC">
+        <option value="">Semua</option>
+    </select>
+
+    <label for="filterRoom">Filter Ruangan:</label>
+    <select id="filterRoom">
+        <option value="">Semua</option>
+    </select>
+    </div>
+
+
+    <div class="calendar-wrapper">
+        <h1>📅 Kalender Kegiatan</h1>
+        <div class="calendar-header">
+        <button id="prevMonth">&lt;</button>
+        <h2 id="monthYear"></h2>
+        <button id="nextMonth">&gt;</button>
+        </div>
+        <div class="calendar-grid">
+        <div class="day-name">Min</div>
+        <div class="day-name">Sen</div>
+        <div class="day-name">Sel</div>
+        <div class="day-name">Rab</div>
+        <div class="day-name">Kam</div>
+        <div class="day-name">Jum</div>
+        <div class="day-name">Sab</div>
+        <div id="calendarDays" class="calendar-days"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+        <span id="closeModal" class="close">&times;</span>
+        <h2 id="modalTitle"></h2>
+        <p><strong>Agenda:</strong> <span id="modalDate"></span></p>
+        <p><strong>Tanggal:</strong> <span id="modalDate"></span></p>
+        <p><strong>Ruangan:</strong> <span id="modalRoom"></span></p>
+        <p><strong>Jumlah Peserta:</strong> <span id="modalParticipants"></span></p>
+        <p><strong>PIC:</strong> <span id="modalPIC"></span></p>
+        </div>
+    </div>
+
+
+
+
+  </div>
+
+
+  <footer class="minimal-footer">
+  <p>© 2025 Induksi Monitoring. All rights reserved.</p>
+  <p>AHMAD FAQIH I</p>
+  <p>HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT</p>
+</footer>
+
+<!-- Safety Alert Toast -->
+<div id="safety-alert" class="safety-toast hidden">
+  <img src="https://img.icons8.com/emoji/48/warning-emoji.png" alt="Warning Icon" />
+  <div class="safety-message">
+    ⚠️ Pesan keselamatan akan muncul di sini.
+  </div>
+</div>
+
+<!-- Audio Notification -->
+<audio id="notif-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3" preload="auto"></audio>
+
+
+
+<!-- Floating WhatsApp Icon -->
+<div class="whatsapp-float" onclick="toggleWAForm()">
+  <img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp" />
+</div>
+
+<!-- Pop-up Form -->
+<div id="wa-form-popup" class="wa-popup hidden">
+  <label>👤 Nama:</label>
+  <input type="text" id="wa-nama" placeholder="Masukkan nama Anda" />
+  <label>❓ Pertanyaan:</label>
+  <textarea id="wa-pesan" placeholder="Tulis pertanyaan Anda..."></textarea>
+  <button onclick="kirimWhatsApp()">💬 Kirim via WhatsApp</button>
+</div>
+
+
+
+  <script src="script.js"></script>
+  <script src="jsstyle.js"></script>
+  <script src="pelatihanscript.js"></script>
+</body>
+</html>

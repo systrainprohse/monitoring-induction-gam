@@ -7,6 +7,153 @@
   --border: #dfe3e8;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* Splash Screen */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  animation: fadeOut 1s ease 2s forwards;
+}
+
+.splash-logo {
+  font-size: 3rem;
+  animation: bounce 1s infinite;
+}
+
+.splash-text {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* Splash Animations */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+/* Navbar Container */
+.navbar {
+  display: flex;
+  gap: 1rem;
+  background-color: #ffffff;
+  padding: 1rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* Fade-in animation class */
+.navbar.fade-in.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Button Style Links */
+.nav-button {
+  text-decoration: none;
+  background-color: #b4f5fd;
+  color: #00796b;
+  padding: 0.6rem 1.4rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.nav-button i {
+  font-size: 1.1rem;
+}
+
+.nav-button:hover {
+  background-color: #b2ebf2;
+  color: #004d40;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Minimalist Header */
+.minimal-header {
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.minimal-header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+.minimal-header nav {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+}
+.minimal-header nav a {
+  text-decoration: none;
+  color: #555;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+.minimal-header nav a:hover {
+  color: #000;
+}
+
+.minimal-header nav a.active {
+  color: var(--primary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary);
+}
+
+
+/* Responsive Fonts */
+.minimal-header h1 {
+  font-size: clamp(1.5rem, 2vw, 2rem);
+}
+
+/* Minimalist Footer */
+.minimal-footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: #777;
+  border-top: 1px solid #e0e0e0;
+  background-color: #fafafa;
+  box-shadow: 0 -1px 4px rgba(0,0,0,0.03);
+}
+
+
 body {
   font-family: 'Segoe UI', sans-serif;
   font-size: 13.5px; /* dari sebelumnya 14px atau 16px */
@@ -143,6 +290,12 @@ table.loaded {
   opacity: 1;
 }
 
+tbody tr:hover {
+  background-color: #eef3f9;
+  cursor: pointer;
+}
+
+
 thead {
   position: sticky;
   top: 0;
@@ -162,6 +315,7 @@ th, td {
 tbody tr:nth-child(even) {
   background-color: #f7f9fc;
 }
+
 
 /* 🔄 Loading Spinner */
 .loader {
@@ -211,7 +365,10 @@ table td {
   font-size: 13px;
   padding: 8px 10px;
   white-space: nowrap;
+  border-bottom: 1px solid #e0e4ea;
+  text-align: left;
 }
+
 
 /* Tabel jadi lebih rapi dan tidak terlalu tinggi */
 table td {
@@ -231,8 +388,453 @@ table td.wrap {
   table-layout: auto;
 }
 
+/* Gaya untuk warna merah */
 td.red {
-  background-color: #ffe6e6;
-  color: #b30000;
+  background-color: #ffe6e6;  /* Latar belakang merah muda */
+  color: #b30000;  /* Warna teks merah gelap */
+  font-weight: bold;  /* Teks tebal */
+}
+
+/* Gaya untuk status "approved" */
+td.approved {
+  background-color: #e6f8e6;  /* Latar belakang hijau muda */
+  color: #267b2f;  /* Warna teks hijau gelap */
+  font-weight: 500;  /* Teks dengan bobot sedang */
+}
+
+/* Gaya untuk status "hold" */
+td.hold {
+  background-color: #fffbe6;  /* Latar belakang kuning muda */
+  color: #a67c00;  /* Warna teks kuning gelap */
+  font-weight: 500;  /* Teks dengan bobot sedang */
+}
+
+/* Gaya untuk warna hijau jika angka >= 75 */
+td.green {
+  background-color: #d9f7be;  /* Latar belakang hijau muda */
+  color: #2d6a3a;  /* Warna teks hijau gelap */
+  font-weight: bold;  /* Teks tebal */
+}
+
+/* Container untuk input pencarian */
+.search-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-container label {
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.search-container input {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 250px;
+  transition: border 0.2s ease;
+}
+
+.search-container input:focus {
+  border-color: var(--primary);
+}
+
+#resetFilter {
+  margin-left: 10px;
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+#resetFilter:hover {
+  background-color: #d0d0d0;
+}
+
+td.default {
+  color: #333;
+}
+
+body.dark-mode {
+  background-color: #1e1e1e;
+  color: #eee;
+}
+body.dark-mode table {
+  background: #2a2a2a;
+  color: #eee;
+}
+body.dark-mode .tab-btn {
+  background: #333;
+  color: #ccc;
+  border-color: #555;
+}
+body.dark-mode .tab-btn.active {
+  background: #007bff;
+  color: #fff;
+}
+/* Zoom sederhana saat hover pada sel tabel */
+/* Efek zoom hanya pada satu cell saat hover */
+td {
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+td:hover {
+  transform: scale(1.2);
+  background-color: #f0f8ff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  position: relative;
+}
+
+th:hover {
+  transform: scale(1.05);
+  background-color: #001a52;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  position: relative;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.filter-container input[type="text"] {
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  min-width: 180px;
+}
+
+.tab-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #e9f0ff;
+  border-radius: 6px;
+  padding: 4px 6px;
+  margin-left: 8px;
+}
+
+.tab-group-label {
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #2a4d8f;
+  margin-right: 4px;
+}
+
+.tab-group-collapsible {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 8px;
+}
+
+.tab-group-toggle {
+  background-color: #e9f0ff;
+  border: none;
+  padding: 6px 10px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #2a4d8f;
+}
+
+.tab-subgroup {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.tab-subgroup.hidden {
+  display: none;
+}
+
+.tab-subgroup {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.tab-subgroup.show {
+  max-height: 100px; /* cukup besar untuk menampung tombol */
+  opacity: 1;
+}
+
+.tab-group-collapsible {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 8px;
+}
+
+.tab-group-toggle {
+  background-color: #e9f0ff;
+  border: none;
+  padding: 6px 10px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #2a4d8f;
+}
+
+.whatsapp-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #25d366;
+  color: white;
+  font-weight: bold;
+  padding: 10px 14px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+  z-index: 999;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.05);
+  background-color: #1ebe5d;
+}
+
+.whatsapp-float img {
+  width: 24px;
+  height: 24px;
+}
+
+.whatsapp-form {
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 40px auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-family: sans-serif;
+}
+
+.whatsapp-form label {
+  display: block;
+  margin-top: 12px;
   font-weight: bold;
 }
+
+.whatsapp-form input,
+.whatsapp-form textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.whatsapp-form button {
+  margin-top: 16px;
+  background-color: #25d366;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.whatsapp-form button:hover {
+  background-color: #1ebe5d;
+}
+
+/* Floating Button */
+.whatsapp-float {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  background-color: #25d366;
+  border-radius: 50%;
+  padding: 12px;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease;
+}
+.whatsapp-float:hover {
+  transform: scale(1.1);
+}
+.whatsapp-float img {
+  width: 32px;
+  height: 32px;
+}
+
+/* Pop-up Form */
+.wa-popup {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 16px;
+  width: 280px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  z-index: 1000;
+}
+.wa-popup label {
+  font-weight: bold;
+  margin-top: 8px;
+  display: block;
+}
+.wa-popup input,
+.wa-popup textarea {
+  width: 100%;
+  margin-top: 4px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+.wa-popup button {
+  margin-top: 12px;
+  width: 100%;
+  background-color: #25d366;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.wa-popup button:hover {
+  background-color: #1ebe5d;
+}
+.hidden {
+  display: none;
+}
+
+.safety-toast {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.safety-toast img {
+  width: 32px;
+  height: 32px;
+}
+
+.safety-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.safety-toast img {
+  width: 32px;
+  height: 32px;
+  animation: pulse 1s infinite;
+}
+
+.dark-mode {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+.dark-mode .tab-btn,
+.dark-mode .filter-container,
+.dark-mode table {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+
+.safety-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4); /* transparan gelap */
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px 0;
+  border-top: 2px solid rgba(255, 255, 255, 0.3);
+  z-index: 9999;
+  overflow: hidden;
+  backdrop-filter: blur(6px); /* efek kaca buram */
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.banner-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 16px;
+}
+
+.banner-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.banner-text {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scroll-banner 25s linear infinite;
+  animation-play-state: running;
+}
+
+.banner-paused .banner-text {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-banner {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Responsif */
+@media (max-width: 600px) {
+  .safety-banner {
+    font-size: 14px;
+    padding: 8px 0;
+  }
+
+  .banner-icon {
+    font-size: 18px;
+  }
+}
+
