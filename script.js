@@ -27,7 +27,7 @@ const kolomTampilkan = {
 
   // <— induksi
   
-  newhire: ["tanggal",	"NIK",	"NAMA",	"JABATAN","perusahaan","checklist","SPDK",	"APV SYS",	"APV HSE",	"STATUS","SCORE"],
+  newhire: ["tanggal",	"NIK",	"NAMA",	"JABATAN","perusahaan","checklist","SPDK","SCORE",	"APV SYS",	"APV HSE",	"STATUS"],
   pendaftaran: ["tanggal", "perusahaan", "NAMA", "JABATAN", "JENIS INDUKSI", "HARI", "DATE"],
   spdk: ["tanggal", "perusahaan", "NAMA", "SPDK"],
   checklist_induksi: ["tanggal", "perusahaan", "NAMA", "CHECKLIST"],
