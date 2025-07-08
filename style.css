@@ -7,8 +7,22 @@
   --border: #dfe3e8;
 }
 
+/* Menggunakan box-sizing secara global untuk tata letak yang lebih mudah */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 html {
   scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 13.5px; /* dari sebelumnya 14px atau 16px */
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  color: var(--text-dark);
 }
 
 /* Splash Screen */
@@ -42,6 +56,7 @@ html {
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
 }
 
 @keyframes fadeOut {
@@ -50,6 +65,7 @@ html {
     visibility: hidden;
   }
 }
+
 /* Navbar Container */
 .navbar {
   display: flex;
@@ -154,15 +170,6 @@ html {
 }
 
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 13.5px; /* dari sebelumnya 14px atau 16px */
-  background: var(--bg);
-  margin: 0;
-  padding: 0;
-  color: var(--text-dark);
-}
-
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -232,7 +239,7 @@ h1 {
   display: block;
 }
 
-/* 🔍 Filter Bar */
+/* Filter Bar */
 .filter-container {
   display: flex;
   flex-wrap: wrap;
@@ -252,7 +259,8 @@ h1 {
 }
 
 .filter-container select,
-.filter-container input[type="date"] {
+.filter-container input[type="date"],
+.filter-container input[type="text"] { /* Tambahkan input type text */
   padding: 7px 10px;
   font-size: 14px;
   border: 1px solid #ccc;
@@ -263,7 +271,8 @@ h1 {
 }
 
 .filter-container select:focus,
-.filter-container input[type="date"]:focus {
+.filter-container input[type="date"]:focus,
+.filter-container input[type="text"]:focus { /* Tambahkan input type text */
   outline: none;
   border-color: var(--primary);
 }
@@ -273,7 +282,7 @@ h1 {
   color: var(--text-muted);
 }
 
-/* 🧾 Tabel */
+/* Tabel */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -317,7 +326,7 @@ tbody tr:nth-child(even) {
 }
 
 
-/* 🔄 Loading Spinner */
+/* Loading Spinner */
 .loader {
   display: none;
   margin: 20px auto;
@@ -329,7 +338,7 @@ tbody tr:nth-child(even) {
   animation: spin 1s linear infinite;
 }
 
-/* 📈 Chart area */
+/* Chart area */
 canvas {
   background: #fff;
   padding: 18px;
@@ -337,7 +346,7 @@ canvas {
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-/* ✨ Animations */
+/* Animations */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -460,23 +469,79 @@ td.default {
   color: #333;
 }
 
+/* Dark Mode Styles */
 body.dark-mode {
-  background-color: #1e1e1e;
-  color: #eee;
+  background-color: #121212;
+  color: #f0f0f0;
 }
+body.dark-mode .tab-btn,
+body.dark-mode .filter-container,
 body.dark-mode table {
-  background: #2a2a2a;
-  color: #eee;
+  background-color: #1e1e1e;
+  color: #f0f0f0;
 }
 body.dark-mode .tab-btn {
-  background: #333;
-  color: #ccc;
   border-color: #555;
 }
 body.dark-mode .tab-btn.active {
   background: #007bff;
   color: #fff;
 }
+body.dark-mode .minimal-header {
+  background-color: #1e1e1e;
+  border-bottom-color: #333;
+}
+body.dark-mode .minimal-header h1 {
+  color: #f0f0f0;
+}
+body.dark-mode .minimal-header nav a {
+  color: #ccc;
+}
+body.dark-mode .minimal-header nav a:hover {
+  color: #fff;
+}
+body.dark-mode .minimal-header nav a.active {
+  color: var(--primary);
+}
+body.dark-mode .minimal-footer {
+  background-color: #1e1e1e;
+  border-top-color: #333;
+  color: #ccc;
+}
+body.dark-mode .whatsapp-float {
+  background-color: #1a9e4e; /* Darker green for dark mode */
+}
+body.dark-mode .whatsapp-float:hover {
+  background-color: #157a3b;
+}
+body.dark-mode .wa-popup {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #eee;
+}
+body.dark-mode .wa-popup input,
+body.dark-mode .wa-popup textarea {
+  background-color: #333;
+  border-color: #555;
+  color: #eee;
+}
+body.dark-mode .wa-popup button {
+  background-color: #1a9e4e;
+}
+body.dark-mode .wa-popup button:hover {
+  background-color: #157a3b;
+}
+body.dark-mode .safety-toast {
+  background-color: #5c5c00; /* Darker yellow for dark mode */
+  color: #fff;
+  border-color: #7a7a00;
+}
+body.dark-mode .safety-banner {
+  background-color: rgba(0, 0, 0, 0.6); /* Slightly darker transparent */
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+
 /* Zoom sederhana saat hover pada sel tabel */
 /* Efek zoom hanya pada satu cell saat hover */
 td {
@@ -484,7 +549,7 @@ td {
 }
 
 td:hover {
-  transform: scale(1.2);
+  transform: scale(1.02); /* Sedikit lebih kecil dari 1.2 agar tidak terlalu besar */
   background-color: #f0f8ff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   z-index: 10;
@@ -492,7 +557,7 @@ td:hover {
 }
 
 th:hover {
-  transform: scale(1.05);
+  transform: scale(1.02); /* Sedikit lebih kecil dari 1.05 */
   background-color: #001a52;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   z-index: 2;
@@ -543,16 +608,6 @@ th:hover {
 
 .tab-subgroup {
   display: flex;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.tab-subgroup.hidden {
-  display: none;
-}
-
-.tab-subgroup {
-  display: flex;
   flex-direction: row;
   gap: 6px;
   overflow: hidden;
@@ -566,98 +621,10 @@ th:hover {
   opacity: 1;
 }
 
-.tab-group-collapsible {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-left: 8px;
-}
-
-.tab-group-toggle {
-  background-color: #e9f0ff;
-  border: none;
-  padding: 6px 10px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #2a4d8f;
-}
-
+/* WhatsApp Floating Button and Pop-up */
 .whatsapp-float {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #25d366;
-  color: white;
-  font-weight: bold;
-  padding: 10px 14px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease;
-  z-index: 999;
-}
-
-.whatsapp-float:hover {
-  transform: scale(1.05);
-  background-color: #1ebe5d;
-}
-
-.whatsapp-float img {
-  width: 24px;
-  height: 24px;
-}
-
-.whatsapp-form {
-  background: #f9f9f9;
-  padding: 16px;
-  border-radius: 8px;
-  max-width: 400px;
-  margin: 40px auto;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  font-family: sans-serif;
-}
-
-.whatsapp-form label {
-  display: block;
-  margin-top: 12px;
-  font-weight: bold;
-}
-
-.whatsapp-form input,
-.whatsapp-form textarea {
-  width: 100%;
-  padding: 8px;
-  margin-top: 4px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.whatsapp-form button {
-  margin-top: 16px;
-  background-color: #25d366;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.3s ease;
-}
-
-.whatsapp-form button:hover {
-  background-color: #1ebe5d;
-}
-
-/* Floating Button */
-.whatsapp-float {
-  position: fixed;
-  bottom: 70px;
+  bottom: 70px; /* Adjusted to be above the banner */
   right: 20px;
   background-color: #25d366;
   border-radius: 50%;
@@ -675,10 +642,9 @@ th:hover {
   height: 32px;
 }
 
-/* Pop-up Form */
 .wa-popup {
   position: fixed;
-  bottom: 80px;
+  bottom: 80px; /* Adjusted to be above the banner and float button */
   right: 20px;
   background: #fff;
   border: 1px solid #ccc;
@@ -687,23 +653,25 @@ th:hover {
   width: 280px;
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
   z-index: 1000;
+  display: flex; /* Menggunakan flexbox untuk layout internal */
+  flex-direction: column;
+  gap: 8px; /* Jarak antar elemen form */
 }
 .wa-popup label {
   font-weight: bold;
-  margin-top: 8px;
+  margin-top: 0; /* Reset margin-top karena gap sudah menangani */
   display: block;
 }
 .wa-popup input,
 .wa-popup textarea {
   width: 100%;
-  margin-top: 4px;
   padding: 6px;
   border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 14px;
 }
 .wa-popup button {
-  margin-top: 12px;
+  margin-top: 4px; /* Sesuaikan margin-top */
   width: 100%;
   background-color: #25d366;
   color: white;
@@ -716,66 +684,25 @@ th:hover {
 .wa-popup button:hover {
   background-color: #1ebe5d;
 }
+.wa-popup .close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+}
+.wa-popup .close-btn:hover {
+  color: #333;
+}
 .hidden {
   display: none;
 }
 
-.safety-toast {
-  position: fixed;
-  bottom: 100px;
-  right: 20px;
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-  border-radius: 8px;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 1000;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.safety-toast img {
-  width: 32px;
-  height: 32px;
-}
-
-.safety-toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.hidden {
-  display: none;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
-}
-
-.safety-toast img {
-  width: 32px;
-  height: 32px;
-  animation: pulse 1s infinite;
-}
-
-.dark-mode {
-  background-color: #121212;
-  color: #f0f0f0;
-}
-.dark-mode .tab-btn,
-.dark-mode .filter-container,
-.dark-mode table {
-  background-color: #1e1e1e;
-  color: #f0f0f0;
-}
-
+/* Safety Banner */
 .safety-banner {
   position: fixed;
   bottom: 0;
@@ -826,7 +753,38 @@ th:hover {
   }
 }
 
-/* Responsif */
+/* Safety Toast Alert */
+.safety-toast {
+  position: fixed;
+  bottom: 100px; /* Di atas banner */
+  right: 20px;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.safety-toast img {
+  width: 32px;
+  height: 32px;
+  animation: pulse 1s infinite;
+}
+
+.safety-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Media Queries Responsif */
 @media (max-width: 600px) {
   .safety-banner {
     font-size: 14px;
@@ -835,6 +793,30 @@ th:hover {
 
   .banner-icon {
     font-size: 18px;
+  }
+
+  .whatsapp-float {
+    bottom: 80px; /* Sesuaikan posisi di mobile */
+    right: 15px;
+    padding: 10px;
+  }
+  .whatsapp-float img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .wa-popup {
+    bottom: 100px; /* Sesuaikan posisi di mobile */
+    right: 15px;
+    width: calc(100% - 30px); /* Lebar penuh dikurangi padding */
+  }
+
+  .safety-toast {
+    bottom: 110px; /* Sesuaikan posisi di mobile */
+    right: 15px;
+    width: calc(100% - 30px);
+    padding: 10px 12px;
+    font-size: 14px;
   }
 }
 

@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="pelatihan.css" />
   <link rel="stylesheet" href="style.css" />
   
-
   <!-- Chart.js & Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -39,10 +38,11 @@
 
     <!-- Navigasi Tab -->
     <div class="tabs">
-      <button class="tab-btn active" onclick="openTab('calendar', event)">📄 Jadwal Pelatihan</button>
-      <button class="tab-btn" onclick="openTab('pendaftaran_training', event)">📄 Pendaftaran Pelatihan</button>
-      <button class="tab-btn" onclick="openTab('grafik', event)">📈 Monitoring Pelatihan</button>
-      <button class="tab-btn" onclick="openTab('kompetensi', event)">📈 Kompetensi Manpower</button>
+      <!-- Menghapus onclick dan menggunakan data-tab -->
+      <button class="tab-btn active" data-tab="calendar">📄 Jadwal Pelatihan</button>
+      <button class="tab-btn" data-tab="pendaftaran_training">📄 Pendaftaran Pelatihan</button>
+      <button class="tab-btn" data-tab="grafik">📈 Monitoring Pelatihan</button>
+      <button class="tab-btn" data-tab="kompetensi">📈 Kompetensi Manpower</button>
     </div>
 
     <!-- Konten Tab: Kalender -->
@@ -103,10 +103,8 @@
           <button id="resetFilterPendaftaran">Reset</button>
         </div>
 
-
         <p id="resultCountPendaftaran"></p>
         <table id="table-pendaftaran_training" class="data-table"></table>
-
 
       </div>
     </div>
@@ -115,17 +113,24 @@
     <div id="grafik" class="tab-content">
       <canvas id="chartScore1"></canvas>
       <canvas id="chartScore2"></canvas>
+      <!-- Tambahkan elemen tabel untuk monitoring_pelatihan jika perlu -->
+      <div class="table-wrapper">
+          <table id="table-monitoring_pelatihan" class="data-table"></table>
+      </div>
     </div>
 
     <!-- Konten Tab: Kompetensi -->
     <div id="kompetensi" class="tab-content">
       <div class="filter-container">
         <label>🏢</label>
-        <select id="filter-kompetensi" onchange="applyFilter('kompetensi')"></select>
+        <!-- Menghapus onchange -->
+        <select id="filter-kompetensi"></select>
         <label>📅</label>
-        <input type="date" id="startDate-kompetensi" onchange="applyFilter('kompetensi')" />
+        <!-- Menghapus onchange -->
+        <input type="date" id="startDate-kompetensi" />
         <span>s.d.</span>
-        <input type="date" id="endDate-kompetensi" onchange="applyFilter('kompetensi')" />
+        <!-- Menghapus onchange -->
+        <input type="date" id="endDate-kompetensi" />
       </div>
       <div class="table-wrapper">
         <table id="table-kompetensi"></table>
@@ -135,15 +140,15 @@
 
   <!-- Modal Detail Event -->
   <div id="modal" class="modal">
-    <div class="modal-content">
-      <span id="closeModal" class="close">&times;</span>
-      <h2 id="modalTitle"></h2>
-      <p><strong>Agenda:</strong> <span id="modalAgenda"></span></p>
-      <p><strong>Tanggal:</strong> <span id="modalDate"></span></p>
-      <p><strong>Ruangan:</strong> <span id="modalRoom"></span></p>
-      <p><strong>Jumlah Peserta:</strong> <span id="modalParticipants"></span></p>
-      <p><strong>PIC:</strong> <span id="modalPIC"></span></p>
-    </div>
+      <div class="modal-content">
+          <span class="close" id="closeModal">&times;</span>
+          <h3 id="modalTitle"></h3>
+          <p><strong>Tanggal:</strong> <span id="modalDate"></span></p>
+          <p><strong>Ruangan:</strong> <span id="modalRoom"></span></p>
+          <p><strong>Peserta:</strong> <span id="modalParticipants"></span></p>
+          <p><strong>PIC:</strong> <span id="modalPIC"></span></p>
+          <!-- Konten ekstra akan ditambahkan di sini untuk beberapa event -->
+      </div>
   </div>
 
   <footer class="minimal-footer">
@@ -155,8 +160,7 @@
   <!-- Floating WhatsApp & Form, Safety Toast -->
   <!-- ... kode Anda tetap di sini ... -->
 
-  <script src="script.js"></script>
-  <script src="jsstyle.js"></script>
-  <script src="pelatihanscript.js"></script>
+  <script src="script.js" defer></script>
+  <script src="pelatihanscript.js" defer></script>
 </body>
 </html>

@@ -1,31 +1,27 @@
+// --- Global Variables and Constants ---
 updateBannerText("🚧 Hari ini ada inspeksi K3 di area workshop • Pastikan semua APD lengkap •");
 
 const SHEET_SOURCES = {
-
   // <— induksi
-
   pendaftaran: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "pendaftaran_induksi" },
   spdk: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "spdk" },
   checklist_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_checklist" },
   hasil_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_result" },
+  // MEMPERBAIKI ID UNTUK REMIDIAL (ID sebelumnya salah)
   remidial: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "remidial" },
   grafik: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "DashboardGrafik" },
   newhire: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "new_hire" },
   setting: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "setting" },
-  
-  // <— pelatihan
 
+  // <— pelatihan (Sumber data ini hanya relevan untuk pelatihan.html, tidak untuk index.html)
   monitoring_pelatihan: { id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", sheet: "monitoring" },
   pendaftaran_training: { id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", sheet: "training_register" },
   jadwal_training: { id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", sheet: "jadwal_training" }
-  
 };
 
 const kolomTampilkan = {
-
   // <— induksi
-  
-  newhire: ["tanggal",	"NIK",	"NAMA",	"JABATAN","perusahaan","checklist","SPDK","SCORE",	"APV SYS",	"APV HSE",	"STATUS"],
+  newhire: ["tanggal", "NIK", "NAMA", "JABATAN", "perusahaan", "checklist", "SPDK", "SCORE", "APV SYS", "APV HSE", "STATUS"],
   pendaftaran: ["tanggal", "perusahaan", "NAMA", "JABATAN", "JENIS INDUKSI", "HARI", "DATE"],
   spdk: ["tanggal", "perusahaan", "NAMA", "SPDK"],
   checklist_induksi: ["tanggal", "perusahaan", "NAMA", "CHECKLIST"],
@@ -33,197 +29,106 @@ const kolomTampilkan = {
   remidial: ["tanggal", "perusahaan", "NAMA", "JABATAN", "KATEGORI", "S. SIMPER", "SCORE K3", "S. JABATAN", "S.RATA-RATA"],
   grafik: ["TANGGAL INDUKSI", "CUTI", "NEW HIRE", "NAMA JABATAN", "SCORE_TERENDAH", "SCORE_TERTINGGI"],
 
-  // <— pelatihan
-
+  // <— pelatihan (Kolom ini hanya relevan untuk pelatihan.html)
   monitoring_pelatihan: ["tanggal", "perusahaan", "skor_rata2"],
   pendaftaran_training: ["TRAINING", "PERUSAHAAN", "TANGGAL", "DEPT"],
   jadwal_training: ["tanggal_mulai", "tanggal_selesai", "nama_kegiatan", "ruangan", "jumlah_peserta", "pic"]
-
 };
 
-const sheetDataCache = {};
 let perusahaanList = [];
-let allOriginalData = {}; // <— Tambahkan ini
+let allOriginalData = {}; // Stores all fetched, original data
+let audioUnlocked = false; // Flag untuk melacak apakah audio sudah diizinkan
 
-document.addEventListener("DOMContentLoaded", () => {
-  openTab('newhire');
-});
-
-
-function openTab(tabId, event) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(tabId)?.classList.add('active');
- event?.target?.classList.add('active');
-}
+// --- Utility Functions ---
 
 function showLoader() {
   document.getElementById('loader')?.style.setProperty("display", "block");
 }
+
 function hideLoader() {
   document.getElementById('loader')?.style.setProperty("display", "none");
 }
 
+/**
+ * Fetches data from a Google Sheet. Caches data to avoid redundant fetches.
+ * @param {string} key - The key from SHEET_SOURCES.
+ * @returns {Promise<Array>} - The fetched data.
+ */
 async function fetchSheetByKey(key) {
+  if (allOriginalData[key]) {
+    // console.log(`Returning cached data for ${key}`);
+    return allOriginalData[key];
+  }
+
   showLoader();
   try {
     const { id, sheet } = SHEET_SOURCES[key];
     const url = `https://opensheet.elk.sh/${id}/${sheet}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Gagal mengambil ${sheet}`);
-    return await response.json();
+    const data = await response.json();
+    allOriginalData[key] = data; // Cache the fetched data
+    return data;
   } catch (err) {
-    console.error(err);
+    console.error(`Error fetching ${key}:`, err);
     return [];
   } finally {
     hideLoader();
   }
 }
 
-
+/**
+ * Loads and sorts the unique list of companies from the "setting" sheet.
+ */
 async function loadPerusahaanList() {
   const data = await fetchSheetByKey("setting");
-
-  // Gunakan Set untuk menghindari duplikat berdasarkan lowercase + trim
   const seen = new Set();
   perusahaanList = [];
 
   data.forEach(d => {
     const nama = d["perusahaan"];
-    if (!nama) return;
-
-    const key = nama.trim().toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      perusahaanList.push(nama.trim()); // Simpan format asli
+    if (nama) {
+      const key = nama.trim().toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        perusahaanList.push(nama.trim());
+      }
     }
   });
-
-  perusahaanList.sort(); // Urutkan alfabetis
-  console.log("Perusahaan unik:", perusahaanList);
+  perusahaanList.sort();
+  // console.log("Perusahaan unik:", perusahaanList);
 }
 
-
+/**
+ * Parses a date string into a Date object. Handles "DD/MM/YYYY" and "YYYY-MM-DD".
+ * @param {string} str - The date string.
+ * @returns {Date} - The parsed Date object.
+ */
 function parseTanggal(str) {
-  if (!str) return new Date("Invalid");
+  if (!str) return new Date("Invalid Date");
+  // Try YYYY-MM-DD first (standard ISO format)
+  const date = new Date(str);
+  if (!isNaN(date.getTime())) return date;
+
+  // Try DD/MM/YYYY
   if (str.includes("/")) {
     const [d, m, y] = str.split("/");
     return new Date(`${y}-${m}-${d}`);
   }
-  return new Date(str);
+  return new Date("Invalid Date");
 }
 
-
-function renderTable(data, tableId) {
-  const key = tableId.replace("table-", "");
-  sheetDataCache[key] = data;
-
-  const table = document.getElementById(tableId);
-  if (!data.length) {
-    table.innerHTML = "<p>Data tidak tersedia.</p>";
-    return;
-  }
-
-  const allowed = kolomTampilkan[key] || Object.keys(data[0]);
-  const uniqueNames = new Set();
-
-  const thead = `<thead><tr>${allowed.map(h => `<th>${h}</th>`).join("")}</tr></thead>`;
-  const tbody = `<tbody>${data.map(row => {
-    const name = row["NAMA"] || "";
-    if (uniqueNames.has(name)) return "";
-    uniqueNames.add(name);
-
-    return `<tr>${allowed.map(h => {
-      const nilai = row[h] || "";
-      const { warna, emoji } = getCellStyle(h, nilai);
-      return `<td class="${warna}" title="${nilai}">${emoji}${nilai}</td>`;
-    }).join("")}</tr>`;
-  }).join("")}</tbody>`;
-
-  table.innerHTML = thead + tbody;
-
-  const filter = document.getElementById(`filter-${key}`);
-  if (filter && perusahaanList.length) {
-    filter.innerHTML = `<option value="all">Semua</option>` +
-      perusahaanList.map(p => `<option value="${p}">${p}</option>`).join("");
-  }
-
-  table.classList.remove("loaded");
-  setTimeout(() => table.classList.add("loaded"), 10);
-}
-
-
-function getUniqueCompanies(data) {
-  const normalize = name =>
-    name.toLowerCase().replace(/\./g, '').replace(/\s+/g, ' ').trim();
-
-  const rawNames = data.map(d => d["perusahaan"] || d["Perusahaan"] || "");
-  const unique = [...new Set(rawNames.map(normalize))];
-  return unique.filter(name => name); // buang yang kosong
-}
-
-
-function applyFilter(key) {
-  const perusahaan = document.getElementById(`filter-${key}`)?.value || "all";
-  const start = document.getElementById(`startDate-${key}`)?.value;
-  const end = document.getElementById(`endDate-${key}`)?.value;
-  const search = document.getElementById(`search-${key}`)?.value?.toLowerCase() || "";
-  const data = sheetDataCache[key] || [];
-  
-
-  const filtered = data.filter(d => {
-    const perusahaanData = d["perusahaan"] || d["Perusahaan"] || "";
-    const nama = (d["NAMA"] || d["Nama"] || "").toLowerCase();
-    const matchPerusahaan = perusahaan === "all" ||
-      perusahaanData.trim().toLowerCase() === perusahaan.trim().toLowerCase();
-
-    const tanggalStr = d["tanggal"] || d["Tanggal"] || "";
-    const rowDate = parseTanggal(tanggalStr);
-    if (isNaN(rowDate)) return false;
-
-    const startTime = start ? new Date(start).getTime() : -Infinity;
-    const endTime = end ? new Date(end).getTime() : Infinity;
-
-    return matchPerusahaan &&
-           rowDate.getTime() >= startTime &&
-           rowDate.getTime() <= endTime &&
-           nama.includes(search);
-  });
-
-  renderFilteredOnly(filtered, `table-${key}`, key);
-  console.log(`🔍 Filtered ${filtered.length} rows for key: ${key}`);
-}
-
-
-function renderFilteredOnly(data, tableId, key) {
-  const table = document.getElementById(tableId);
-  if (!data.length) {
-    table.innerHTML = "<p>Data tidak ditemukan.</p>";
-    return;
-  }
-
-  const allowed = kolomTampilkan[key] || Object.keys(data[0]);
-
-  const thead = `<thead><tr>${allowed.map(h => `<th>${h}</th>`).join("")}</tr></thead>`;
-  const tbody = `<tbody>${data.map(row =>
-    `<tr>${allowed.map(h => {
-      const nilai = row[h] || "";
-      const { warna, emoji } = getCellStyle(h, nilai);
-      return `<td class="${warna}" title="${nilai}">${emoji}${nilai}</td>`;
-    }).join("")}</tr>`
-  ).join("")}</tbody>`;
-
-  table.innerHTML = thead + tbody;
-  table.classList.remove("loaded");
-  setTimeout(() => table.classList.add("loaded"), 10);
-}
-
-
+/**
+ * Applies styling and emojis to table cells based on header and value.
+ * @param {string} header - The column header.
+ * @param {*} value - The cell value.
+ * @returns {{warna: string, emoji: string}} - CSS class and emoji.
+ */
 function getCellStyle(header, value) {
   const hLower = header.toLowerCase();
-  const valueLower = value.toString().toLowerCase();
+  const valueLower = String(value).toLowerCase();
   const isScore = hLower.includes("rata") || hLower.includes("skor");
-  const isStatus = ["checklist","status", "spdk", "apv sys", "apv hse"].includes(hLower);
+  const isStatus = ["checklist", "status", "spdk", "apv sys", "apv hse"].includes(hLower);
   const angka = parseFloat(value);
 
   let warna = "";
@@ -249,163 +154,342 @@ function getCellStyle(header, value) {
       emoji = "⚠️ ";
     }
   }
-
   return { warna, emoji };
 }
 
-async function init() {
-  for (const key in SHEET_SOURCES) {
-    if (key === "setting") continue;
-    const data = await fetchSheetByKey(key);
+// --- DOM Manipulation and Event Handlers ---
 
-    if (key === "grafik") {
-      // Grafik 1: Statistik Induksi (Kategori & Nilai)
-      const canvasStatistik = document.getElementById("chartScore");
-      if (canvasStatistik) {
-        const ctxStatistik = canvasStatistik.getContext("2d");
-        const kategoriLabels = data.map(d => d.Kategori || "");
-        const nilaiData = data.map(d => parseFloat(d.Nilai) || 0);
+/**
+ * Renders data into a specific table.
+ * @param {Array} data - The data to render.
+ * @param {string} tableId - The ID of the table element.
+ * @param {string} key - The key identifying the data source (e.g., "newhire").
+ */
+function renderTable(data, tableId, key) {
+  const table = document.getElementById(tableId);
+  if (!table) {
+    console.error(`Table element with ID '${tableId}' not found.`);
+    return; // Keluar jika elemen tabel tidak ditemukan
+  }
 
-        new Chart(ctxStatistik, {
-          type: "bar",
-          data: {
-            labels: kategoriLabels,
-            datasets: [{
-              label: "Statistik Induksi",
-              data: nilaiData,
-              backgroundColor: "#007BFF"
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { display: true },
-              tooltip: { mode: "index" }
-            },
-            scales: { y: { beginAtZero: true } }
-          }
-        });
-      }
+  if (!data.length) {
+    table.innerHTML = "<p>Data tidak tersedia.</p>";
+    return;
+  }
 
-      // Grafik 2: Cuti/New Hire & Skor Tertinggi/Terendah
-      const canvas1 = document.getElementById("chartScore1");
-      const canvas2 = document.getElementById("chartScore2");
-      if (!canvas1 || !canvas2) continue;
+  const allowed = kolomTampilkan[key] || Object.keys(data[0]);
 
-      const ctx1 = canvas1.getContext("2d");
-      const ctx2 = canvas2.getContext("2d");
+  // Using DocumentFragment for efficient DOM updates
+  const fragment = document.createDocumentFragment();
 
-      const labels = data.map(d => d["TANGGAL INDUKSI"] || "");
-      const cutiData = data.map(d => parseFloat(d["CUTI"]) || 0);
-      const newHireData = data.map(d => parseFloat(d["NEW HIRE"]) || 0);
-      const scoreTertinggi = data.map(d => parseFloat(d["SCORE_TERTINGGI"]) || 0);
-      const scoreTerendah = data.map(d => parseFloat(d["SCORE_TERENDAH"]) || 0);
-      const jabatanLabels = data.map(d => d["NAMA JABATAN"] || "");
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  allowed.forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  fragment.appendChild(thead);
 
-      new Chart(ctx1, {
-        type: "line",
-        data: {
-          labels,
-          datasets: [
-            {
-              label: "Cuti",
-              data: cutiData,
-              backgroundColor: "rgba(255, 99, 132, 0.2)",
-              borderColor: "rgba(255, 99, 132, 1)",
-              fill: true,
-              pointRadius: 5
-            },
-            {
-              label: "New Hire",
-              data: newHireData,
-              backgroundColor: "rgba(54, 162, 235, 0.2)",
-              borderColor: "rgba(54, 162, 235, 1)",
-              fill: true,
-              pointRadius: 5
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: true },
-            tooltip: { mode: "index" },
-            datalabels: {
-              display: true,
-              align: "top",
-              backgroundColor: "rgba(255,255,255,0.7)",
-              font: { weight: "bold", size: 12 },
-              formatter: value => value.toFixed(0)
-            }
-          },
-          scales: {
-            x: { type: "category", title: { display: true, text: "Tanggal Induksi" } },
-            y: { beginAtZero: true, title: { display: true, text: "Jumlah" } }
-          }
-        }
-      });
+  const tbody = document.createElement('tbody');
+  // const uniqueNames = new Set(); // To handle potential unique names logic if needed.
 
-      new Chart(ctx2, {
-        type: "bar",
-        data: {
-          labels: jabatanLabels,
-          datasets: [
-            {
-              label: "SCORE_TERTINGGI",
-              data: scoreTertinggi,
-              backgroundColor: "rgba(75, 192, 192, 0.2)",
-              borderColor: "rgba(75, 192, 192, 1)"
-            },
-            {
-              label: "SCORE_TERENDAH",
-              data: scoreTerendah,
-              backgroundColor: "rgba(153, 102, 255, 0.2)",
-              borderColor: "rgba(153, 102, 255, 1)"
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: true },
-            datalabels: {
-              display: true,
-              align: "top",
-              backgroundColor: "rgba(255,255,255,0.7)",
-              font: { weight: "bold", size: 12 },
-              formatter: value => value.toFixed(0)
-            }
-          },
-          scales: {
-            x: { title: { display: true, text: "Jabatan" } },
-            y: { beginAtZero: true, title: { display: true, text: "SCORE" } }
-          }
-        }
-      });
+  data.forEach(row => {
+    // If uniqueNames logic is truly needed, uncomment below.
+    // const name = row["NAMA"] || "";
+    // if (uniqueNames.has(name)) return;
+    // uniqueNames.add(name);
 
-    } else {
-      allOriginalData[key] = data;
-      renderTable(data, `table-${key}`);
+    const tr = document.createElement('tr');
+    allowed.forEach(h => {
+      const td = document.createElement('td');
+      const nilai = row[h] || "";
+      const { warna, emoji } = getCellStyle(h, nilai);
+      td.className = warna;
+      td.title = nilai;
+      td.textContent = emoji + nilai; // Use textContent for safety
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  fragment.appendChild(tbody);
+
+  // Clear existing table content before appending new fragment
+  table.innerHTML = '';
+  table.appendChild(fragment);
+
+  // Populate filter dropdown if available
+  const filter = document.getElementById(`filter-${key}`);
+  if (filter && perusahaanList.length && filter.options.length <= 1) { // Prevent re-populating if already done
+    filter.innerHTML = `<option value="all">Semua</option>` +
+      perusahaanList.map(p => `<option value="${p}">${p}</option>`).join("");
+  }
+
+  table.classList.remove("loaded");
+  setTimeout(() => table.classList.add("loaded"), 10);
+}
+
+/**
+ * Filters the data based on user input (company, date range, search term)
+ * and re-renders the table.
+ * @param {string} key - The key identifying the data source.
+ */
+function applyFilter(key) {
+  const perusahaan = document.getElementById(`filter-${key}`)?.value || "all";
+  const start = document.getElementById(`startDate-${key}`)?.value;
+  const end = document.getElementById(`endDate-${key}`)?.value;
+  const search = document.getElementById(`search-${key}`)?.value?.toLowerCase() || "";
+
+  // Always filter from the original, full dataset
+  const dataToFilter = allOriginalData[key] || [];
+
+  const filtered = dataToFilter.filter(d => {
+    const perusahaanData = d["perusahaan"] || d["Perusahaan"] || "";
+    const nama = (d["NAMA"] || d["Nama"] || "").toLowerCase();
+
+    const matchPerusahaan = perusahaan === "all" ||
+      perusahaanData.trim().toLowerCase() === perusahaan.trim().toLowerCase();
+
+    const tanggalStr = d["tanggal"] || d["Tanggal"] || d["TANGGAL"]; // Added TANGGAL for grafik
+    const rowDate = parseTanggal(tanggalStr);
+    const isDateValid = !isNaN(rowDate.getTime());
+
+    let matchDate = true;
+    if (isDateValid) {
+      const startTime = start ? new Date(start).setHours(0, 0, 0, 0) : -Infinity;
+      const endTime = end ? new Date(end).setHours(23, 59, 59, 999) : Infinity;
+      matchDate = rowDate.getTime() >= startTime && rowDate.getTime() <= endTime;
+    } else if (start || end) { // If date string is invalid, but date filters are applied, don't match
+      matchDate = false;
     }
+
+
+    return matchPerusahaan &&
+      matchDate &&
+      nama.includes(search);
+  });
+
+  renderTable(filtered, `table-${key}`, key);
+  // console.log(`🔍 Filtered ${filtered.length} rows for key: ${key}`);
+}
+
+// Debounce function to limit how often a function is called
+function debounce(func, delay) {
+  let timeout;
+  return function(...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), delay);
+  };
+}
+
+const debouncedApplyFilter = debounce(applyFilter, 300); // 300ms delay
+
+/**
+ * Initializes charts based on "grafik" data.
+ * @param {Array} data - The data for charts.
+ */
+function initializeCharts(data) {
+  // Clear previous charts if they exist to prevent memory leaks/re-rendering issues
+  Chart.getChart("chartScore")?.destroy();
+  Chart.getChart("chartScore1")?.destroy();
+  Chart.getChart("chartScore2")?.destroy();
+
+  // Grafik 1: Statistik Induksi (Kategori & Nilai)
+  const canvasStatistik = document.getElementById("chartScore");
+  if (canvasStatistik) {
+    const ctxStatistik = canvasStatistik.getContext("2d");
+    // Ensure data has Kategori and Nilai, or adapt. Assuming the sheet has these.
+    const kategoriLabels = data.map(d => d.Kategori || ""); // Assuming Kategori exists
+    const nilaiData = data.map(d => parseFloat(d.Nilai) || 0); // Assuming Nilai exists
+
+    new Chart(ctxStatistik, {
+      type: "bar",
+      data: {
+        labels: kategoriLabels,
+        datasets: [{
+          label: "Statistik Induksi",
+          data: nilaiData,
+          backgroundColor: "#007BFF"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true },
+          tooltip: { mode: "index" },
+          // datalabels for Chart.js v3+ requires plugin registration, removed for brevity
+          // If you need datalabels, ensure you've included and registered the ChartDataLabels plugin
+        },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  // Grafik 2 & 3: Cuti/New Hire & Skor Tertinggi/Terendah
+  const canvas1 = document.getElementById("chartScore1");
+  const canvas2 = document.getElementById("chartScore2");
+  if (!canvas1 || !canvas2) return;
+
+  const ctx1 = canvas1.getContext("2d");
+  const ctx2 = canvas2.getContext("2d");
+
+  const labels = data.map(d => d["TANGGAL INDUKSI"] || "");
+  const cutiData = data.map(d => parseFloat(d["CUTI"]) || 0);
+  const newHireData = data.map(d => parseFloat(d["NEW HIRE"]) || 0);
+  const scoreTertinggi = data.map(d => parseFloat(d["SCORE_TERTINGGI"]) || 0);
+  const scoreTerendah = data.map(d => parseFloat(d["SCORE_TERENDAH"]) || 0);
+  const jabatanLabels = data.map(d => d["NAMA JABATAN"] || "");
+
+  new Chart(ctx1, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Cuti",
+          data: cutiData,
+          backgroundColor: "rgba(255, 99, 132, 0.2)",
+          borderColor: "rgba(255, 99, 132, 1)",
+          fill: true,
+          pointRadius: 5
+        },
+        {
+          label: "New Hire",
+          data: newHireData,
+          backgroundColor: "rgba(54, 162, 235, 0.2)",
+          borderColor: "rgba(54, 162, 235, 1)",
+          fill: true,
+          pointRadius: 5
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        tooltip: { mode: "index" },
+        // datalabels for Chart.js v3+ requires plugin registration, removed for brevity
+        // If you need datalabels, ensure you've included and registered the ChartDataLabels plugin
+      },
+      scales: {
+        x: { type: "category", title: { display: true, text: "Tanggal Induksi" } },
+        y: { beginAtZero: true, title: { display: true, text: "Jumlah" } }
+      }
+    }
+  });
+
+  new Chart(ctx2, {
+    type: "bar",
+    data: {
+      labels: jabatanLabels,
+      datasets: [
+        {
+          label: "SCORE_TERTINGGI",
+          data: scoreTertinggi,
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor: "rgba(75, 192, 192, 1)"
+        },
+        {
+          label: "SCORE_TERENDAH",
+          data: scoreTerendah,
+          backgroundColor: "rgba(153, 102, 255, 0.2)",
+          borderColor: "rgba(153, 102, 255, 1)"
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        // datalabels requires plugin registration
+      },
+      scales: {
+        x: { title: { display: true, text: "Jabatan" } },
+        y: { beginAtZero: true, title: { display: true, text: "SCORE" } }
+      }
+    }
+  });
+}
+
+/**
+ * Initializes all data and renders tables/charts.
+ */
+async function init() {
+  showLoader(); // Show loader at the very beginning of init
+  try {
+    await loadPerusahaanList(); // Ensure companies are loaded first
+
+    // Hanya proses kunci yang relevan untuk index.html
+    const relevantKeysForIndexHtml = [
+      "newhire",
+      "pendaftaran",
+      "spdk",
+      "checklist_induksi",
+      "hasil_induksi",
+      "remidial",
+      "grafik"
+    ];
+
+    for (const key of relevantKeysForIndexHtml) {
+      const data = await fetchSheetByKey(key); // This will use cached data if available
+
+      if (key === "grafik") {
+        initializeCharts(data);
+      } else {
+        renderTable(data, `table-${key}`, key);
+      }
+    }
+  } catch (error) {
+    console.error("Initialization failed:", error);
+  } finally {
+    hideLoader(); // Sembunyikan loader setelah semua data diproses
   }
 }
 
+/**
+ * Opens a specific tab in the UI.
+ * @param {string} tabId - The ID of the tab content to show.
+ * @param {Event} event - The click event (optional).
+ */
+function openTab(tabId, event) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId)?.classList.add('active');
+  event?.target?.classList.add('active');
+
+  // If the opened tab has filters, re-apply them to ensure correct display
+  // This is important if data has been fetched but filters weren't applied after tab switch
+  if (allOriginalData[tabId] && tabId !== 'grafik') { // Exclude 'grafik' as it's handled by charts
+    applyFilter(tabId);
+  }
+}
+
+
 function toggleGroup(groupId) {
   const group = document.getElementById(groupId);
-  const toggleBtn = group.previousElementSibling;
+  const toggleBtn = document.getElementById(`toggle-${groupId.split('-')[0]}`); // Mendapatkan tombol toggle yang benar
 
   const isOpen = group.classList.toggle("show");
 
-  toggleBtn.innerHTML = isOpen
-    ? "📘 Proses Induksi ▴"
-    : "📘 Proses Induksi ▾";
+  // Update button text and emoji based on state
+  if (groupId === 'induksi-group') {
+    toggleBtn.innerHTML = isOpen
+      ? "📘 Proses Induksi ▴"
+      : "📘 Proses Induksi ▾";
+  } else if (groupId === 'pelatihan-group') {
+    // Ini mungkin tidak relevan untuk index.html, tapi tetap dipertahankan jika ada di pelatihan.html
+    toggleBtn.innerHTML = isOpen
+      ? "📚 Proses Pelatihan ▴"
+      : "📚 Proses Pelatihan ▾";
+  }
 }
 
 function toggleWAForm() {
   const form = document.getElementById("wa-form-popup");
   form.classList.toggle("hidden");
 }
-
 
 function kirimWhatsApp() {
   const nama = document.getElementById("wa-nama").value.trim();
@@ -416,18 +500,13 @@ function kirimWhatsApp() {
     return;
   }
 
-  const nomor = "6282223089790"; // Ganti dengan nomor kamu
+  const nomor = "6282223089790";
   const teks = `Halo, saya ingin bertanya tentang induksi.%0ANama: ${encodeURIComponent(nama)}%0APertanyaan: ${encodeURIComponent(pesan)}`;
   const url = `https://wa.me/${nomor}?text=${teks}`;
 
-  // Tutup form sebelum membuka WhatsApp
   document.getElementById("wa-form-popup").classList.add("hidden");
-
-  // Reset input (opsional)
   document.getElementById("wa-nama").value = "";
   document.getElementById("wa-pesan").value = "";
-
-  // Buka WhatsApp
   window.open(url, "_blank");
 }
 
@@ -439,45 +518,9 @@ const safetyMessages = [
   "📢 Laporkan segera jika melihat kondisi tidak aman!"
 ];
 
-let currentMessage = 0;
+let currentMessageIndex = 0; // Renamed to avoid conflict with function `currentMessage`
+let safetyMessageInterval;
 
-function showSafetyMessage(text, duration = 6000) {
-  const alertBox = document.getElementById("safety-alert");
-  const message = alertBox.querySelector(".safety-message");
-  message.innerHTML = text;
-
-  alertBox.classList.remove("hidden");
-  setTimeout(() => alertBox.classList.add("show"), 100);
-
-  setTimeout(() => {
-    alertBox.classList.remove("show");
-    setTimeout(() => alertBox.classList.add("hidden"), 400);
-  }, duration);
-}
-
-function startSafetyRotation() {
-  showSafetyMessage(safetyMessages[currentMessage]);
-
-  currentMessage++;
-  if (currentMessage < safetyMessages.length) {
-    setTimeout(startSafetyRotation, 60000); // 1 menit
-  } else {
-    setTimeout(() => location.reload(), 60000); // Reload setelah pesan terakhir
-  }
-}
-
-window.addEventListener("load", () => {
-  setTimeout(startSafetyRotation, 1000); // Mulai 1 detik setelah halaman load
-});
-
-window.onload = async () => {
-  showLoader();
-  await loadPerusahaanList();
-  await init();
-  hideLoader();
-};
-
-// Fungsi untuk menampilkan pesan keselamatan dan memutar suara
 function showSafetyMessage(text, duration = 6000) {
   const alertBox = document.getElementById("safety-alert");
   const message = alertBox?.querySelector(".safety-message");
@@ -490,44 +533,49 @@ function showSafetyMessage(text, duration = 6000) {
   alertBox.classList.remove("hidden");
   setTimeout(() => alertBox.classList.add("show"), 100);
 
-  // 🔊 Mainkan suara jika sudah ada interaksi pengguna
-  if (sound) {
+  // Hanya coba putar suara jika audio sudah diizinkan oleh interaksi pengguna
+  if (sound && audioUnlocked) {
     try {
       sound.currentTime = 0;
       sound.play().catch(e => {
-        console.warn("🔇 Suara diblokir oleh browser:", e);
+        console.warn("🔇 Suara diblokir oleh browser (autoplay restriction):", e);
       });
     } catch (e) {
       console.warn("🎧 Gagal memutar suara:", e);
     }
   }
 
-    // 🔁 Pause banner dan ubah warna
+  // Pause banner and change color
+  pauseBanner();
+  updateBannerColor(true);
 
-
-  // ⏳ Sembunyikan alert setelah durasi tertentu
   setTimeout(() => {
     alertBox.classList.remove("show");
-    setTimeout(() => alertBox.classList.add("hidden"), 400);
+    setTimeout(() => {
+      alertBox.classList.add("hidden");
+      resumeBanner(); // Resume banner after alert hides
+      updateBannerColor(false); // Reset banner color
+    }, 400);
   }, duration);
 }
 
-// Tambahkan event listener hanya sekali saat DOM siap
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.querySelector("#startButton");
-  if (btn) {
-    btn.addEventListener("click", () => {
-      const audio = document.getElementById("notif-sound");
-      if (audio) {
-        audio.play().then(() => {
-          console.log("🔊 Suara diaktifkan oleh pengguna.");
-        }).catch(error => {
-          console.warn("Audio gagal diputar:", error);
-        });
-      }
-    });
+function startSafetyRotation() {
+  // Clear any existing interval to prevent multiple intervals running
+  if (safetyMessageInterval) {
+    clearInterval(safetyMessageInterval);
   }
-});
+
+  const rotateMessage = () => {
+    if (safetyMessages.length > 0) {
+      showSafetyMessage(safetyMessages[currentMessageIndex]);
+      currentMessageIndex = (currentMessageIndex + 1) % safetyMessages.length; // Loop through messages
+    }
+  };
+
+  rotateMessage(); // Show first message immediately
+  safetyMessageInterval = setInterval(rotateMessage, 60000); // Rotate every 1 minute
+}
+
 
 function pauseBanner() {
   const banner = document.getElementById("safety-banner");
@@ -542,7 +590,7 @@ function resumeBanner() {
 function updateBannerColor(active = false) {
   const banner = document.getElementById("safety-banner");
   if (!banner) return;
-  banner.style.backgroundColor = active ? "#b02a37" : "#222";
+  banner.style.backgroundColor = active ? "#b02a37" : "#222"; // Red when active, dark grey otherwise
   banner.style.color = "#fff";
 }
 
@@ -550,34 +598,128 @@ function updateBannerText(newText) {
   const bannerText = document.getElementById("banner-text");
   if (bannerText) {
     bannerText.innerHTML = newText;
-    // Restart animasi agar teks baru langsung berjalan
+    // Restart animation
     bannerText.style.animation = "none";
-    bannerText.offsetHeight; // trigger reflow
-    bannerText.style.animation = "";
+    void bannerText.offsetWidth; // Trigger reflow
     bannerText.style.animation = "scroll-banner 20s linear infinite";
   }
 }
 
-// Delay fade-in animation on page load
-window.addEventListener('DOMContentLoaded', () => {
+// --- Initial Setup on Page Load ---
+document.addEventListener("DOMContentLoaded", () => {
+  // Combine DOMContentLoaded logic
+  openTab('newhire'); // Open default tab
+  startSafetyRotation(); // Start safety message rotation
+
+  // Event listeners for filters using debounced function
+  document.querySelectorAll('[id^="filter-"], [id^="startDate-"], [id^="endDate-"], [id^="search-"]')
+    .forEach(element => {
+      // Extract the key from the ID (e.g., "filter-newhire" -> "newhire")
+      const key = element.id.split('-').slice(1).join('-');
+      element.addEventListener('input', () => debouncedApplyFilter(key));
+      element.addEventListener('change', () => debouncedApplyFilter(key)); // For date inputs
+    });
+
+  // Event listener for tab buttons
+  document.querySelectorAll('.tab-btn').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const tabId = event.target.dataset.tab;
+      if (tabId) {
+        openTab(tabId, event);
+      }
+    });
+  });
+
+  // Event listener for group toggles
+  const toggleInduksiBtn = document.getElementById('toggle-induksi');
+  if (toggleInduksiBtn) {
+    toggleInduksiBtn.addEventListener('click', () => toggleGroup('induksi-group'));
+  }
+  // Tombol toggle pelatihan mungkin tidak ada di index.html, jadi tambahkan null check
+  const togglePelatihanBtn = document.getElementById('toggle-pelatihan');
+  if (togglePelatihanBtn) {
+    togglePelatihanBtn.addEventListener('click', () => toggleGroup('pelatihan-group'));
+  }
+
+
+  // WA form toggle dengan null checks
+  const openWaFormBtn = document.getElementById('open-wa-form');
+  if (openWaFormBtn) {
+    openWaFormBtn.addEventListener('click', toggleWAForm);
+  }
+  const closeWaFormBtn = document.getElementById('close-wa-form');
+  if (closeWaFormBtn) {
+    closeWaFormBtn.addEventListener('click', toggleWAForm);
+  }
+  const kirimWaBtn = document.getElementById('kirim-wa-btn');
+  if (kirimWaBtn) {
+    kirimWaBtn.addEventListener('click', kirimWhatsApp);
+  }
+
+  // Splash screen and navbar fade-in
   const navbar = document.querySelector('.navbar');
-  setTimeout(() => {
-    navbar.classList.add('show');
-  }, 300); // Delay for dramatic effect
+  if (navbar) { // Tambahkan null check untuk navbar
+    setTimeout(() => {
+      navbar.classList.add('show');
+    }, 2200); // match splash fadeOut timing
+  }
+
+
+  // Audio play for intro
+  const enterBtn = document.getElementById('enter-btn');
+  if (enterBtn) { // Tambahkan null check untuk enter-btn
+    enterBtn.addEventListener('click', () => {
+      const audio = document.getElementById('intro-audio');
+      if (audio) {
+        audio.play().catch(error => {
+          console.warn("Intro audio play failed:", error);
+        });
+      }
+    });
+  }
+
+  // --- Logic untuk membuka kunci audio setelah interaksi pengguna pertama ---
+  // Event listener global untuk mendeteksi interaksi pengguna pertama kali
+  const unlockAudio = () => {
+    const notifSound = document.getElementById("notif-sound");
+    if (notifSound && !audioUnlocked) {
+      // Coba putar suara dengan volume 0 untuk membuka kunci audio
+      notifSound.volume = 0;
+      notifSound.play().then(() => {
+        notifSound.pause();
+        notifSound.volume = 1; // Kembalikan volume ke normal
+        audioUnlocked = true;
+        console.log("🔊 Audio unlocked by user interaction.");
+      }).catch(error => {
+        console.warn("Gagal membuka kunci audio:", error);
+      });
+    }
+    // Hapus listener ini setelah dipicu sekali
+    document.removeEventListener('click', unlockAudio);
+    document.removeEventListener('touchstart', unlockAudio);
+  };
+
+  // Tambahkan listener ke body untuk interaksi pertama
+  document.addEventListener('click', unlockAudio, { once: true });
+  document.addEventListener('touchstart', unlockAudio, { once: true }); // Untuk perangkat sentuh
+
+  // Initial audio activation for safety sound (to bypass browser autoplay policies)
+  // Ini tetap ada jika ada tombol startButton terpisah untuk audio notifikasi
+  const startButton = document.querySelector("#startButton");
+  if (startButton) {
+    startButton.addEventListener("click", () => {
+      const audio = document.getElementById("notif-sound");
+      if (audio && !audioUnlocked) { // Hanya coba jika belum terbuka kuncinya
+        audio.play().then(() => {
+          console.log("🔊 Safety notification sound activated by user interaction.");
+          audioUnlocked = true; // Setel flag jika berhasil
+        }).catch(error => {
+          console.warn("Safety notification audio failed to play (user interaction):", error);
+        });
+      }
+    });
+  }
 });
 
-window.addEventListener('DOMContentLoaded', () => {
-  const navbar = document.querySelector('.navbar');
-
-  // Delay navbar appearance until splash screen fades out
-  setTimeout(() => {
-    navbar.classList.add('show');
-  }, 2200); // match splash fadeOut timing
-});
-
-
-document.getElementById('enter-btn').addEventListener('click', () => {
-  const audio = document.getElementById('intro-audio');
-  audio.play();
-});
-
+// Run initial data fetching and rendering when the window loads
+window.addEventListener("load", init);

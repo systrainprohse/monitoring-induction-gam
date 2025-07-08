@@ -11,6 +11,11 @@
   --transition:          0.2s ease;
 }
 
+/* Menggunakan box-sizing secara global untuk tata letak yang lebih mudah */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 /* Wrapper utama */
 .calendar-wrapper {
   max-width: 900px;
@@ -20,6 +25,7 @@
   padding: 2rem;
   border-radius: var(--border-radius);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  color: var(--text-color); /* Mengatur warna teks default untuk wrapper */
 }
 
 /* Header kalender */
@@ -27,6 +33,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 1rem; /* Tambahkan sedikit margin bawah */
 }
 
 .calendar-header h2 {
@@ -54,6 +61,7 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 1px;
   margin-top: 1rem;
+  border: 1px solid #eee; /* Tambahkan border untuk grid */
 }
 
 .day-name {
@@ -76,6 +84,7 @@
   justify-content: flex-start;
   transition: background var(--transition);
   color: var(--text-color);
+  border: 1px solid #eee; /* Tambahkan border untuk setiap hari */
 }
 
 .day:hover {
@@ -105,6 +114,7 @@
   font-weight: 500;
   border-radius: 50%;
   background: none;
+  color: var(--text-color); /* Pastikan warna teks nomor tanggal konsisten */
 }
 
 .day.today .date-number {
@@ -112,7 +122,7 @@
   color: #fff;
 }
 
-/* Indikator event (dot) */
+/* Indikator event (dot) - tidak digunakan di sini, tapi tetap ada */
 .event-dot {
   position: absolute;
   bottom: 0.4rem;
@@ -129,9 +139,9 @@
   margin-top: 2px;
   padding: 2px 6px;
   font-size: 0.65rem;
-  color: var(--text-color);
-  background: var(--color-secondary);
-  border-left: 4px solid var(--color-secondary);
+  color: #fff; /* Warna teks putih agar kontras dengan latar belakang warna-warni */
+  background: var(--color-secondary); /* Ini akan di-override oleh JS */
+  border-left: 4px solid var(--color-secondary); /* Ini akan di-override oleh JS */
   border-radius: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -160,6 +170,7 @@
   width: 90%;
   max-width: 400px;
   position: relative;
+  color: var(--text-color); /* Pastikan teks modal juga konsisten */
 }
 
 .close {
@@ -168,20 +179,26 @@
   right: 1rem;
   font-size: 1.5rem;
   cursor: pointer;
+  color: var(--text-color); /* Warna tombol close */
 }
 
-/* Filter Bar */
+/* Filter Bar (untuk kalender) */
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #f9f9f9; /* Latar belakang untuk filter bar */
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
 }
 
 .filter-bar select {
   padding: 0.4rem;
   border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 0.9rem;
 }
 
 /* Legend */
@@ -285,18 +302,20 @@
   }
 }
 
-/* Semua teks dalam wrapper kalender jadi putih */
-.calendar-wrapper {
+/* Menghapus override warna teks global yang bermasalah */
+/* .calendar-wrapper {
   color: #0048ce;
-}
+} */
 
 /* Spesifik elemen yang mengatur ulang warna text */
-.calendar-wrapper .calendar-header h2,
+/* Ini harusnya diatur oleh var(--text-color) dari root */
+/* .calendar-wrapper .calendar-header h2,
 .calendar-wrapper .day-name,
 .calendar-wrapper .date-number,
 .calendar-wrapper .event-label {
   color: #ffffff;
-}
+} */
+
 
 /* default: sembunyikan semua tab-content */
 .tab-content {
@@ -315,8 +334,9 @@
 }
 
 /* Override sepenuhnya kalender di dalam tab #calendar */
+/* Pastikan ini menargetkan elemen dengan benar di HTML Anda */
 #calendar .calendar-wrapper {
-  display: block; 
+  display: block;
   max-width: 900px;
   width: 100%;
   margin: auto;
@@ -337,8 +357,7 @@
   display: contents;
 }
 
-/* dan seterusnya untuk .day, .day-name, .modal, dll. */
-
+/* Filter Pendaftaran Controls */
 #filter-pendaftaran-controls {
   display: flex;
   flex-wrap: wrap;
@@ -360,7 +379,8 @@
 }
 
 #filter-pendaftaran-controls select,
-#filter-pendaftaran-controls input[type="date"] {
+#filter-pendaftaran-controls input[type="date"],
+#filter-pendaftaran-controls input[type="text"] { /* Tambahkan input type text */
   padding: 6px 10px;
   font-size: 0.95rem;
   border: 1px solid #ccc;
@@ -395,12 +415,4 @@
   #filter-pendaftaran-controls button {
     width: 100%;
   }
-}
-#filter-pendaftaran-controls input[type="text"] {
-  padding: 6px 10px;
-  font-size: 0.95rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-top: 4px;
-  min-width: 180px;
 }
