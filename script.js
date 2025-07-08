@@ -16,11 +16,9 @@ const SHEET_SOURCES = {
   // <— pelatihan
 
   monitoring_pelatihan: { id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", sheet: "monitoring" },
-  pendaftaran_training: { id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", sheet: "pendaftaran_training" },
+  pendaftaran_training: { id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", sheet: "training_register" },
   jadwal_training: { id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", sheet: "jadwal_training" }
   
-
-
 };
 
 const kolomTampilkan = {
@@ -38,7 +36,7 @@ const kolomTampilkan = {
   // <— pelatihan
 
   monitoring_pelatihan: ["tanggal", "perusahaan", "skor_rata2"],
-  pendaftaran_training: ["TANGGAL INDUKSI", "CUTI", "NEW HIRE", "NAMA JABATAN", "SCORE_TERENDAH", "SCORE_TERTINGGI"],
+  pendaftaran_training: ["TRAINING", "PERUSAHAAN", "TANGGAL", "DEPT"],
   jadwal_training: ["tanggal_mulai", "tanggal_selesai", "nama_kegiatan", "ruangan", "jumlah_peserta", "pic"]
 
 };
@@ -104,9 +102,6 @@ async function loadPerusahaanList() {
   perusahaanList.sort(); // Urutkan alfabetis
   console.log("Perusahaan unik:", perusahaanList);
 }
-
-
-
 
 
 function parseTanggal(str) {
@@ -200,9 +195,6 @@ function applyFilter(key) {
 }
 
 
-
-
-
 function renderFilteredOnly(data, tableId, key) {
   const table = document.getElementById(tableId);
   if (!data.length) {
@@ -260,8 +252,6 @@ function getCellStyle(header, value) {
 
   return { warna, emoji };
 }
-
-
 
 async function init() {
   for (const key in SHEET_SOURCES) {
