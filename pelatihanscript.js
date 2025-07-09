@@ -5,8 +5,8 @@ window.addEventListener('DOMContentLoaded', () => {
     // Objek ini mendefinisikan ID spreadsheet dan nama sheet untuk setiap jenis data.
     const SHEET_SOURCES = {
         monitoring_pelatihan: {
-            id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
-            sheet: "monitoring"
+            id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", // ID Spreadsheet
+            sheet: "monitoring_internal" // ASUMSI: Nama sheet baru untuk data monitoring internal
         },
         pendaftaran_training: {
             id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
@@ -19,19 +19,26 @@ window.addEventListener('DOMContentLoaded', () => {
         kompetensi: {
             id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
             sheet: "kompetensi_manpower" // Pastikan nama sheet ini sesuai di Google Sheet Anda
+        },
+        score: {
+            id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
+            sheet: "score_data" // ASUMSI: Nama sheet untuk data score
         }
     };
 
     // Objek ini menentukan kolom mana yang akan ditampilkan untuk setiap tabel.
     const kolomTampilkan = {
-        monitoring_pelatihan: ["tanggal", "perusahaan", "skor_rata2"],
+        monitoring_pelatihan: ["INTERNAL TRAINING", "CODE", "DONE", "ALL MP", "OFF", "PROGRESS", "NEED TRAINING"],
         pendaftaran_training: ["TRAINING", "PERUSAHAAN", "TANGGAL", "DEPT", "NAMA"],
         jadwal_training: ["tanggal_mulai", "tanggal_selesai", "nama_kegiatan", "ruangan", "jumlah_peserta", "pic"],
         // KOLOM UNTUK TABEL UTAMA KOMPETENSI (hanya NIK, Nama, Departemen, Jabatan)
-        kompetensi: ["NIK", "NAMA", "DEPT", "JABATAN"]
+        kompetensi: ["NIK", "NAMA", "DEPT", "JABATAN"],
+        score: ["DATE SCORE", "NAMA", "PERUSAHAAN", "DEPARTEMENT", "JABATAN", "PEMATERI", "STATUS"]
     };
 
     const sheetDataCache = {}; // Cache untuk menyimpan data yang sudah diambil dari Google Sheets
+    let currentFilteredData = {}; // Menyimpan data yang sudah difilter untuk diekspor
+    let sortState = {}; // Objek untuk menyimpan status sorting setiap tabel
 
     // 2. REFERENSI ELEMEN HTML
     // Mengambil referensi ke elemen-elemen HTML yang akan dimanipulasi oleh JavaScript.
@@ -57,6 +64,12 @@ window.addEventListener('DOMContentLoaded', () => {
     const startDatePendaftaran = document.getElementById("startDatePendaftaran");
     const endDatePendaftaran = document.getElementById("endDatePendaftaran");
     const resetFilterPendaftaran = document.getElementById("resetFilterPendaftaran");
+
+    // Elemen filter untuk Score
+    const filterPerusahaanScore = document.getElementById("filterPerusahaanScore");
+    const startDateScore = document.getElementById("startDateScore");
+    const endDateScore = document.getElementById("endDateScore");
+    const resetFilterScore = document.getElementById("resetFilterScore");
 
     // Elemen modal spesifik untuk detail kompetensi (sesuai desain baru)
     // Perbaikan: Pastikan ID elemen ini ada di HTML Anda.
@@ -100,6 +113,11 @@ window.addEventListener('DOMContentLoaded', () => {
     let searchNamaPendaftaran = "";
     let selectedStartDatePendaftaran = "";
     let selectedEndDatePendaftaran = "";
+
+    // State filter untuk tab Score
+    let selectedPerusahaanScore = "all";
+    let selectedStartDateScore = "";
+    let selectedEndDateScore = "";
 
     // Fungsi untuk menampilkan dan menyembunyikan loader
     function showLoader() {
@@ -283,6 +301,93 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Mengatur status sorting dan memanggil fungsi filter yang sesuai.
+     * @param {string} key - Kunci tabel (e.g., "kompetensi").
+     * @param {string} column - Nama kolom yang akan diurutkan.
+     */
+    function setSort(key, column) {
+        const currentSort = sortState[key];
+        let direction = 'asc';
+        if (currentSort && currentSort.column === column) {
+            direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        }
+        sortState[key] = { column, direction };
+
+        // Panggil fungsi filter yang relevan untuk merender ulang tabel
+        if (key === 'kompetensi') applyKompetensiFilter();
+        else if (key === 'pendaftaran_training') applyPendaftaranFilter();
+        else if (key === 'score') applyScoreFilter();
+        else if (key === 'monitoring_pelatihan') {
+            // Tab ini tidak memiliki filter, jadi kita hanya perlu mengurutkan dan merender ulang datanya.
+            const data = sheetDataCache[SHEET_SOURCES.monitoring_pelatihan.sheet] || [];
+            const sortedData = sortData(data, 'monitoring_pelatihan');
+            renderTable(sortedData, 'table-monitoring_pelatihan');
+        }
+    }
+
+    /**
+     * Exports an array of objects to an Excel file.
+     * @param {Array<Object>} data - The data to export.
+     * @param {string} filename - The desired filename (without extension).
+     */
+    function exportToExcel(data, filename) {
+      if (!data || data.length === 0) {
+        alert("Tidak ada data untuk diekspor.");
+        return;
+      }
+      const worksheet = XLSX.utils.json_to_sheet(data);
+
+      // Logika untuk auto-fit lebar kolom
+      const objectMaxLength = [];
+      data.forEach(item => {
+        Object.keys(item).forEach((key, i) => {
+          const value = item[key] || '';
+          const len = String(value).length;
+          objectMaxLength[i] = Math.max(objectMaxLength[i] || 0, len);
+        });
+      });
+      const headers = Object.keys(data[0]);
+      const wscols = headers.map((key, i) => ({
+        wch: Math.max(key.length, objectMaxLength[i] || 0) + 2
+      }));
+      worksheet['!cols'] = wscols;
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+      XLSX.writeFile(workbook, `${filename}.xlsx`);
+    }
+
+    /**
+     * Mengurutkan array data berdasarkan state yang tersimpan di `sortState`.
+     * @param {Array<Object>} data - Array data yang akan diurutkan.
+     * @param {string} key - Kunci tabel untuk mendapatkan state sorting.
+     * @returns {Array<Object>} Array data yang sudah diurutkan.
+     */
+    function sortData(data, key) {
+        if (sortState[key]) {
+            const { column, direction } = sortState[key];
+            // Gunakan slice() untuk membuat salinan array agar tidak mengubah data asli.
+            return data.slice().sort((a, b) => {
+                let valA = a[column] || '';
+                let valB = b[column] || '';
+
+                // Coba urutkan sebagai angka jika memungkinkan
+                const numA = parseFloat(valA);
+                const numB = parseFloat(valB);
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    return direction === 'asc' ? numA - numB : numB - numA;
+                }
+
+                // Jika bukan angka, urutkan sebagai teks (case-insensitive)
+                return direction === 'asc'
+                    ? String(valA).localeCompare(String(valB), undefined, { sensitivity: 'base' })
+                    : String(valB).localeCompare(String(valA), undefined, { sensitivity: 'base' });
+            });
+        }
+        return data; // Kembalikan data asli jika tidak ada state sorting
+    }
+
+    /**
      * Mengembalikan warna unik berdasarkan kunci (string).
      * Digunakan untuk memberi warna berbeda pada event kalender.
      * @param {string} key - Kunci untuk menghasilkan warna.
@@ -319,7 +424,7 @@ window.addEventListener('DOMContentLoaded', () => {
         // Ambil data dari cache dan saring entri yang undefined/null
         const dataToFilter = (sheetDataCache[SHEET_SOURCES.kompetensi.sheet] || []).filter(Boolean);
         console.log("Data untuk difilter (Kompetensi):", dataToFilter);
-
+        const key = 'kompetensi';
         const filtered = dataToFilter.filter(row => {
             // Double-check: pastikan 'row' adalah objek yang valid sebelum mengakses propertinya
             if (typeof row !== 'object' || row === null) {
@@ -341,15 +446,18 @@ window.addEventListener('DOMContentLoaded', () => {
             return matchDept && matchJabatan && matchKompetensi && matchNama;
         });
 
+        // Urutkan data yang sudah difilter
+        const sortedData = sortData(filtered, key);
+
+        currentFilteredData[key] = sortedData; // Simpan data untuk diekspor
+
         // Perbarui jumlah hasil yang ditampilkan
         const resultCountEl = document.getElementById("resultCountKompetensi");
         if (resultCountEl) {
-            resultCountEl.textContent = `Menampilkan ${filtered.length} entri.`;
+            resultCountEl.textContent = `Menampilkan ${sortedData.length} entri.`;
         }
 
-        console.log("Data Kompetensi yang difilter:", filtered);
-        // Panggil renderTable dengan data yang sudah difilter untuk tabel kompetensi
-        renderTable(filtered, "table-kompetensi");
+        renderTable(sortedData, "table-kompetensi");
     }
 
     /**
@@ -357,7 +465,7 @@ window.addEventListener('DOMContentLoaded', () => {
      */
     function applyPendaftaranFilter() {
         const dataToFilter = (sheetDataCache[SHEET_SOURCES.pendaftaran_training.sheet] || []).filter(Boolean);
-
+        const key = 'pendaftaran_training';
         const filtered = dataToFilter.filter(row => {
             if (typeof row !== 'object' || row === null) return false;
 
@@ -380,12 +488,82 @@ window.addEventListener('DOMContentLoaded', () => {
             return matchTraining && matchNama && matchDate;
         });
 
+        // Urutkan data yang sudah difilter
+        const sortedData = sortData(filtered, key);
+
+        currentFilteredData[key] = sortedData; // Simpan data untuk diekspor
+
         const resultCountEl = document.getElementById("resultCountPendaftaran");
         if (resultCountEl) {
-            resultCountEl.textContent = `Menampilkan ${filtered.length} entri.`;
+            resultCountEl.textContent = `Menampilkan ${sortedData.length} entri.`;
         }
 
-        renderTable(filtered, "table-pendaftaran_training");
+        renderTable(sortedData, "table-pendaftaran_training");
+    }
+
+    /**
+     * Menerapkan filter pada data score dan merender tabel.
+     */
+    function applyScoreFilter() {
+        const dataToFilter = (sheetDataCache[SHEET_SOURCES.score.sheet] || []).filter(Boolean);
+        const key = 'score';
+        const filtered = dataToFilter.filter(row => {
+            if (typeof row !== 'object' || row === null) return false;
+
+            const perusahaanRow = (row.PERUSAHAAN || "").toLowerCase();
+            const tanggalRow = formatTanggal(row['DATE SCORE']); // Gunakan formatTanggal helper
+
+            const matchPerusahaan = selectedPerusahaanScore === "all" || perusahaanRow === selectedPerusahaanScore.toLowerCase();
+
+            let matchDate = true;
+            if (selectedStartDateScore && selectedEndDateScore) {
+                matchDate = tanggalRow >= selectedStartDateScore && tanggalRow <= selectedEndDateScore;
+            } else if (selectedStartDateScore) {
+                matchDate = tanggalRow >= selectedStartDateScore;
+            } else if (selectedEndDateScore) {
+                matchDate = tanggalRow <= selectedEndDateScore;
+            }
+
+            return matchPerusahaan && matchDate;
+        });
+
+        // Urutkan data yang sudah difilter
+        const sortedData = sortData(filtered, key);
+
+        currentFilteredData[key] = sortedData; // Simpan data untuk diekspor
+
+        const resultCountEl = document.getElementById("resultCountScore");
+        if (resultCountEl) {
+            resultCountEl.textContent = `Menampilkan ${sortedData.length} entri.`;
+        }
+
+        renderTable(sortedData, "table-score");
+    }
+
+    /**
+     * Menginisialisasi filter dropdown untuk tab Score.
+     */
+    function initScoreFilters() {
+        const data = sheetDataCache[SHEET_SOURCES.score.sheet] || [];
+
+        if (!filterPerusahaanScore || !startDateScore || !endDateScore || !resetFilterScore) {
+            console.warn("Elemen filter Score tidak ditemukan.");
+            return;
+        }
+
+        if (!filterPerusahaanScore.dataset.listenerAttached) {
+            const uniquePerusahaan = [...new Set(data.map(row => row.PERUSAHAAN).filter(Boolean))].sort();
+            filterPerusahaanScore.innerHTML = `<option value="all">Semua</option>` +
+                uniquePerusahaan.map(p => `<option value="${p}">${p}</option>`).join("");
+
+            filterPerusahaanScore.addEventListener("change", e => { selectedPerusahaanScore = e.target.value; applyScoreFilter(); });
+            startDateScore.addEventListener("change", e => { selectedStartDateScore = e.target.value; applyScoreFilter(); });
+            endDateScore.addEventListener("change", e => { selectedEndDateScore = e.target.value; applyScoreFilter(); });
+
+            resetFilterScore.addEventListener("click", () => { filterPerusahaanScore.value = "all"; startDateScore.value = ""; endDateScore.value = ""; selectedPerusahaanScore = "all"; selectedStartDateScore = ""; selectedEndDateScore = ""; applyScoreFilter(); });
+            filterPerusahaanScore.dataset.listenerAttached = "true";
+        }
+        applyScoreFilter(); // Panggil untuk render awal
     }
 
     /**
@@ -685,7 +863,20 @@ window.addEventListener('DOMContentLoaded', () => {
         const allowed = kolomTampilkan[key] || Object.keys(data[0]);
 
         // Buat header tabel
-        const thead = `<thead><tr>${allowed.map(h => `<th>${h}</th>`).join("")}</tr></thead>`;
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        allowed.forEach(h => {
+            const th = document.createElement('th');
+            th.textContent = h.toUpperCase();
+            th.style.cursor = 'pointer';
+            th.title = `Urutkan berdasarkan ${h}`;
+            if (sortState[key] && sortState[key].column === h) {
+                th.innerHTML += sortState[key].direction === 'asc' ? ' <span class="sort-arrow">▲</span>' : ' <span class="sort-arrow">▼</span>';
+            }
+            th.addEventListener('click', () => setSort(key, h));
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
         let tbodyHtml = '';
 
         // Logika rendering khusus untuk tabel kompetensi
@@ -739,22 +930,23 @@ window.addEventListener('DOMContentLoaded', () => {
                     let cellContent = row[h] || "";
                     let className = "";
 
-                    // Logika pewarnaan untuk skor_rata2 di tabel monitoring_pelatihan
-                    if (key === "monitoring_pelatihan" && h === "skor_rata2") {
-                        const score = parseFloat(cellContent);
-                        if (!isNaN(score)) {
-                            if (score >= 75) {
-                                className = "green";
-                            } else {
-                                className = "red";
-                            }
+                    // Logika pewarnaan untuk kolom PROGRESS di tabel monitoring_pelatihan
+                    if (key === "monitoring_pelatihan" && h === "PROGRESS") {
+                        const progress = parseFloat(String(cellContent).replace('%', ''));
+                        if (!isNaN(progress)) {
+                            if (progress >= 80) className = "approved"; // Hijau untuk progres tinggi
+                            else if (progress >= 50) className = "hold"; // Kuning untuk progres menengah
+                            else className = "red"; // Merah untuk progres rendah
                         }
-                    } else if (key === "pendaftaran_training" && h === "STATUS") { // Contoh untuk status di pendaftaran
-                        if (cellContent.toLowerCase() === "approved") {
+                    }
+                    // Logika status untuk pendaftaran dan score
+                    else if ((key === "pendaftaran_training" || key === "score") && h === "STATUS") { 
+                        const statusLower = cellContent.toLowerCase();
+                        if (statusLower === "approved" || statusLower === "lulus") {
                             className = "approved";
-                        } else if (cellContent.toLowerCase() === "hold") {
+                        } else if (statusLower === "hold") {
                             className = "hold";
-                        } else if (cellContent.toLowerCase() === "rejected") {
+                        } else if (statusLower === "rejected" || statusLower === "tidak lulus") {
                             className = "red";
                         }
                     }
@@ -764,10 +956,38 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         // Masukkan thead dan tbody ke dalam tabel
-        table.innerHTML = thead + tbodyHtml;
+        table.innerHTML = ''; // Kosongkan tabel
+        table.appendChild(thead);
+        table.innerHTML += tbodyHtml; // Tambahkan body sebagai HTML string
         table.classList.remove("loaded"); // Hapus dulu untuk memastikan transisi
         setTimeout(() => table.classList.add("loaded"), 10); // Tambahkan kelas 'loaded' setelah sedikit delay
         console.log(`Tabel '${tableId}' dirender dengan ${data.length} baris.`);
+
+        // Tambahkan efek zoom saat baris diklik menggunakan event delegation
+        const tableBody = table.querySelector('tbody');
+        if (tableBody) {
+            tableBody.addEventListener('click', (event) => {
+                const clickedRow = event.target.closest('tr');
+                // Pastikan yang diklik adalah baris di dalam tbody
+                if (!clickedRow || !clickedRow.parentElement) return;
+
+                const allRows = tableBody.querySelectorAll('tr');
+                const isAlreadyZoomed = clickedRow.classList.contains('zoomed-in');
+
+                // Reset semua baris terlebih dahulu
+                allRows.forEach(r => r.classList.remove('zoomed-in', 'zoomed-out'));
+
+                // Jika baris yang diklik belum di-zoom, terapkan efeknya
+                if (!isAlreadyZoomed) {
+                    clickedRow.classList.add('zoomed-in');
+                    allRows.forEach(r => {
+                        if (r !== clickedRow) {
+                            r.classList.add('zoomed-out');
+                        }
+                    });
+                }
+            });
+        }
 
         // Tambahkan event listener setelah tabel dirender, khusus untuk tabel kompetensi
         if (key === 'kompetensi') {
@@ -808,6 +1028,78 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Merender bar chart untuk data monitoring pelatihan.
+     * @param {Array<Object>} data - Data yang akan dirender ke dalam grafik.
+     */
+    function renderMonitoringChart(data) {
+        const chartContainer = document.getElementById("monitoringChartContainer");
+        if (!chartContainer) {
+            console.warn("Elemen kontainer dengan ID 'monitoringChartContainer' tidak ditemukan.");
+            return;
+        }
+
+        // Bersihkan kontainer dari grafik sebelumnya
+        chartContainer.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            chartContainer.innerHTML = '<p style="text-align:center; padding: 20px;">Tidak ada data untuk ditampilkan pada grafik.</p>';
+            return;
+        }
+
+        const CHUNK_SIZE = 10; // Jumlah item per grafik. Sesuaikan jika perlu agar label tidak tumpang tindih.
+
+        for (let i = 0; i < data.length; i += CHUNK_SIZE) {
+            const chunk = data.slice(i, i + CHUNK_SIZE);
+            const chartIndex = i / CHUNK_SIZE;
+
+            // Buat wrapper dan canvas untuk setiap grafik
+            const canvasWrapper = document.createElement('div');
+            canvasWrapper.style.position = 'relative';
+            canvasWrapper.style.height = '450px';
+            canvasWrapper.style.width = '100%';
+            canvasWrapper.style.marginBottom = '40px'; // Jarak antar grafik
+
+            const canvas = document.createElement('canvas');
+            canvas.id = `monitoringChart-${chartIndex}`;
+
+            canvasWrapper.appendChild(canvas);
+            chartContainer.appendChild(canvasWrapper);
+
+            // Siapkan data untuk chunk saat ini
+            const labels = chunk.map(d => d['INTERNAL TRAINING'] || 'N/A');
+            const doneData = chunk.map(d => parseInt(d['DONE'], 10) || 0);
+            const needTrainingData = chunk.map(d => parseInt(d['NEED TRAINING'], 10) || 0);
+
+            // Buat grafik baru
+            new Chart(canvas.getContext("2d"), {
+                type: 'bar', // Tipe tetap 'bar'
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'DONE', data: doneData, backgroundColor: 'rgba(75, 192, 192, 0.7)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1 }, { label: 'NEED TRAINING', data: needTrainingData, backgroundColor: 'rgba(255, 99, 132, 0.7)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 1 }]
+                },
+                options: {
+                    indexAxis: 'y', // Ini yang membuat grafik menjadi horizontal
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: {
+                            display: true,
+                            text: `Progress Pelatihan Internal (Data ${i + 1} - ${Math.min(i + CHUNK_SIZE, data.length)})`,
+                            font: { size: 18 }
+                        }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, title: { display: true, text: 'Jumlah Manpower' } }, // Sumbu X sekarang adalah nilai
+                        y: { title: { display: true, text: 'Jenis Training' } } // Sumbu Y sekarang adalah label
+                    }
+                }
+            });
+        }
+        console.log(`Grafik monitoring pelatihan berhasil dirender dalam ${Math.ceil(data.length / CHUNK_SIZE)} bagian.`);
+    }
+
     // Fungsi untuk memuat data dan merender konten tab
     async function loadTabData(tabId) {
         showLoader();
@@ -831,13 +1123,18 @@ window.addEventListener('DOMContentLoaded', () => {
                     break;
                 case 'monitoring_pelatihan':
                     data = await fetchSheet(SHEET_SOURCES.monitoring_pelatihan.id, SHEET_SOURCES.monitoring_pelatihan.sheet);
+                    currentFilteredData['monitoring_pelatihan'] = data; // Simpan data awal untuk ekspor
                     tableId = 'table-monitoring_pelatihan';
-                    renderTable(data, tableId);
-                    // TODO: Tambahkan logika rendering chart di sini jika ada
+                    renderTable(data, tableId); // Render tabel
+                    renderMonitoringChart(data); // Render grafik baru
                     break;
                 case 'kompetensi':
                     data = await fetchSheet(SHEET_SOURCES.kompetensi.id, SHEET_SOURCES.kompetensi.sheet);
                     initKompetensiFilters(); // Ini akan memanggil applyKompetensiFilter dan renderTable
+                    break;
+                case 'score':
+                    data = await fetchSheet(SHEET_SOURCES.score.id, SHEET_SOURCES.score.sheet);
+                    initScoreFilters();
                     break;
                 default:
                     console.warn(`Tidak ada logika pemuatan data untuk tab: ${tabId}`);
@@ -879,6 +1176,42 @@ window.addEventListener('DOMContentLoaded', () => {
             loadTabData(targetTabId);
         });
     });
+
+    /**
+     * Menangani klik pada tombol ekspor di halaman pelatihan.
+     * @param {Event} event - Objek event klik.
+     */
+    function exportHandler(event) {
+        if (!event.target.matches('.export-btn')) return;
+
+        const key = event.target.id.replace('export-', '');
+        const dataToExport = currentFilteredData[key];
+
+        if (!dataToExport || dataToExport.length === 0) {
+            alert(`Tidak ada data yang telah difilter untuk diekspor pada tab ${key}. Coba filter data terlebih dahulu.`);
+            return;
+        }
+
+        // Dapatkan tanggal dari filter yang relevan
+        const startDateInput = document.getElementById(`startDate${key.charAt(0).toUpperCase() + key.slice(1).replace('_training', 'Pendaftaran')}`);
+        const endDateInput = document.getElementById(`endDate${key.charAt(0).toUpperCase() + key.slice(1).replace('_training', 'Pendaftaran')}`);
+        
+        const startDate = startDateInput ? startDateInput.value : document.getElementById(`startDateScore`)?.value;
+        const endDate = endDateInput ? endDateInput.value : document.getElementById(`endDateScore`)?.value;
+
+        let datePart = new Date().toISOString().slice(0, 10);
+        if (startDate && endDate) {
+            datePart = `${startDate}_to_${endDate}`;
+        } else if (startDate) {
+            datePart = `from_${startDate}`;
+        }
+
+        const filename = `Export_${key}_${datePart}`;
+        exportToExcel(dataToExport, filename);
+    }
+
+    // Event listener untuk tombol export
+    document.body.addEventListener('click', exportHandler);
 
     // Menangani splash screen
     const splashScreen = document.querySelector('.splash-screen');

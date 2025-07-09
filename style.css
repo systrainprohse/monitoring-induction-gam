@@ -267,6 +267,15 @@ h1 {
     margin-bottom: 20px;
 }
 
+/* Gaya untuk sel placeholder saat data sedang dimuat */
+.placeholder-cell {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-style: italic;
+    font-size: 1.1em;
+}
+
 /* --- Tabel Disesuaikan Total --- */
 .table-wrapper {
     max-width: 100%;
@@ -1120,3 +1129,24 @@ th:hover {
     to { transform: translateX(-100vw); } /* Memastikan teks hilang sepenuhnya dari layar */
 }
 
+/* --- Efek Zoom Interaktif untuk Baris Tabel (FIXED) --- */
+
+/* Memberikan transisi yang mulus untuk semua baris tabel di dalam .table-wrapper */
+.table-wrapper table tbody tr {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+/* Gaya untuk baris yang sedang "diperbesar" */
+.table-wrapper table tbody tr.zoomed-in {
+  transform: scale(1.02); /* Sedikit memperbesar baris */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  position: relative; /* Diperlukan agar z-index berfungsi */
+  opacity: 1;
+}
+
+/* Gaya untuk baris lain yang "diperkecil" */
+.table-wrapper table tbody tr.zoomed-out {
+  transform: scale(0.98); /* Sedikit memperkecil baris */
+  opacity: 0.7; /* Membuat baris lain kurang menonjol */
+}

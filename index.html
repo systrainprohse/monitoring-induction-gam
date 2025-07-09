@@ -57,6 +57,7 @@
           </div>
         </div>
         <button class="tab-btn" data-tab="grafik">📈 Grafik</button>
+        <button class="tab-btn" data-tab="temporary">🚧 Temporary</button>
       </div>
 
 
@@ -74,7 +75,9 @@
       </div>
 
       <div class="table-wrapper">
-        <table id="table-newhire"></table>
+        <table id="table-newhire">
+          <tbody><tr><td colspan="11" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
@@ -90,7 +93,9 @@
         <input type="text" id="search-pendaftaran" placeholder="Cari nama..." />
       </div>
       <div class="table-wrapper">
-        <table id="table-pendaftaran"></table>
+        <table id="table-pendaftaran">
+          <tbody><tr><td colspan="7" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
@@ -106,7 +111,9 @@
         <input type="text" id="search-spdk" placeholder="Cari nama..." />
       </div>
       <div class="table-wrapper">
-        <table id="table-spdk"></table>
+        <table id="table-spdk">
+          <tbody><tr><td colspan="4" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
@@ -122,7 +129,9 @@
         <input type="text" id="search-checklist_induksi" placeholder="Cari nama..." />
       </div>
       <div class="table-wrapper">
-        <table id="table-checklist_induksi"></table>
+        <table id="table-checklist_induksi">
+          <tbody><tr><td colspan="4" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
@@ -138,7 +147,9 @@
         <input type="text" id="search-hasil_induksi" placeholder="Cari nama..." />
       </div>
       <div class="table-wrapper">
-        <table id="table-hasil_induksi"></table>
+        <table id="table-hasil_induksi">
+          <tbody><tr><td colspan="9" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
@@ -155,12 +166,44 @@
         <input type="text" id="search-remidial" placeholder="Cari nama..." />
       </div>
       <div class="table-wrapper">
-        <table id="table-remidial"></table>
+        <table id="table-remidial">
+          <tbody><tr><td colspan="9" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
     <div id="grafik" class="tab-content">
+      <!-- Filter untuk Grafik -->
+      <div class="filter-bar">
+        <label for="startDate-grafik">Tanggal:</label>
+        <input type="date" id="startDate-grafik" />
+        <span>s.d.</span>
+        <input type="date" id="endDate-grafik" />
+        <label for="search-grafik">Cari Jabatan:</label>
+        <input type="text" id="search-grafik" placeholder="Cari nama jabatan..." />
+      </div>
+      <!-- Kanvas untuk Chart -->
       <canvas id="chartScore1"></canvas>  <canvas id="chartScore2"></canvas>  <canvas id="chartScore"></canvas>
+    </div>
+
+    <div id="temporary" class="tab-content">
+      <h2>Data Temporary</h2>
+      <div class="filter-bar">
+        <label for="filter-temporary">Perusahaan:</label>
+        <select id="filter-temporary"><option value="all">Semua</option></select>
+        <label for="startDate-temporary">Tanggal:</label>
+        <input type="date" id="startDate-temporary" />
+        <span>s.d.</span>
+        <input type="date" id="endDate-temporary" />
+        <label for="search-temporary">Cari:</label>
+        <input type="text" id="search-temporary" placeholder="Cari nama..." />
+      </div>
+      <div class="table-wrapper">
+        <table id="table-temporary">
+          <!-- Placeholder, akan diisi oleh script.js -->
+          <tbody><tr><td colspan="8" class="placeholder-cell">Memuat data...</td></tr></tbody>
+        </table>
+      </div>
     </div>
 
   </div>

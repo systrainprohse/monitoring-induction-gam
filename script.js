@@ -13,6 +13,8 @@ const SHEET_SOURCES = {
   newhire: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "new_hire" },
   setting: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "setting" },
 
+  temporary: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "temporary_data" }, // Data untuk tab Temporary
+
   // <— pelatihan (Sumber data ini hanya relevan untuk pelatihan.html, tidak untuk index.html)
   monitoring_pelatihan: { id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", sheet: "monitoring" },
   pendaftaran_training: { id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", sheet: "training_register" },
@@ -27,6 +29,7 @@ const kolomTampilkan = {
   checklist_induksi: ["tanggal", "perusahaan", "NAMA", "CHECKLIST"],
   hasil_induksi: ["tanggal", "perusahaan", "NAMA", "JABATAN", "KATEGORI", "S. SIMPER", "SCORE K3", "S. JABATAN", "S.RATA-RATA"],
   remidial: ["tanggal", "perusahaan", "NAMA", "JABATAN", "KATEGORI", "S. SIMPER", "SCORE K3", "S. JABATAN", "S.RATA-RATA"],
+  temporary: ["DATE", "SCORE", "NAMA", "PERUSAHAAN", "DEPARTEMENT", "JABATAN", "PEMATERI", "STATUS"], // Kolom untuk tab Temporary
   grafik: ["TANGGAL INDUKSI", "CUTI", "NEW HIRE", "NAMA JABATAN", "SCORE_TERENDAH", "SCORE_TERTINGGI"],
 
   // <— pelatihan (Kolom ini hanya relevan untuk pelatihan.html)
@@ -125,36 +128,44 @@ function parseTanggal(str) {
  * @returns {{warna: string, emoji: string}} - CSS class and emoji.
  */
 function getCellStyle(header, value) {
-  const hLower = header.toLowerCase();
-  const valueLower = String(value).toLowerCase();
-  const isScore = hLower.includes("rata") || hLower.includes("skor");
-  const isStatus = ["checklist", "status", "spdk", "apv sys", "apv hse"].includes(hLower);
-  const angka = parseFloat(value);
+    const hLower = header.toLowerCase();
+    const valueLower = String(value).toLowerCase();
 
-  let warna = "";
-  let emoji = "";
+    // Define keywords for different categories
+    const scoreKeywords = ["score", "rata-rata", "nilai"];
+    const statusKeywords = ["status", "checklist", "spdk", "apv"]; // Simplified check
 
-  if (isScore && !isNaN(angka)) {
-    if (angka < 75) {
-      warna = "red";
-      emoji = "❌ ";
-    } else {
-      warna = "green";
-      emoji = "✅ ";
+    // Check if the header matches any keyword category
+    const isScore = scoreKeywords.some(kw => hLower.includes(kw));
+    const isStatus = statusKeywords.some(kw => hLower.includes(kw));
+
+    const angka = parseFloat(value);
+
+    let warna = "";
+    let emoji = "";
+
+    if (isScore && !isNaN(angka)) {
+        if (angka < 75) {
+            warna = "red"; // Represents failure/low score
+            emoji = "❌ ";
+        } else {
+            warna = "green"; // Represents success/high score
+            emoji = "✅ ";
+        }
+    } else if (isStatus) {
+        // Standardize status values
+        if (["approved", "ok", "done", "lengkap", "ya"].includes(valueLower)) {
+            warna = "approved"; // Green for completion/approval
+            emoji = "✅ ";
+        } else if (["rejected", "no", "tidak", "gagal", "belum"].includes(valueLower)) {
+            warna = "red"; // Red for rejection/failure
+            emoji = "❌ ";
+        } else if (["hold", "pending", "menunggu", "proses"].includes(valueLower)) {
+            warna = "hold"; // Yellow for pending states
+            emoji = "⚠️ ";
+        }
     }
-  } else if (isStatus) {
-    if (["approved", "ok", "done"].includes(valueLower)) {
-      warna = "approved";
-      emoji = "✅ ";
-    } else if (["no", "rejected"].includes(valueLower)) {
-      warna = "red";
-      emoji = "❌ ";
-    } else if (valueLower === "hold") {
-      warna = "hold";
-      emoji = "⚠️ ";
-    }
-  }
-  return { warna, emoji };
+    return { warna, emoji };
 }
 
 // --- DOM Manipulation and Event Handlers ---
@@ -208,9 +219,17 @@ function renderTable(data, tableId, key) {
         const td = document.createElement('td');
         const nilai = row[h] || "";
         const { warna, emoji } = getCellStyle(h, nilai);
-        td.className = warna;
+
+        if (warna) { // If a special style is returned, create a badge
+            const badge = document.createElement('span');
+            badge.className = `badge ${warna}`; // e.g., "badge approved"
+            badge.textContent = emoji + nilai;
+            td.appendChild(badge);
+        } else { // Otherwise, just render plain text
+            td.textContent = nilai;
+        }
+
         td.title = nilai;
-        td.textContent = emoji + nilai; // Use textContent for safety
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
@@ -249,33 +268,52 @@ function applyFilter(key) {
   const dataToFilter = allOriginalData[key] || [];
 
   const filtered = dataToFilter.filter(d => {
+    // Filter Perusahaan (tidak berlaku untuk grafik, tapi aman untuk dipertahankan)
     const perusahaanData = d["perusahaan"] || d["Perusahaan"] || "";
-    const nama = (d["NAMA"] || d["Nama"] || "").toLowerCase();
-
     const matchPerusahaan = perusahaan === "all" ||
       perusahaanData.trim().toLowerCase() === perusahaan.trim().toLowerCase();
 
-    const tanggalStr = d["tanggal"] || d["Tanggal"] || d["TANGGAL"]; // Added TANGGAL for grafik
+    // Filter Tanggal (menambahkan 'TANGGAL INDUKSI' untuk data grafik)
+    const tanggalStr = d["tanggal"] || d["Tanggal"] || d["TANGGAL"] || d["DATE"] || d["TANGGAL INDUKSI"];
     const rowDate = parseTanggal(tanggalStr);
     const isDateValid = !isNaN(rowDate.getTime());
-
     let matchDate = true;
     if (isDateValid) {
       const startTime = start ? new Date(start).setHours(0, 0, 0, 0) : -Infinity;
       const endTime = end ? new Date(end).setHours(23, 59, 59, 999) : Infinity;
       matchDate = rowDate.getTime() >= startTime && rowDate.getTime() <= endTime;
-    } else if (start || end) { // If date string is invalid, but date filters are applied, don't match
+    } else if (start || end) {
       matchDate = false;
     }
 
+    // Filter Pencarian (disesuaikan untuk setiap tab)
+    let matchSearch = true;
+    if (search) {
+      if (key === 'grafik') {
+        const jabatan = (d["NAMA JABATAN"] || "").toLowerCase();
+        matchSearch = jabatan.includes(search);
+      } else {
+        const nama = (d["NAMA"] || d["Nama"] || "").toLowerCase();
+        matchSearch = nama.includes(search);
+      }
+    }
 
-    return matchPerusahaan &&
-      matchDate &&
-      nama.includes(search);
+    return matchPerusahaan && matchDate && matchSearch;
   });
 
-  renderTable(filtered, `table-${key}`, key);
-  // console.log(`🔍 Filtered ${filtered.length} rows for key: ${key}`);
+  // Render ulang tabel atau grafik berdasarkan `key`
+  if (key === 'grafik') {
+    // Urutkan data berdasarkan tanggal secara menaik (ascending) sebelum merender grafik
+    // Ini memastikan sumbu-x pada grafik garis (line chart) berurutan secara kronologis.
+    filtered.sort((a, b) => {
+        const dateA = parseTanggal(a["TANGGAL INDUKSI"]);
+        const dateB = parseTanggal(b["TANGGAL INDUKSI"]);
+        return dateA - dateB;
+    });
+    initializeCharts(filtered);
+  } else {
+    renderTable(filtered, `table-${key}`, key);
+  }
 }
 
 // Debounce function to limit how often a function is called
@@ -406,7 +444,8 @@ async function init() {
       "checklist_induksi",
       "hasil_induksi",
       "remidial",
-      "grafik"
+      "grafik",
+      "temporary" // Tambahkan 'temporary' ke daftar kunci yang relevan
     ];
 
     for (const key of relevantKeysForIndexHtml) {
@@ -438,7 +477,7 @@ function openTab(tabId, event) {
 
   // If the opened tab has filters, re-apply them to ensure correct display
   // This is important if data has been fetched but filters weren't applied after tab switch
-  if (allOriginalData[tabId] && tabId !== 'grafik') { // Exclude 'grafik' as it's handled by charts
+  if (allOriginalData[tabId]) { // Sekarang filter juga berlaku untuk tab 'grafik'
     applyFilter(tabId);
   }
 }

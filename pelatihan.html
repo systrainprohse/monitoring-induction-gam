@@ -8,6 +8,7 @@
   
   <!-- Chart.js & Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
   <!-- Audio Notification -->
@@ -43,6 +44,7 @@
       <button class="tab-btn" data-tab="pendaftaran_training">📄 Pendaftaran Pelatihan</button>
       <!-- Mengubah data-tab menjadi lebih deskriptif dan menjadikannya aktif -->
       <button class="tab-btn active" data-tab="monitoring_pelatihan">📈 Monitoring Pelatihan</button>
+      <button class="tab-btn" data-tab="score">📊 SCORE</button>
       <button class="tab-btn" data-tab="kompetensi">📈 Kompetensi Manpower</button>
     </div>
 
@@ -100,6 +102,7 @@
           <input type="date" id="startDatePendaftaran">
           <span>s.d.</span>
           <input type="date" id="endDatePendaftaran">
+          <button id="export-pendaftaran_training" class="export-btn">Export Excel</button>
           <button id="resetFilterPendaftaran">Reset Filter</button>
         </div>
 
@@ -113,9 +116,13 @@
      <!-- Konten Tab: Grafik -->
     <!-- PERBAIKAN DI SINI: Tambahkan kelas 'active' ke div ini -->
     <div id="monitoring_pelatihan" class="tab-content active">
-      <canvas id="chartScore1"></canvas>
-      <canvas id="chartScore2"></canvas>
+      <div id="monitoringChartContainer" style="width:95%; max-width: 1000px; margin: 20px auto;">
+        <!-- Grafik akan dimasukkan di sini secara dinamis oleh script -->
+      </div>
       <div class="table-wrapper">
+        <div class="filter-bar">
+            <button id="export-monitoring_pelatihan" class="export-btn">Export Excel</button>
+        </div>
           <table id="table-monitoring_pelatihan" class="data-table"></table>
       </div>
     </div>
@@ -144,6 +151,7 @@
             <label for="filterNamaKompetensi">Nama:</label>
             <input type="text" id="filterNamaKompetensi" placeholder="Cari nama...">
 
+            <button id="export-kompetensi" class="export-btn">Export Excel</button>
             <button id="resetFilterKompetensi">Reset Filter</button>
         </div>
 
@@ -151,6 +159,29 @@
         <p id="resultCountKompetensi" class="result-count">Menampilkan 0 entri.</p>
         <table id="table-kompetensi" class="data-table">
             </table>
+    </div>
+
+    <!-- Konten Tab: Score -->
+    <div id="score" class="tab-content">
+        <h2>Data Score Pelatihan</h2>
+
+        <div class="filter-bar">
+            <label for="filterPerusahaanScore">Perusahaan:</label>
+            <select id="filterPerusahaanScore">
+                <option value="all">Semua</option>
+            </select>
+
+            <label for="startDateScore">Tanggal:</label>
+            <input type="date" id="startDateScore">
+            <span>s.d.</span>
+            <input type="date" id="endDateScore">
+
+            <button id="export-score" class="export-btn">Export Excel</button>
+            <button id="resetFilterScore">Reset Filter</button>
+        </div>
+
+        <p id="resultCountScore" class="result-count">Menampilkan 0 entri.</p>
+        <table id="table-score" class="data-table"></table>
     </div>
 
 <!-- MODAL POP-UP (Diperbarui dengan struktur baru) -->
