@@ -1047,12 +1047,21 @@ window.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Palet warna untuk membedakan setiap grafik
+        const colorPalettes = [
+            { done: { bg: 'rgba(54, 162, 235, 0.7)', border: 'rgba(54, 162, 235, 1)' }, needTraining: { bg: 'rgba(255, 159, 64, 0.7)', border: 'rgba(255, 159, 64, 1)' } }, // Biru & Oranye
+            { done: { bg: 'rgba(75, 192, 192, 0.7)', border: 'rgba(75, 192, 192, 1)' }, needTraining: { bg: 'rgba(255, 99, 132, 0.7)', border: 'rgba(255, 99, 132, 1)' } },   // Hijau & Merah
+            { done: { bg: 'rgba(153, 102, 255, 0.7)', border: 'rgba(153, 102, 255, 1)' }, needTraining: { bg: 'rgba(255, 206, 86, 0.7)', border: 'rgba(255, 206, 86, 1)' } }, // Ungu & Kuning
+            { done: { bg: 'rgba(0, 128, 128, 0.7)', border: 'rgba(0, 128, 128, 1)' }, needTraining: { bg: 'rgba(233, 30, 99, 0.7)', border: 'rgba(233, 30, 99, 1)' } }      // Teal & Pink
+        ];
+
         const CHUNK_SIZE = 10; // Jumlah item per grafik. Sesuaikan jika perlu agar label tidak tumpang tindih.
 
         for (let i = 0; i < data.length; i += CHUNK_SIZE) {
             const chunk = data.slice(i, i + CHUNK_SIZE);
             const chartIndex = i / CHUNK_SIZE;
-
+            const palette = colorPalettes[chartIndex % colorPalettes.length]; // Siklus melalui palet warna
+            
             // Buat wrapper dan canvas untuk setiap grafik
             const canvasWrapper = document.createElement('div');
             canvasWrapper.style.position = 'relative';
@@ -1076,7 +1085,21 @@ window.addEventListener('DOMContentLoaded', () => {
                 type: 'bar', // Tipe tetap 'bar'
                 data: {
                     labels: labels,
-                    datasets: [{ label: 'DONE', data: doneData, backgroundColor: 'rgba(75, 192, 192, 0.7)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1 }, { label: 'NEED TRAINING', data: needTrainingData, backgroundColor: 'rgba(255, 99, 132, 0.7)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 1 }]
+                    datasets: [
+                        {
+                            label: 'DONE',
+                            data: doneData,
+                            backgroundColor: palette.done.bg,
+                            borderColor: palette.done.border,
+                            borderWidth: 1
+                        }, {
+                            label: 'NEED TRAINING',
+                            data: needTrainingData,
+                            backgroundColor: palette.needTraining.bg,
+                            borderColor: palette.needTraining.border,
+                            borderWidth: 1
+                        }
+                    ]
                 },
                 options: {
                     indexAxis: 'y', // Ini yang membuat grafik menjadi horizontal
