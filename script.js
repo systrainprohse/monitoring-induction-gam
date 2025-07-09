@@ -172,47 +172,51 @@ function renderTable(data, tableId, key) {
     return; // Keluar jika elemen tabel tidak ditemukan
   }
 
-  if (!data.length) {
-    table.innerHTML = "<p>Data tidak tersedia.</p>";
-    return;
-  }
-
   const allowed = kolomTampilkan[key] || Object.keys(data[0]);
 
   // Using DocumentFragment for efficient DOM updates
   const fragment = document.createDocumentFragment();
 
+  // Selalu buat header tabel agar struktur tetap konsisten
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
   allowed.forEach(h => {
     const th = document.createElement('th');
-    th.textContent = h;
+    th.textContent = h.toUpperCase(); // Membuat header menjadi kapital
     headerRow.appendChild(th);
   });
   thead.appendChild(headerRow);
   fragment.appendChild(thead);
 
   const tbody = document.createElement('tbody');
-  // const uniqueNames = new Set(); // To handle potential unique names logic if needed.
 
-  data.forEach(row => {
-    // If uniqueNames logic is truly needed, uncomment below.
-    // const name = row["NAMA"] || "";
-    // if (uniqueNames.has(name)) return;
-    // uniqueNames.add(name);
-
+  if (!data || data.length === 0) {
+    // Jika tidak ada data, tampilkan pesan di dalam satu baris tabel
     const tr = document.createElement('tr');
-    allowed.forEach(h => {
-      const td = document.createElement('td');
-      const nilai = row[h] || "";
-      const { warna, emoji } = getCellStyle(h, nilai);
-      td.className = warna;
-      td.title = nilai;
-      td.textContent = emoji + nilai; // Use textContent for safety
-      tr.appendChild(td);
-    });
+    const td = document.createElement('td');
+    td.textContent = "Data tidak tersedia.";
+    td.colSpan = allowed.length || 1; // Colspan agar pesan berada di tengah
+    td.style.textAlign = "center";
+    td.style.padding = "20px";
+    tr.appendChild(td);
     tbody.appendChild(tr);
-  });
+  } else {
+    // Jika ada data, buat baris untuk setiap entri data
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      allowed.forEach(h => {
+        const td = document.createElement('td');
+        const nilai = row[h] || "";
+        const { warna, emoji } = getCellStyle(h, nilai);
+        td.className = warna;
+        td.title = nilai;
+        td.textContent = emoji + nilai; // Use textContent for safety
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
   fragment.appendChild(tbody);
 
   // Clear existing table content before appending new fragment
@@ -296,36 +300,9 @@ function initializeCharts(data) {
   Chart.getChart("chartScore1")?.destroy();
   Chart.getChart("chartScore2")?.destroy();
 
-  // Grafik 1: Statistik Induksi (Kategori & Nilai)
-  const canvasStatistik = document.getElementById("chartScore");
-  if (canvasStatistik) {
-    const ctxStatistik = canvasStatistik.getContext("2d");
-    // Ensure data has Kategori and Nilai, or adapt. Assuming the sheet has these.
-    const kategoriLabels = data.map(d => d.Kategori || ""); // Assuming Kategori exists
-    const nilaiData = data.map(d => parseFloat(d.Nilai) || 0); // Assuming Nilai exists
-
-    new Chart(ctxStatistik, {
-      type: "bar",
-      data: {
-        labels: kategoriLabels,
-        datasets: [{
-          label: "Statistik Induksi",
-          data: nilaiData,
-          backgroundColor: "#007BFF"
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: true },
-          tooltip: { mode: "index" },
-          // datalabels for Chart.js v3+ requires plugin registration, removed for brevity
-          // If you need datalabels, ensure you've included and registered the ChartDataLabels plugin
-        },
-        scales: { y: { beginAtZero: true } }
-      }
-    });
-  }
+  // Grafik 1 (chartScore) dinonaktifkan karena sumber data 'DashboardGrafik'
+  // tidak memiliki kolom 'Kategori' dan 'Nilai'.
+  // Jika ingin diaktifkan, pastikan kolom tersebut ada di Google Sheet.
 
   // Grafik 2 & 3: Cuti/New Hire & Skor Tertinggi/Terendah
   const canvas1 = document.getElementById("chartScore1");
@@ -467,9 +444,9 @@ function openTab(tabId, event) {
 }
 
 
-function toggleGroup(groupId) {
+function toggleGroup(groupId, toggleBtn) {
   const group = document.getElementById(groupId);
-  const toggleBtn = document.getElementById(`toggle-${groupId.split('-')[0]}`); // Mendapatkan tombol toggle yang benar
+  if (!group || !toggleBtn) return;
 
   const isOpen = group.classList.toggle("show");
 
@@ -590,8 +567,8 @@ function resumeBanner() {
 function updateBannerColor(active = false) {
   const banner = document.getElementById("safety-banner");
   if (!banner) return;
-  banner.style.backgroundColor = active ? "#b02a37" : "#222"; // Red when active, dark grey otherwise
-  banner.style.color = "#fff";
+  // Logika perubahan warna dinonaktifkan sesuai permintaan untuk mengembalikan gaya semula.
+  // Gaya banner sekarang sepenuhnya diatur oleh file style.css.
 }
 
 function updateBannerText(newText) {
@@ -630,17 +607,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Event listener for group toggles
-  const toggleInduksiBtn = document.getElementById('toggle-induksi');
-  if (toggleInduksiBtn) {
-    toggleInduksiBtn.addEventListener('click', () => toggleGroup('induksi-group'));
-  }
-  // Tombol toggle pelatihan mungkin tidak ada di index.html, jadi tambahkan null check
-  const togglePelatihanBtn = document.getElementById('toggle-pelatihan');
-  if (togglePelatihanBtn) {
-    togglePelatihanBtn.addEventListener('click', () => toggleGroup('pelatihan-group'));
-  }
-
+  // Event listener untuk group toggles (lebih robust)
+  document.querySelectorAll('.tab-group-toggle').forEach(button => {
+    button.addEventListener('click', (event) => {
+        const groupId = event.currentTarget.dataset.groupId;
+        if (groupId) {
+            toggleGroup(groupId, event.currentTarget); // Pass the button itself
+        }
+    });
+  });
 
   // WA form toggle dengan null checks
   const openWaFormBtn = document.getElementById('open-wa-form');

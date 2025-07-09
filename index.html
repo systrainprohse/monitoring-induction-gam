@@ -5,13 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📋 Monitoring Induksi</title>
   <link rel="stylesheet" href="style.css" />
-<!-- Chart.js v3.9.1 -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
-<!-- Chart.js Plugin Datalabels v2.0.0 -->
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
-<!-- Audio Notifikasi - Hanya satu instance -->
 <audio id="notif-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3" preload="auto"></audio>
 
 </head>
@@ -21,8 +18,7 @@
   <h1>SITE PT. GANDA ALAM MAKMUR</h1>
    <audio id="intro-audio" src="sounds/intro.mp3" preload="auto"></audio>
 
-    <!-- Splash Screen -->
-  <div class="splash-screen">
+    <div class="splash-screen">
     <div class="splash-logo">🚀</div>
     <p class="splash-text">Memuat Aplikasi...</p>
   </div>
@@ -47,16 +43,11 @@
     <h1>📋 Monitoring Induksi, SPDK, CHECKLISTK, KELENGKAPAN MINE PERMIT</h1>
     <div class="loader" id="loader"></div>
 
-    <!-- 🧭 Navigasi Tab -->
-      <div class="tabs">
-        <!-- Tombol tab dengan data-tab untuk identifikasi JavaScript -->
+    <div class="tabs">
         <button class="tab-btn active" data-tab="newhire">📄 Approval Induksi - Permit</button>
-        <!-- Hanya satu tab yang harus memiliki kelas 'active' di awal -->
         <button class="tab-btn" data-tab="pendaftaran">📄 Pendaftaran</button>
 
-        <!-- Grup collapsible -->
         <div class="tab-group-collapsible">
-          <!-- Tombol toggle grup dengan data-group-id -->
           <button class="tab-group-toggle" id="toggle-induksi" data-group-id="induksi-group">📘 Proses Induksi ▾</button>
           <div id="induksi-group" class="tab-subgroup">
             <button class="tab-btn" data-tab="checklist_induksi">✅ Checklist</button>
@@ -69,17 +60,16 @@
       </div>
 
 
-    <!-- 🔎 Konten Tab -->
-
     <div id="newhire" class="tab-content active">
-      <div class="filter-container">
-        <label>🏢</label>
-        <select id="filter-newhire"></select>
-        <label>📅</label>
+      <!-- Menggunakan class "filter-bar" dan struktur label yang lebih jelas -->
+      <div class="filter-bar">
+        <label for="filter-newhire">Perusahaan:</label>
+        <select id="filter-newhire"><option value="all">Semua</option></select>
+        <label for="startDate-newhire">Tanggal:</label>
         <input type="date" id="startDate-newhire" />
         <span>s.d.</span>
         <input type="date" id="endDate-newhire" />
-        <label>🔍</label>
+        <label for="search-newhire">Cari:</label>
         <input type="text" id="search-newhire" placeholder="Cari nama..." />
       </div>
 
@@ -88,7 +78,6 @@
       </div>
     </div>
 
-    <!-- Hapus kelas 'active' dari sini, karena 'newhire' sudah active -->
     <div id="pendaftaran" class="tab-content">
       <div class="filter-container">
         <label>🏢</label>
@@ -170,12 +159,8 @@
       </div>
     </div>
 
-    <!-- 📈 Tab Grafik -->
     <div id="grafik" class="tab-content">
-      <canvas id="chartScore1"></canvas>  <!-- Grafik Cuti & New Hire -->
-      <canvas id="chartScore2"></canvas>  <!-- Grafik SCORE_TERTINGGI & SCORE_TERENDAH -->
-      <!-- Pastikan ada canvas untuk chartScore jika digunakan di script.js -->
-      <canvas id="chartScore"></canvas>
+      <canvas id="chartScore1"></canvas>  <canvas id="chartScore2"></canvas>  <canvas id="chartScore"></canvas>
     </div>
 
   </div>
@@ -183,18 +168,16 @@
 
 
   <footer class="minimal-footer">
-  <p>© 2025 Induksi Monitoring. All rights reserved.</p>
-  <p>AHMAD FAQIH I</p>
-  <p>HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT</p>
+    <p class="copyright">© 2025 Induksi Monitoring. All rights reserved.</p>
+    <p class="developer-info">AHMAD FAQIH I</p>
+    <p class="developer-title">HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT</p>
 </footer>
 
 
-<!-- Floating WhatsApp Icon -->
 <div class="whatsapp-float" id="open-wa-form">
   <img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp" />
 </div>
 
-<!-- Pop-up Form -->
 <div id="wa-form-popup" class="wa-popup hidden">
   <label>👤 Nama:</label>
   <input type="text" id="wa-nama" placeholder="Masukkan nama Anda" />
@@ -204,7 +187,6 @@
   <button id="close-wa-form" class="close-btn">X</button>
 </div>
 
-<!-- 🔻 Banner Modern -->
 <div id="safety-banner" class="safety-banner">
   <div class="banner-container">
     <span class="banner-icon">📢</span>
@@ -216,7 +198,6 @@
 
 
 
-  <!-- 🔔 Alert Keselamatan -->
   <div id="safety-alert" class="safety-toast hidden">
     <img src="https://img.icons8.com/emoji/48/warning-emoji.png" alt="Warning Icon" />
     <div class="safety-message">
@@ -224,7 +205,6 @@
     </div>
   </div>
 
-  <!-- Script utama aplikasi -->
   <script src="script.js" defer></script>
 </body>
 </html>

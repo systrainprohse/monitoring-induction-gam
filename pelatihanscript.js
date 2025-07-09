@@ -1,560 +1,941 @@
+// Memastikan seluruh DOM (Document Object Model) telah dimuat sebelum menjalankan script.
 window.addEventListener('DOMContentLoaded', () => {
-  // 1. CONFIG
-  const SHEET_SOURCES = {
-    monitoring_pelatihan: {
-      id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
-      sheet: "monitoring"
-    },
-    pendaftaran_training: {
-      id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
-      sheet: "training_register"
-    },
-    jadwal_training: {
-      id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
-      sheet: "jadwal_training"
+
+    // 1. KONFIGURASI SUMBER DATA GOOGLE SHEET
+    // Objek ini mendefinisikan ID spreadsheet dan nama sheet untuk setiap jenis data.
+    const SHEET_SOURCES = {
+        monitoring_pelatihan: {
+            id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
+            sheet: "monitoring"
+        },
+        pendaftaran_training: {
+            id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
+            sheet: "training_register"
+        },
+        jadwal_training: {
+            id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
+            sheet: "jadwal_training"
+        },
+        kompetensi: {
+            id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
+            sheet: "kompetensi_manpower" // Pastikan nama sheet ini sesuai di Google Sheet Anda
+        }
+    };
+
+    // Objek ini menentukan kolom mana yang akan ditampilkan untuk setiap tabel.
+    const kolomTampilkan = {
+        monitoring_pelatihan: ["tanggal", "perusahaan", "skor_rata2"],
+        pendaftaran_training: ["TRAINING", "PERUSAHAAN", "TANGGAL", "DEPT", "NAMA"],
+        jadwal_training: ["tanggal_mulai", "tanggal_selesai", "nama_kegiatan", "ruangan", "jumlah_peserta", "pic"],
+        // KOLOM UNTUK TABEL UTAMA KOMPETENSI (hanya NIK, Nama, Departemen, Jabatan)
+        kompetensi: ["NIK", "NAMA", "DEPT", "JABATAN"]
+    };
+
+    const sheetDataCache = {}; // Cache untuk menyimpan data yang sudah diambil dari Google Sheets
+
+    // 2. REFERENSI ELEMEN HTML
+    // Mengambil referensi ke elemen-elemen HTML yang akan dimanipulasi oleh JavaScript.
+    const calendarDays = document.getElementById("calendarDays");
+    const monthYear = document.getElementById("monthYear");
+    const modal = document.getElementById("modal");
+    const closeModal = document.getElementById("closeModal");
+    const filterPIC = document.getElementById("filterPIC");
+    const filterRoom = document.getElementById("filterRoom");
+    const prevBtn = document.getElementById("prevMonth");
+    const nextBtn = document.getElementById("nextMonth");
+
+    // Elemen filter khusus untuk tab kompetensi
+    const filterDeptKompetensi = document.getElementById("filterDeptKompetensi");
+    const filterJabatanKompetensi = document.getElementById("filterJabatanKompetensi");
+    const filterKompetensiDropdown = document.getElementById("filterKompetensiDropdown");
+    const resetFilterKompetensi = document.getElementById("resetFilterKompetensi");
+    const filterNamaKompetensi = document.getElementById("filterNamaKompetensi");
+
+    // Elemen filter untuk Pendaftaran Pelatihan
+    const filterTrainingPendaftaran = document.getElementById("filterTrainingPendaftaran");
+    const filterNamaPendaftaran = document.getElementById("filterNamaPendaftaran");
+    const startDatePendaftaran = document.getElementById("startDatePendaftaran");
+    const endDatePendaftaran = document.getElementById("endDatePendaftaran");
+    const resetFilterPendaftaran = document.getElementById("resetFilterPendaftaran");
+
+    // Elemen modal spesifik untuk detail kompetensi (sesuai desain baru)
+    // Perbaikan: Pastikan ID elemen ini ada di HTML Anda.
+    // Jika tidak ada elemen dengan ID 'modalProfileHeader', 'modalProfileDetails', 'modalKompetensiDetails'
+    // maka referensi ini akan null dan perlu disesuaikan di HTML.
+    const kompetensiModalContent = document.getElementById("kompetensiModalContent"); // Container utama untuk detail kompetensi
+    const modalProfileName = document.getElementById("modalProfileName");
+    const modalProfileTitle = document.getElementById("modalProfileTitle"); // Untuk Jabatan/Departemen
+    const modalProfileNIK = document.getElementById("modalProfileNIK");
+    const modalProfileDept = document.getElementById("modalProfileDept");
+    const modalProfileJabatan = document.getElementById("modalProfileJabatan");
+    const kompetensiList = document.getElementById("kompetensiList");
+
+    // Elemen modal spesifik untuk detail kalender
+    const calendarModalContent = document.getElementById("calendarModalContent"); // Container utama untuk detail kalender
+    const modalTitle = document.getElementById("modalTitle"); // Judul utama modal, digunakan untuk keduanya
+    const modalDate = document.getElementById("modalDate");
+    const modalRoom = document.getElementById("modalRoom");
+    const modalParticipants = document.getElementById("modalParticipants");
+    const modalPIC = document.getElementById("modalPIC");
+
+    // Elemen loader (asumsi ada di HTML untuk indikator loading)
+    const loader = document.getElementById('loader');
+
+    // 3. VARIABEL STATE
+    // Variabel-variabel yang menyimpan status aplikasi saat ini.
+    let currentDate = new Date(); // Tanggal saat ini untuk kalender
+    let allEvents = []; // Semua data event kalender
+    let eventsByDate = {}; // Event kalender yang dikelompokkan berdasarkan tanggal
+    let selectedPIC = ""; // PIC yang dipilih untuk filter kalender
+    let selectedRoom = ""; // Ruangan yang dipilih untuk filter kalender
+
+    // State filter untuk tab kompetensi
+    let selectedDeptKompetensi = "all"; // Departemen yang dipilih
+    let selectedJabatanKompetensi = "all"; // Jabatan yang dipilih
+    let selectedKompetensi = "all"; // Kompetensi yang dipilih (dari dropdown)
+    let searchNamaKompetensi = ""; // Teks pencarian nama
+
+    // State filter untuk tab Pendaftaran Pelatihan
+    let selectedTraining = "all";
+    let searchNamaPendaftaran = "";
+    let selectedStartDatePendaftaran = "";
+    let selectedEndDatePendaftaran = "";
+
+    // Fungsi untuk menampilkan dan menyembunyikan loader
+    function showLoader() {
+        if (loader) {
+            loader.style.display = "flex"; // Menggunakan flex untuk centering
+            setTimeout(() => {
+                loader.classList.add('show'); // Tambahkan kelas 'show' untuk transisi
+            }, 10);
+        }
     }
-  };
 
-  const kolomTampilkan = {
-    monitoring_pelatihan: ["tanggal", "perusahaan", "skor_rata2"],
-    pendaftaran_training: ["TRAINING", "PERUSAHAAN", "TANGGAL", "DEPT", "NAMA"],
-    jadwal_training: ["tanggal_mulai", "tanggal_selesai", "nama_kegiatan", "ruangan", "jumlah_peserta", "pic"]
-  };
-
-  const sheetDataCache = {}; // Cache untuk menyimpan data yang sudah diambil
-
-  // 2. ELEMENT REFERENCES
-  const calendarDays = document.getElementById("calendarDays");
-  const monthYear = document.getElementById("monthYear");
-  const modal = document.getElementById("modal");
-  const closeModal = document.getElementById("closeModal");
-  const filterPIC = document.getElementById("filterPIC");
-  const filterRoom = document.getElementById("filterRoom");
-  const prevBtn = document.getElementById("prevMonth");
-  const nextBtn = document.getElementById("nextMonth");
-
-  // Loader elements (assuming they exist in your HTML)
-  const loader = document.getElementById('loader');
-
-  // 3. STATE
-  let currentDate = new Date();
-  let allEvents = []; // Data untuk kalender
-  let eventsByDate = {};
-  let selectedPIC = "";
-  let selectedRoom = "";
-
-  // Fungsi untuk menampilkan dan menyembunyikan loader
-  function showLoader() {
-    if (loader) loader.style.display = "block";
-  }
-
-  function hideLoader() {
-    if (loader) loader.style.display = "none";
-  }
-
-  // 4. MODAL HANDLERS
-  if (closeModal) {
-    closeModal.addEventListener("click", () => {
-      console.log("Modal closed.");
-      if (modal) modal.style.display = "none";
-    });
-  }
-  if (modal) {
-    window.addEventListener("click", e => {
-      if (e.target === modal) {
-        console.log("Clicked outside modal, closing.");
-        modal.style.display = "none";
-      }
-    });
-  }
-
-  function showModal(items) {
-    console.log("Showing modal with items:", items);
-    const modalContent = modal?.querySelector(".modal-content");
-    if (!modalContent) {
-      console.error("Modal content element not found.");
-      return;
+    function hideLoader() {
+        if (loader) {
+            loader.classList.remove('show'); // Hapus kelas 'show' untuk transisi
+            loader.addEventListener('transitionend', function handler() {
+                loader.style.display = "none"; // Sembunyikan setelah transisi selesai
+                loader.removeEventListener('transitionend', handler);
+            });
+        }
     }
 
-    const titleEl = document.getElementById("modalTitle");
-    const dateEl = document.getElementById("modalDate");
-    const roomEl = document.getElementById("modalRoom");
-    const partEl = document.getElementById("modalParticipants");
-    const picEl = document.getElementById("modalPIC");
-    const extra = modalContent.querySelector(".extra"); // Gunakan modalContent
-
-    if (extra) extra.remove();
-
-    if (items.length === 1) {
-      const ev = items[0];
-      if (titleEl) titleEl.textContent = ev.nama_kegiatan;
-      if (dateEl) dateEl.textContent = `${ev.tanggal_mulai} s.d. ${ev.tanggal_selesai}`;
-      if (roomEl) roomEl.textContent = ev.ruangan;
-      if (partEl) partEl.textContent = ev.jumlah_peserta;
-      if (picEl) picEl.textContent = ev.pic;
-    } else {
-      if (titleEl) titleEl.textContent = `Ada ${items.length} kegiatan`;
-      if (dateEl) dateEl.textContent = "";
-      if (roomEl) roomEl.textContent = "";
-      if (partEl) partEl.textContent = "";
-      if (picEl) picEl.textContent = "";
-
-      const container = document.createElement("div");
-      container.className = "extra";
-      items.forEach(ev => {
-        const p = document.createElement("p");
-        p.innerHTML = `
-          <strong>${ev.nama_kegiatan}</strong><br>
-          ${ev.tanggal_mulai} s.d. ${ev.tanggal_selesai}<br>
-          Ruangan: ${ev.ruangan}<br>
-          Peserta: ${ev.jumlah_peserta}<br>
-          PIC: ${ev.pic}<br><br>
-        `;
-        container.appendChild(p);
-      });
-      modalContent.appendChild(container); // Gunakan modalContent
+    // 4. PENANGAN MODAL
+    // Menambahkan event listener untuk menutup modal.
+    if (closeModal) {
+        closeModal.addEventListener("click", () => {
+            console.log("Modal closed.");
+            if (modal) modal.style.display = "none";
+        });
     }
     if (modal) {
-      modal.style.display = "flex";
-    }
-  }
-
-  // 5. UTILITIES
-  function formatTanggal(str) {
-    // Memastikan format tanggal konsisten (YYYY-MM-DD)
-    if (!str) return "";
-    const parts = str.split('/');
-    if (parts.length === 3) {
-      // Format DD/MM/YYYY
-      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-    }
-    // Asumsikan sudah Malhotra-MM-DD atau format lain yang bisa diparse Date
-    return str;
-  }
-
-  function getTanggalRange(start, end) {
-    const out = [];
-    let cur = new Date(start);
-    const last = new Date(end);
-    while (cur <= last) {
-      out.push(cur.toISOString().slice(0, 10));
-      cur.setDate(cur.getDate() + 1);
-    }
-    return out;
-  }
-
-  function getColorForKey(key) {
-    const palette = [
-      "#1976d2", "#388e3c", "#f57c00", "#7b1fa2", "#c2185b",
-      "#0097a7", "#5d4037", "#455a64", "#d32f2f", "#0288d1"
-    ];
-    const hash = [...key].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
-    return palette[hash % palette.length];
-  }
-
-  // 6. RENDER CALENDAR
-  function renderCalendar() {
-    const Y = currentDate.getFullYear();
-    const M = currentDate.getMonth();
-    const firstDay = new Date(Y, M, 1).getDay();
-    const daysInMonth = new Date(Y, M + 1, 0).getDate();
-
-    const now = new Date();
-    const todayISO = [
-      now.getFullYear(),
-      String(now.getMonth() + 1).padStart(2, '0'),
-      String(now.getDate()).padStart(2, '0')
-    ].join('-');
-
-    if (monthYear) {
-      monthYear.textContent = currentDate.toLocaleString("id-ID", { month: "long", year: "numeric" });
+        // Menutup modal jika area di luar konten modal diklik.
+        window.addEventListener("click", e => {
+            if (e.target === modal) {
+                console.log("Clicked outside modal, closing.");
+                modal.style.display = "none";
+            }
+        });
     }
 
-    if (calendarDays) {
-      calendarDays.innerHTML = "";
-      for (let i = 0; i < firstDay; i++) {
-        calendarDays.appendChild(document.createElement("div"));
-      }
-
-      for (let d = 1; d <= daysInMonth; d++) {
-        const iso = `${Y}-${String(M + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        const cell = document.createElement("div");
-        cell.className = "day";
-        cell.innerHTML = `<div class="date-number">${d}</div>`;
-
-        if (iso === todayISO) {
-          cell.classList.add("today");
+    /**
+     * Menampilkan modal dengan detail yang relevan berdasarkan tipe.
+     * @param {Object|Array} items - Data yang akan ditampilkan di modal.
+     * @param {string} type - Tipe modal ('calendar' untuk jadwal, 'kompetensi' untuk detail kompetensi).
+     */
+    function showModal(items, type = 'calendar') {
+        console.log("Showing modal with items:", items, "type:", type);
+        const modalContent = modal?.querySelector(".modal-content");
+        if (!modalContent) {
+            console.error("Elemen konten modal tidak ditemukan.");
+            return;
         }
 
-        if (eventsByDate[iso] && eventsByDate[iso].length > 0) { // Pastikan ada event untuk tanggal ini
-          cell.classList.add("has-event");
-          eventsByDate[iso].forEach(ev => {
-            const lbl = document.createElement("div");
-            lbl.className = "event-label";
-            lbl.textContent = ev.nama_kegiatan;
-            lbl.style.backgroundColor = getColorForKey(ev.nama_kegiatan);
-            cell.appendChild(lbl);
-          });
-          cell.addEventListener("click", () => showModal(eventsByDate[iso]));
+        // Sembunyikan semua bagian modal terlebih dahulu untuk memastikan tampilan bersih
+        if (kompetensiModalContent) kompetensiModalContent.style.display = 'none';
+        if (calendarModalContent) calendarModalContent.style.display = 'none';
+
+        // Kosongkan konten yang mungkin ada dari penggunaan sebelumnya
+        if (modalProfileName) modalProfileName.textContent = '';
+        if (modalProfileTitle) modalProfileTitle.textContent = '';
+        if (modalProfileNIK) modalProfileNIK.textContent = '';
+        if (modalProfileDept) modalProfileDept.textContent = '';
+        if (modalProfileJabatan) modalProfileJabatan.textContent = '';
+        if (kompetensiList) kompetensiList.innerHTML = '';
+        if (modalDate) modalDate.textContent = '';
+        if (modalRoom) modalRoom.textContent = '';
+        if (modalParticipants) modalParticipants.textContent = '';
+        if (modalPIC) modalPIC.textContent = '';
+        if (modalTitle) modalTitle.textContent = ''; // Kosongkan judul utama modal
+
+        // Hapus elemen 'extra' dari modal kalender jika ada
+        const existingExtraCalendarEvents = modalContent.querySelector(".extra-calendar-events");
+        if (existingExtraCalendarEvents) existingExtraCalendarEvents.innerHTML = ''; // Kosongkan kontennya
+
+        if (type === 'calendar') {
+            // Tampilkan bagian modal untuk kalender
+            if (calendarModalContent) calendarModalContent.style.display = 'block';
+
+            if (items.length === 1) {
+                // Jika hanya satu kegiatan, tampilkan detailnya
+                const ev = items[0];
+                if (modalTitle) modalTitle.textContent = ev.nama_kegiatan; // Gunakan modalTitle utama
+                if (modalDate) modalDate.textContent = `${ev.tanggal_mulai} s.d. ${ev.tanggal_selesai}`;
+                if (modalRoom) modalRoom.textContent = ev.ruangan;
+                if (modalParticipants) modalParticipants.textContent = ev.jumlah_peserta;
+                if (modalPIC) modalPIC.textContent = ev.pic;
+            } else {
+                // Jika ada banyak kegiatan, tampilkan ringkasan dan daftar
+                if (modalTitle) modalTitle.textContent = `Ada ${items.length} kegiatan`; // Gunakan modalTitle utama
+                // Kosongkan detail standar jika ada banyak kegiatan
+                if (modalDate) modalDate.textContent = "";
+                if (modalRoom) modalRoom.textContent = "";
+                if (modalParticipants) modalParticipants.textContent = "";
+                if (modalPIC) modalPIC.textContent = "";
+
+                const container = modalContent.querySelector(".extra-calendar-events"); // Gunakan container yang sudah ada
+                if (container) {
+                    items.forEach(ev => {
+                        const p = document.createElement("p");
+                        p.innerHTML = `
+                            <strong>${ev.nama_kegiatan}</strong><br>
+                            ${ev.tanggal_mulai} s.d. ${ev.tanggal_selesai}<br>
+                            Ruangan: ${ev.ruangan}<br>
+                            Peserta: ${ev.jumlah_peserta}<br>
+                            PIC: ${ev.pic}<br><br>
+                        `;
+                        container.appendChild(p);
+                    });
+                }
+            }
+        } else if (type === 'kompetensi') {
+            // Tampilkan bagian modal untuk kompetensi
+            if (kompetensiModalContent) kompetensiModalContent.style.display = 'block';
+
+            const person = items.person; // Data dasar individu (NIK, Nama, Dept, Jabatan)
+            const competencies = items.competencies; // Array objek kompetensi
+
+            if (modalTitle) modalTitle.textContent = `Detail Kompetensi: ${person.NAMA || 'N/A'}`; // Gunakan modalTitle utama
+            if (modalProfileName) modalProfileName.textContent = person.NAMA || 'N/A';
+            // Gabungkan Departemen dan Jabatan untuk modalProfileTitle
+            if (modalProfileTitle) modalProfileTitle.textContent = `${person.DEPT || 'N/A'} - ${person.JABATAN || 'N/A'}`;
+            if (modalProfileNIK) modalProfileNIK.textContent = person.NIK || 'N/A';
+            if (modalProfileDept) modalProfileDept.textContent = person.DEPT || 'N/A';
+            if (modalProfileJabatan) modalProfileJabatan.textContent = person.JABATAN || 'N/A';
+
+            if (kompetensiList) {
+                kompetensiList.innerHTML = ''; // Pastikan kosong sebelum mengisi
+                if (competencies.length > 0) {
+                    // Isi daftar kompetensi
+                    competencies.forEach(comp => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `<strong>${comp.KOMPETENSI || 'N/A'}</strong>: Status: ${comp.STATUS || 'N/A'}`;
+                        kompetensiList.appendChild(li);
+                    });
+                } else {
+                    // Jika tidak ada kompetensi
+                    const li = document.createElement("li");
+                    li.textContent = "Tidak ada data kompetensi yang ditemukan.";
+                    kompetensiList.appendChild(li);
+                }
+            }
         }
-        calendarDays.appendChild(cell);
-      }
-      console.log("Calendar rendered for:", monthYear.textContent, "with eventsByDate:", eventsByDate);
-    } else {
-      console.warn("calendarDays element not found. Cannot render calendar.");
-    }
-  }
 
-  // 7. FILTER KALENDER
-  function applyFilters() {
-    eventsByDate = {};
-    // Selalu filter dari data asli allEvents
-    allEvents.forEach(ev => {
-      if (selectedPIC && ev.pic && ev.pic !== selectedPIC) return; // Tambahkan null check untuk ev.pic
-      if (selectedRoom && ev.ruangan && ev.ruangan !== selectedRoom) return; // Tambahkan null check untuk ev.ruangan
-      getTanggalRange(ev.tanggal_mulai, ev.tanggal_selesai)
-        .forEach(date => {
-          (eventsByDate[date] ||= []).push(ev);
+        // Tampilkan modal
+        if (modal) {
+            modal.style.display = "flex";
+        }
+    }
+
+    // 5. FUNGSI UTILITAS
+    /**
+     * Memformat string tanggal ke format YYYY-MM-DD.
+     * @param {string} str - String tanggal (misal: "DD/MM/YYYY").
+     * @returns {string} Tanggal dalam format YYYY-MM-DD.
+     */
+    function formatTanggal(str) {
+        if (!str) return "";
+        const parts = str.split('/');
+        if (parts.length === 3) {
+            // Format DD/MM/YYYY menjadi YYYY-MM-DD
+            return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+        // Asumsikan sudah dalam format YYYY-MM-DD atau format lain yang bisa diparse Date
+        return str;
+    }
+
+    /**
+     * Mengembalikan array string tanggal dalam rentang tertentu.
+     * @param {string} start - Tanggal mulai (YYYY-MM-DD).
+     * @param {string} end - Tanggal akhir (YYYY-MM-DD).
+     * @returns {Array<string>} Array tanggal dalam format YYYY-MM-DD.
+     */
+    function getTanggalRange(start, end) {
+        const out = [];
+        let cur = new Date(start);
+        const last = new Date(end);
+        while (cur <= last) {
+            out.push(cur.toISOString().slice(0, 10)); // Ambil bagian YYYY-MM-DD
+            cur.setDate(cur.getDate() + 1); // Maju satu hari
+        }
+        return out;
+    }
+
+    /**
+     * Mengembalikan warna unik berdasarkan kunci (string).
+     * Digunakan untuk memberi warna berbeda pada event kalender.
+     * @param {string} key - Kunci untuk menghasilkan warna.
+     * @returns {string} Kode warna heksadesimal.
+     */
+    function getColorForKey(key) {
+        const palette = [
+            "#1976d2", "#388e3c", "#f57c00", "#7b1fa2", "#c2185b",
+            "#0097a7", "#5d4037", "#455a64", "#d32f2f", "#0288d1"
+        ];
+        const hash = [...key].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+        return palette[hash % palette.length];
+    }
+
+    // Fungsi debounce untuk menunda eksekusi fungsi (misalnya saat mengetik di search bar)
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            const context = this;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), delay);
+        };
+    }
+
+    // Membuat versi debounced dari fungsi filter untuk input teks
+    const debouncedApplyPendaftaranFilter = debounce(applyPendaftaranFilter, 300);
+    const debouncedApplyKompetensiFilter = debounce(applyKompetensiFilter, 300);
+
+
+    /**
+     * Menerapkan filter pada data kompetensi dan merender tabel.
+     */
+    function applyKompetensiFilter() {
+        // Ambil data dari cache dan saring entri yang undefined/null
+        const dataToFilter = (sheetDataCache[SHEET_SOURCES.kompetensi.sheet] || []).filter(Boolean);
+        console.log("Data untuk difilter (Kompetensi):", dataToFilter);
+
+        const filtered = dataToFilter.filter(row => {
+            // Double-check: pastikan 'row' adalah objek yang valid sebelum mengakses propertinya
+            if (typeof row !== 'object' || row === null) {
+                return false;
+            }
+
+            // Ambil nilai kolom dan ubah ke lowercase untuk perbandingan case-insensitive
+            const deptRow = (row.DEPT || "").toLowerCase();
+            const jabatanRow = (row.JABATAN || "").toLowerCase();
+            const kompetensiRow = (row.KOMPETENSI || "").toLowerCase();
+            const namaRow = (row.NAMA || "").toLowerCase();
+
+            // Cek apakah baris cocok dengan filter yang dipilih
+            const matchDept = selectedDeptKompetensi === "all" || deptRow === selectedDeptKompetensi.toLowerCase();
+            const matchJabatan = selectedJabatanKompetensi === "all" || jabatanRow === selectedJabatanKompetensi.toLowerCase();
+            const matchKompetensi = selectedKompetensi === "all" || kompetensiRow === selectedKompetensi.toLowerCase();
+            const matchNama = searchNamaKompetensi === "" || namaRow.includes(searchNamaKompetensi.toLowerCase());
+
+            return matchDept && matchJabatan && matchKompetensi && matchNama;
         });
-    });
-    console.log("Events by Date after filtering:", eventsByDate);
-    renderCalendar();
-  }
 
-  function initFilters(data) {
-    // Pastikan data yang masuk ke map tidak undefined
-    const pics = [...new Set(data.map(ev => ev.pic).filter(Boolean))].sort(); // Filter out undefined/null
-    const rooms = [...new Set(data.map(ev => ev.ruangan).filter(Boolean))].sort(); // Filter out undefined/null
+        // Perbarui jumlah hasil yang ditampilkan
+        const resultCountEl = document.getElementById("resultCountKompetensi");
+        if (resultCountEl) {
+            resultCountEl.textContent = `Menampilkan ${filtered.length} entri.`;
+        }
 
-    if (filterPIC) {
-      filterPIC.innerHTML = `<option value="">Semua PIC</option>`;
-      pics.forEach(p => filterPIC.add(new Option(p, p)));
-      if (!filterPIC.dataset.listenerAttached) { // Pastikan hanya dilampirkan sekali
-        filterPIC.addEventListener("change", e => {
-          selectedPIC = e.target.value;
-          applyFilters();
+        console.log("Data Kompetensi yang difilter:", filtered);
+        // Panggil renderTable dengan data yang sudah difilter untuk tabel kompetensi
+        renderTable(filtered, "table-kompetensi");
+    }
+
+    /**
+     * Menerapkan filter pada data pendaftaran training dan merender tabel.
+     */
+    function applyPendaftaranFilter() {
+        const dataToFilter = (sheetDataCache[SHEET_SOURCES.pendaftaran_training.sheet] || []).filter(Boolean);
+
+        const filtered = dataToFilter.filter(row => {
+            if (typeof row !== 'object' || row === null) return false;
+
+            const trainingRow = (row.TRAINING || "").toLowerCase();
+            const namaRow = (row.NAMA || "").toLowerCase();
+            const tanggalRow = formatTanggal(row.TANGGAL); // Menggunakan format YYYY-MM-DD
+
+            const matchTraining = selectedTraining === "all" || trainingRow === selectedTraining.toLowerCase();
+            const matchNama = searchNamaPendaftaran === "" || namaRow.includes(searchNamaPendaftaran.toLowerCase());
+
+            let matchDate = true;
+            if (selectedStartDatePendaftaran && selectedEndDatePendaftaran) {
+                matchDate = tanggalRow >= selectedStartDatePendaftaran && tanggalRow <= selectedEndDatePendaftaran;
+            } else if (selectedStartDatePendaftaran) {
+                matchDate = tanggalRow >= selectedStartDatePendaftaran;
+            } else if (selectedEndDatePendaftaran) {
+                matchDate = tanggalRow <= selectedEndDatePendaftaran;
+            }
+
+            return matchTraining && matchNama && matchDate;
         });
-        filterPIC.dataset.listenerAttached = "true";
-      }
-    } else {
-      console.warn("Filter PIC element not found.");
+
+        const resultCountEl = document.getElementById("resultCountPendaftaran");
+        if (resultCountEl) {
+            resultCountEl.textContent = `Menampilkan ${filtered.length} entri.`;
+        }
+
+        renderTable(filtered, "table-pendaftaran_training");
     }
 
-    if (filterRoom) {
-      filterRoom.innerHTML = `<option value="">Semua Ruangan</option>`;
-      rooms.forEach(r => filterRoom.add(new Option(r, r)));
-      if (!filterRoom.dataset.listenerAttached) { // Pastikan hanya dilampirkan sekali
-        filterRoom.addEventListener("change", e => {
-          selectedRoom = e.target.value;
-          applyFilters();
-        });
-        filterRoom.dataset.listenerAttached = "true";
-      }
-    } else {
-      console.warn("Filter Room element not found.");
-    }
-    console.log("Calendar filters initialized with PICs:", pics, "and Rooms:", rooms);
-  }
+    /**
+     * Menginisialisasi filter dropdown untuk tab Pendaftaran Training.
+     */
+    function initPendaftaranFilters() {
+        const data = sheetDataCache[SHEET_SOURCES.pendaftaran_training.sheet] || [];
 
-  // 8. FETCH DATA
-  async function fetchSheet(id, sheet) {
-    if (sheetDataCache[sheet]) {
-      console.log(`Mengembalikan data yang di-cache untuk sheet: ${sheet}`);
-      return sheetDataCache[sheet];
-    }
-    showLoader();
-    try {
-      const res = await fetch(`https://opensheet.elk.sh/${id}/${sheet}`);
-      if (!res.ok) throw new Error(`Gagal mengambil data dari sheet: ${sheet}`);
-      const data = await res.json();
-      sheetDataCache[sheet] = data; // Cache data
-      console.log(`Data berhasil diambil dan di-cache untuk sheet: ${sheet}`, data);
-      return data;
-    } catch (err) {
-      console.error(`Error fetching sheet ${sheet}:`, err);
-      return [];
-    } finally {
-      hideLoader();
-    }
-  }
+        if (!filterTrainingPendaftaran || !filterNamaPendaftaran || !resetFilterPendaftaran) return;
 
-  // 9. RENDER TABLE
-  function renderTable(data, tableId) {
-    const key = tableId.replace("table-", "");
-    let table = document.getElementById(tableId);
+        if (!filterTrainingPendaftaran.dataset.listenerAttached) {
+            const uniqueTrainings = [...new Set(data.map(row => row.TRAINING).filter(Boolean))].sort();
+            filterTrainingPendaftaran.innerHTML = `<option value="all">Semua</option>` +
+                uniqueTrainings.map(t => `<option value="${t}">${t}</option>`).join("");
 
-    if (!table) {
-      console.error(`Elemen tabel dengan ID '${tableId}' tidak ditemukan.`);
-      return;
+            filterTrainingPendaftaran.addEventListener("change", e => { selectedTraining = e.target.value; applyPendaftaranFilter(); });
+            filterNamaPendaftaran.addEventListener("input", e => { searchNamaPendaftaran = e.target.value; debouncedApplyPendaftaranFilter(); });
+            startDatePendaftaran.addEventListener("change", e => { selectedStartDatePendaftaran = e.target.value; applyPendaftaranFilter(); });
+            endDatePendaftaran.addEventListener("change", e => { selectedEndDatePendaftaran = e.target.value; applyPendaftaranFilter(); });
+
+            resetFilterPendaftaran.addEventListener("click", () => {
+                filterTrainingPendaftaran.value = "all"; filterNamaPendaftaran.value = ""; startDatePendaftaran.value = ""; endDatePendaftaran.value = "";
+                selectedTraining = "all"; searchNamaPendaftaran = ""; selectedStartDatePendaftaran = ""; selectedEndDatePendaftaran = "";
+                applyPendaftaranFilter();
+            });
+
+            filterTrainingPendaftaran.dataset.listenerAttached = "true";
+        }
+        applyPendaftaranFilter(); // Panggil untuk render awal
     }
 
-    if (!data || data.length === 0) {
-      table.innerHTML = "<p>Data tidak tersedia.</p>";
-      return;
+    /**
+     * Menginisialisasi filter dropdown untuk tab Kompetensi.
+     * Mengisi opsi dropdown dan melampirkan event listener.
+     */
+    function initKompetensiFilters() {
+        const data = sheetDataCache[SHEET_SOURCES.kompetensi.sheet] || [];
+
+        // Periksa apakah semua elemen filter ditemukan di DOM
+        if (!filterDeptKompetensi || !filterJabatanKompetensi || !filterKompetensiDropdown || !resetFilterKompetensi || !filterNamaKompetensi) {
+            console.warn("Satu atau lebih elemen filter kompetensi tidak ditemukan. Pastikan ID HTML sudah benar.");
+            return;
+        }
+
+        // Pastikan opsi filter hanya diisi dan event listener hanya dipasang sekali
+        if (!filterDeptKompetensi.dataset.listenerAttached) {
+            if (data.length > 0) {
+                // Ambil nilai unik untuk dropdown Departemen
+                const uniqueDepts = [...new Set(data.map(row => row.DEPT).filter(Boolean))].sort();
+                filterDeptKompetensi.innerHTML = `<option value="all">Semua</option>` +
+                    uniqueDepts.map(d => `<option value="${d}">${d}</option>`).join("");
+
+                // Ambil nilai unik untuk dropdown Jabatan
+                const uniqueJabatans = [...new Set(data.map(row => row.JABATAN).filter(Boolean))].sort();
+                filterJabatanKompetensi.innerHTML = `<option value="all">Semua</option>` +
+                    uniqueJabatans.map(j => `<option value="${j}">${j}</option>`).join("");
+
+                // Ambil nilai unik untuk dropdown Kompetensi
+                const uniqueKompetensi = [...new Set(data.map(row => row.KOMPETENSI).filter(Boolean))].sort();
+                filterKompetensiDropdown.innerHTML = `<option value="all">Semua</option>` +
+                    uniqueKompetensi.map(k => `<option value="${k}">${k}</option>`).join("");
+            } else {
+                // Jika tidak ada data, tampilkan opsi "Tidak Ada Data"
+                console.warn("Tidak ada data untuk mengisi filter kompetensi.");
+                filterDeptKompetensi.innerHTML = `<option value="all">Tidak Ada Data</option>`;
+                filterJabatanKompetensi.innerHTML = `<option value="all">Tidak Ada Data</option>`;
+                filterKompetensiDropdown.innerHTML = `<option value="all">Tidak Ada Data</option>`;
+            }
+
+            // Pasang event listeners untuk setiap filter
+            filterDeptKompetensi.addEventListener("change", (e) => {
+                selectedDeptKompetensi = e.target.value;
+                applyKompetensiFilter();
+            });
+            filterJabatanKompetensi.addEventListener("change", (e) => {
+                selectedJabatanKompetensi = e.target.value;
+                applyKompetensiFilter();
+            });
+            filterKompetensiDropdown.addEventListener("change", (e) => {
+                selectedKompetensi = e.target.value; // Perbarui state untuk dropdown kompetensi
+                applyKompetensiFilter();
+            });
+            filterNamaKompetensi.addEventListener("input", (e) => {
+                searchNamaKompetensi = e.target.value;
+                debouncedApplyKompetensiFilter();
+            });
+            resetFilterKompetensi.addEventListener("click", () => {
+                // Reset nilai dropdown dan state filter
+                filterDeptKompetensi.value = "all";
+                filterJabatanKompetensi.value = "all";
+                filterKompetensiDropdown.value = "all";
+                filterNamaKompetensi.value = "";
+                selectedDeptKompetensi = "all";
+                selectedJabatanKompetensi = "all";
+                selectedKompetensi = "all";
+                searchNamaKompetensi = "";
+                applyKompetensiFilter();
+            });
+            // Tandai bahwa listener sudah terpasang untuk mencegah pemasangan berulang
+            filterDeptKompetensi.dataset.listenerAttached = "true";
+            console.log("Event listener filter kompetensi terpasang.");
+        }
+        // Panggil applyKompetensiFilter untuk menampilkan data awal saat inisialisasi
+        applyKompetensiFilter();
     }
 
-    // Pastikan elemen adalah TABLE, jika tidak, buat yang baru
-    if (table.tagName !== "TABLE") {
-      const newTable = document.createElement("table");
-      newTable.id = tableId;
-      newTable.className = "data-table"; // Tambahkan kelas jika diperlukan
-      table.replaceWith(newTable);
-      table = newTable;
-    }
+    // 6. RENDER KALENDER
+    /**
+     * Merender tampilan kalender berdasarkan bulan dan tahun saat ini.
+     */
+    function renderCalendar() {
+        const Y = currentDate.getFullYear();
+        const M = currentDate.getMonth();
+        const firstDay = new Date(Y, M, 1).getDay(); // Hari pertama bulan (0=Minggu, 1=Senin, dst.)
+        const daysInMonth = new Date(Y, M + 1, 0).getDate(); // Jumlah hari dalam bulan
 
-    const allowed = kolomTampilkan[key] || Object.keys(data[0]);
+        const now = new Date();
+        // Format tanggal hari ini ke ISO string (YYYY-MM-DD) untuk perbandingan
+        const todayISO = [
+            now.getFullYear(),
+            String(now.getMonth() + 1).padStart(2, '0'),
+            String(now.getDate()).padStart(2, '0')
+        ].join('-');
 
-    const thead = `<thead><tr>${allowed.map(h => `<th>${h}</th>`).join("")}</tr></thead>`;
-    const tbody = `<tbody>${data.map(row =>
-      `<tr>${allowed.map(h => `<td>${row[h] || ""}</td>`).join("")}</tr>`
-    ).join("")}</tbody>`;
+        // Perbarui teks bulan dan tahun di header kalender
+        if (monthYear) {
+            monthYear.textContent = currentDate.toLocaleString("id-ID", { month: "long", year: "numeric" });
+        }
 
-    table.innerHTML = thead + tbody;
-    table.classList.remove("loaded");
-    setTimeout(() => table.classList.add("loaded"), 10);
-    console.log(`Table '${tableId}' rendered with ${data.length} rows.`);
-  }
+        if (calendarDays) {
+            calendarDays.innerHTML = ""; // Bersihkan hari-hari sebelumnya
+            // Buat div kosong untuk mengisi hari-hari sebelum tanggal 1
+            for (let i = 0; i < firstDay; i++) {
+                calendarDays.appendChild(document.createElement("div"));
+            }
 
-  // Filter untuk Pendaftaran Training
-  function applyPendaftaranFilter() {
-    const trainingSelect = document.getElementById("filterTrainingPendaftaran");
-    const namaInput = document.getElementById("filterNamaPendaftaran");
-    const startInput = document.getElementById("startDatePendaftaran");
-    const endInput = document.getElementById("endDatePendaftaran");
+            // Buat sel untuk setiap hari dalam sebulan
+            for (let d = 1; d <= daysInMonth; d++) {
+                const iso = `${Y}-${String(M + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const cell = document.createElement("div");
+                cell.className = "day";
+                cell.innerHTML = `<div class="date-number">${d}</div>`;
 
-    // Pastikan elemen-elemen filter ada sebelum mencoba mengakses nilainya
-    const training = trainingSelect ? trainingSelect.value : "all";
-    const namaSearch = namaInput ? namaInput.value.toLowerCase() : "";
-    const start = startInput ? startInput.value : "";
-    const end = endInput ? endInput.value : "";
+                // Tandai hari ini
+                if (iso === todayISO) {
+                    cell.classList.add("today");
+                }
 
-    console.log("Applying Pendaftaran Filter:");
-    console.log("  Training:", training);
-    console.log("  Nama Search:", namaSearch);
-    console.log("  Start Date:", start);
-    console.log("  End Date:", end);
-
-
-    // Selalu filter dari data asli yang di-cache
-    const dataToFilter = sheetDataCache[SHEET_SOURCES.pendaftaran_training.sheet] || [];
-    console.log("Data untuk difilter (Pendaftaran Training):", dataToFilter);
-
-
-    const startTime = start ? new Date(start).getTime() : -Infinity;
-    const endTime = end ? new Date(end).getTime() : Infinity;
-
-    const uniqueSet = new Set();
-    const filtered = dataToFilter.filter(row => {
-      const namaRow = (row.NAMA || row.Nama || "").toLowerCase();
-      const trainingNameRow = row.TRAINING || "";
-      const tanggalRow = row.TANGGAL || "";
-      const waktuRow = new Date(tanggalRow).getTime();
-
-      const matchTraining = training === "all" || trainingNameRow === training;
-      const matchTanggal = waktuRow >= startTime && waktuRow <= endTime;
-      const matchNama = namaRow.includes(namaSearch);
-
-      const key = `${trainingNameRow}|${tanggalRow}|${namaRow}`; // Kunci unik untuk menghindari duplikat
-      if (matchTraining && matchTanggal && matchNama && !uniqueSet.has(key)) {
-        uniqueSet.add(key);
-        return true;
-      }
-      return false;
-    });
-
-    const resultCountEl = document.getElementById("resultCountPendaftaran");
-    if (resultCountEl) {
-      resultCountEl.textContent = `Menampilkan ${filtered.length} entri unik berdasarkan filter.`;
-    }
-
-    console.log("Filtered Pendaftaran Training data:", filtered);
-    renderTable(filtered, "table-pendaftaran_training");
-  }
-
-  function initPendaftaranFilter() {
-    const trainingSelect = document.getElementById("filterTrainingPendaftaran");
-    const namaInput = document.getElementById("filterNamaPendaftaran");
-    const startInput = document.getElementById("startDatePendaftaran");
-    const endInput = document.getElementById("endDatePendaftaran");
-    const resetBtn = document.getElementById("resetFilterPendaftaran");
-    const data = sheetDataCache[SHEET_SOURCES.pendaftaran_training.sheet] || [];
-
-    if (!trainingSelect || !namaInput || !startInput || !endInput || !resetBtn) {
-      console.warn("Elemen filter pendaftaran tidak ditemukan. Pastikan ID HTML sudah benar.");
-      return;
-    }
-
-    if (trainingSelect.options.length <= 1 || trainingSelect.options[1]?.value === "Tidak Ada Data") { // Hanya isi ulang jika belum ada opsi atau ada placeholder "Tidak Ada Data"
-      if (data.length > 0) {
-        const uniqueTrainings = [...new Set(data.map(row => row.TRAINING).filter(Boolean))].sort(); // Filter out undefined/null
-        trainingSelect.innerHTML = `<option value="all">Semua</option>` +
-          uniqueTrainings.map(t => `<option value="${t}">${t}</option>`).join("");
-        console.log("Training filter options populated:", uniqueTrainings);
-      } else {
-        console.warn("Tidak ada data untuk mengisi filter training.");
-        trainingSelect.innerHTML = `<option value="all">Tidak Ada Data</option>`;
-      }
-    }
-
-
-    // Pastikan event listener hanya dilampirkan sekali
-    if (!trainingSelect.dataset.listenerAttached) {
-      [trainingSelect, namaInput, startInput, endInput].forEach(el =>
-        el.addEventListener("input", applyPendaftaranFilter)
-      );
-      // Tambahkan event listener untuk 'change' juga, terutama untuk input date
-      [trainingSelect, startInput, endInput].forEach(el =>
-        el.addEventListener("change", applyPendaftaranFilter)
-      );
-
-
-      resetBtn.addEventListener("click", () => {
-        trainingSelect.value = "all";
-        namaInput.value = "";
-        startInput.value = "";
-        endInput.value = "";
-        applyPendaftaranFilter();
-      });
-
-      trainingSelect.dataset.listenerAttached = "true";
-      console.log("Pendaftaran filter event listeners attached.");
-    }
-
-    // Tampilkan data awal setelah inisialisasi filter
-    applyPendaftaranFilter();
-  }
-
-  // 10. NAVIGATION (untuk kalender)
-  if (prevBtn) {
-    prevBtn.addEventListener("click", () => {
-      currentDate.setMonth(currentDate.getMonth() - 1);
-      renderCalendar();
-    });
-  }
-  if (nextBtn) {
-    nextBtn.addEventListener("click", () => {
-      currentDate.setMonth(currentDate.getMonth() + 1);
-      renderCalendar();
-    });
-  }
-
-  /**
-   * Opens a specific tab in the UI.
-   * @param {string} tabId - The ID of the tab content to show.
-   * @param {Event} event - The click event (optional).
-   */
-  function openTab(tabId, event) {
-    console.log("Attempting to open tab:", tabId);
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-    const targetTabContent = document.getElementById(tabId);
-    if (targetTabContent) {
-      targetTabContent.classList.add('active');
-      console.log(`Tab content '${tabId}' activated.`);
-    } else {
-      console.warn(`Tab content with ID '${tabId}' not found. Cannot activate.`);
-    }
-
-
-    // Menemukan tombol tab yang sesuai berdasarkan data-tab
-    let targetTabButton = null;
-    document.querySelectorAll('.tab-btn').forEach(button => {
-      if (button.dataset.tab === tabId) {
-        targetTabButton = button;
-      }
-    });
-
-    // Jika event disediakan (klik tombol), gunakan target event
-    // Jika tidak, gunakan tombol yang ditemukan berdasarkan data-tab
-    if (event && event.target) {
-      event.target.classList.add('active');
-      console.log(`Tab button for '${tabId}' activated via event target.`);
-    } else if (targetTabButton) {
-      targetTabButton.classList.add('active');
-      console.log(`Tab button for '${tabId}' activated via data-tab.`);
-    } else {
-      console.warn(`Tab button for '${tabId}' not found to activate.`);
-    }
-
-
-    // Panggil fungsi inisialisasi/filter yang relevan saat tab diaktifkan
-    if (tabId === 'pendaftaran_training') { // ID tab Pendaftaran Pelatihan
-      console.log("Calling initPendaftaranFilter for tab:", tabId);
-      initPendaftaranFilter();
-    } else if (tabId === 'calendar') { // ID tab Jadwal Pelatihan (Kalender)
-      console.log("Calling applyFilters for tab:", tabId);
-      applyFilters(); // Untuk memastikan kalender di-render ulang dengan filter
-    } else if (tabId === 'grafik') { // ID tab Monitoring Pelatihan
-        // Asumsi 'grafik' menampilkan tabel monitoring_pelatihan
-        console.log("Rendering monitoring_pelatihan table for tab:", tabId);
-        if (sheetDataCache[SHEET_SOURCES.monitoring_pelatihan.sheet]) {
-            renderTable(sheetDataCache[SHEET_SOURCES.monitoring_pelatihan.sheet], 'table-monitoring_pelatihan', 'monitoring_pelatihan');
+                // Tambahkan event jika ada kegiatan pada tanggal tersebut
+                if (eventsByDate[iso] && eventsByDate[iso].length > 0) {
+                    cell.classList.add("has-event");
+                    eventsByDate[iso].forEach(ev => {
+                        const lbl = document.createElement("div");
+                        lbl.className = "event-label";
+                        lbl.textContent = ev.nama_kegiatan;
+                        lbl.style.backgroundColor = getColorForKey(ev.nama_kegiatan);
+                        cell.appendChild(lbl);
+                    });
+                    // Tambahkan event listener untuk menampilkan modal kalender
+                    cell.addEventListener("click", () => showModal(eventsByDate[iso], 'calendar'));
+                }
+                calendarDays.appendChild(cell);
+            }
+            console.log("Kalender dirender untuk:", monthYear.textContent, "dengan eventsByDate:", eventsByDate);
         } else {
-            // Jika data belum di-cache, fetch dan render
-            fetchSheet(SHEET_SOURCES.monitoring_pelatihan.id, SHEET_SOURCES.monitoring_pelatihan.sheet)
-                .then(data => renderTable(data, 'table-monitoring_pelatihan', 'monitoring_pelatihan'))
-                .catch(error => console.error("Failed to fetch/render monitoring_pelatihan:", error));
+            console.warn("Elemen calendarDays tidak ditemukan. Tidak dapat merender kalender.");
         }
     }
-    // Tambahkan logika untuk tab 'kompetensi' jika diperlukan
-    else if (tabId === 'kompetensi') {
-        console.log("Tab 'kompetensi' activated. Implement rendering logic here if needed.");
-        // Anda mungkin perlu memanggil fungsi renderTable atau inisialisasi lain untuk tab ini
-        // Contoh: renderTable(sheetDataCache.kompetensi_data, 'table-kompetensi', 'kompetensi');
+
+    // 7. FILTER KALENDER
+    /**
+     * Menerapkan filter PIC dan Ruangan pada event kalender.
+     */
+    function applyFilters() {
+        eventsByDate = {}; // Reset event yang dikelompokkan
+        // Filter dari data asli allEvents berdasarkan PIC dan Ruangan yang dipilih
+        allEvents.forEach(ev => {
+            if (selectedPIC && ev.pic && ev.pic !== selectedPIC) return;
+            if (selectedRoom && ev.ruangan && ev.ruangan !== selectedRoom) return;
+            // Dapatkan semua tanggal dalam rentang event dan tambahkan ke eventsByDate
+            getTanggalRange(ev.tanggal_mulai, ev.tanggal_selesai)
+                .forEach(date => {
+                    (eventsByDate[date] ||= []).push(ev); // Tambahkan event ke tanggal yang relevan
+                });
+        });
+        console.log("Events by Date setelah filtering:", eventsByDate);
+        renderCalendar(); // Render ulang kalender dengan event yang sudah difilter
     }
-  }
 
+    /**
+     * Menginisialisasi filter dropdown untuk kalender (PIC dan Ruangan).
+     * @param {Array<Object>} data - Data event untuk mengekstrak nilai unik.
+     */
+    function initFilters(data) {
+        // Ambil nilai unik untuk PIC dan Ruangan
+        const pics = [...new Set(data.map(ev => ev.pic).filter(Boolean))].sort();
+        const rooms = [...new Set(data.map(ev => ev.ruangan).filter(Boolean))].sort();
 
-  // 11. INIT - Fungsi inisialisasi utama
-  (async () => {
-    showLoader(); // Tampilkan loader di awal inisialisasi
-    try {
-      // Ambil dan proses data jadwal_training untuk kalender
-      const jadwalTrainingData = await fetchSheet(
-        SHEET_SOURCES.jadwal_training.id,
-        SHEET_SOURCES.jadwal_training.sheet
-      );
-      allEvents = jadwalTrainingData.map(ev => ({
-        ...ev,
-        tanggal_mulai: formatTanggal(ev.tanggal_mulai),
-        tanggal_selesai: formatTanggal(ev.tanggal_selesai)
-      }));
-      console.log("All calendar events after fetch and format:", allEvents);
+        // Isi dropdown PIC
+        if (filterPIC) {
+            filterPIC.innerHTML = `<option value="">Semua PIC</option>`;
+            pics.forEach(p => filterPIC.add(new Option(p, p)));
+            // Pasang event listener hanya sekali
+            if (!filterPIC.dataset.listenerAttached) {
+                filterPIC.addEventListener("change", e => {
+                    selectedPIC = e.target.value;
+                    applyFilters();
+                });
+                filterPIC.dataset.listenerAttached = "true";
+            }
+        } else {
+            console.warn("Elemen Filter PIC tidak ditemukan.");
+        }
 
-      initFilters(allEvents); // Inisialisasi filter kalender
-      // applyFilters() akan dipanggil oleh openTab('calendar')
-
-      // Ambil data untuk Pendaftaran Training
-      await fetchSheet(SHEET_SOURCES.pendaftaran_training.id, SHEET_SOURCES.pendaftaran_training.sheet);
-      // initPendaftaranFilter() akan dipanggil oleh openTab('pendaftaran_training')
-
-      // Ambil data untuk Monitoring Pelatihan
-      await fetchSheet(SHEET_SOURCES.monitoring_pelatihan.id, SHEET_SOURCES.monitoring_pelatihan.sheet);
-
-
-    } catch (err) {
-      console.error("Gagal inisialisasi:", err);
-    } finally {
-      hideLoader(); // Sembunyikan loader setelah semua data diproses
+        // Isi dropdown Ruangan
+        if (filterRoom) {
+            filterRoom.innerHTML = `<option value="">Semua Ruangan</option>`;
+            rooms.forEach(r => filterRoom.add(new Option(r, r)));
+            // Pasang event listener hanya sekali
+            if (!filterRoom.dataset.listenerAttached) {
+                filterRoom.addEventListener("change", e => {
+                    selectedRoom = e.target.value;
+                    applyFilters();
+                });
+                filterRoom.dataset.listenerAttached = "true";
+            }
+        } else {
+            console.warn("Elemen Filter Ruangan tidak ditemukan.");
+        }
+        console.log("Filter kalender diinisialisasi dengan PICs:", pics, "dan Rooms:", rooms);
     }
-  })();
 
-  // --- Initial Setup on Page Load ---
-  // Event listener untuk tombol tab
-  document.querySelectorAll('.tab-btn').forEach(button => {
-    // Hapus atribut onclick jika ada di HTML
-    button.removeAttribute('onclick');
-    button.addEventListener('click', (event) => {
-      const tabId = event.target.dataset.tab; // Ambil ID dari data-tab
-      if (tabId) {
-        openTab(tabId, event);
-      }
+    // 8. PENGAMBILAN DATA
+    /**
+     * Mengambil data dari Google Sheet menggunakan opensheet.elk.sh.
+     * Menggunakan cache untuk menghindari pengambilan data berulang.
+     * @param {string} id - ID spreadsheet Google Sheet.
+     * @param {string} sheet - Nama sheet di spreadsheet.
+     * @returns {Promise<Array<Object>>} Promise yang berisi data dari sheet.
+     */
+    async function fetchSheet(id, sheet) {
+        // Cek cache terlebih dahulu
+        if (sheetDataCache[sheet]) {
+            console.log(`Mengembalikan data yang di-cache untuk sheet: ${sheet}`);
+            return sheetDataCache[sheet];
+        }
+        showLoader(); // Tampilkan loader saat fetching
+        try {
+            const res = await fetch(`https://opensheet.elk.sh/${id}/${sheet}`);
+            if (!res.ok) throw new Error(`Gagal mengambil data dari sheet: ${sheet}`);
+            const data = await res.json();
+            sheetDataCache[sheet] = data; // Simpan data ke cache
+            console.log(`Data berhasil diambil dan di-cache untuk sheet: ${sheet}`, data);
+            return data;
+        } catch (err) {
+            console.error(`Error fetching sheet ${sheet}:`, err);
+            return []; // Kembalikan array kosong jika ada error
+        } finally {
+            hideLoader(); // Sembunyikan loader setelah fetching selesai (berhasil/gagal)
+        }
+    }
+
+    // 9. RENDER TABEL
+    /**
+     * Merender data ke dalam tabel HTML.
+     * @param {Array<Object>} data - Data yang akan dirender.
+     * @param {string} tableId - ID elemen tabel HTML.
+     */
+    function renderTable(data, tableId) {
+        const key = tableId.replace("table-", ""); // Dapatkan kunci dari ID tabel (e.g., "kompetensi")
+        let table = document.getElementById(tableId);
+
+        if (!table) {
+            console.error(`Elemen tabel dengan ID '${tableId}' tidak ditemukan.`);
+            return;
+        }
+
+        // Tampilkan pesan jika tidak ada data
+        if (!data || data.length === 0) {
+            table.innerHTML = "<tbody><tr><td colspan='100%'>Data tidak tersedia.</td></tr></tbody>"; // Default message for empty table
+            // Pastikan tabel terlihat walaupun tidak ada data (agar pesan "Data tidak tersedia" terlihat)
+            table.classList.remove("loaded");
+            setTimeout(() => table.classList.add("loaded"), 10);
+            return;
+        }
+
+        // Jika elemen bukan tabel, ganti dengan elemen tabel baru
+        if (table.tagName !== "TABLE") {
+            const newTable = document.createElement("table");
+            newTable.id = tableId;
+            newTable.className = "data-table";
+            table.replaceWith(newTable);
+            table = newTable;
+        }
+
+        // Tentukan kolom yang diizinkan untuk ditampilkan
+        const allowed = kolomTampilkan[key] || Object.keys(data[0]);
+
+        // Buat header tabel
+        const thead = `<thead><tr>${allowed.map(h => `<th>${h}</th>`).join("")}</tr></thead>`;
+        let tbodyHtml = '';
+
+        // Logika rendering khusus untuk tabel kompetensi
+        if (key === 'kompetensi') {
+            const uniqueIndividuals = {};
+            // Kelompokkan data kompetensi berdasarkan NIK untuk individu unik
+            data.forEach(row => {
+                const nik = row.NIK;
+                if (nik) {
+                    if (!uniqueIndividuals[nik]) {
+                        // Inisialisasi data individu jika NIK baru ditemukan
+                        uniqueIndividuals[nik] = {
+                            NIK: row.NIK,
+                            NAMA: row.NAMA,
+                            DEPT: row.DEPT,
+                            JABATAN: row.JABATAN,
+                            competencies: [] // Array untuk menyimpan semua kompetensi orang ini
+                        };
+                    }
+                    // Tambahkan kompetensi dan statusnya ke individu yang sesuai
+                    if (row.KOMPETENSI || row.STATUS) {
+                        uniqueIndividuals[nik].competencies.push({
+                            KOMPETENSI: row.KOMPETENSI,
+                            STATUS: row.STATUS
+                        });
+                    }
+                }
+            });
+
+            // Ubah objek individu unik menjadi array untuk diiterasi
+            const individualsArray = Object.values(uniqueIndividuals);
+
+            // Buat baris tabel untuk setiap individu unik
+            tbodyHtml = `<tbody>${individualsArray.map(person => {
+                const rowData = [
+                    person.NIK,
+                    person.NAMA,
+                    person.DEPT,
+                    person.JABATAN
+                ];
+                // Baris ini akan memiliki event listener untuk menampilkan modal kompetensi
+                return `<tr class="kompetensi-row" data-nik="${person.NIK}">
+                                ${rowData.map(cell => `<td>${cell || ""}</td>`).join("")}
+                            </tr>`;
+            }).join("")}</tbody>`;
+
+        } else {
+            // Untuk tabel lainnya, render baris seperti biasa
+            tbodyHtml = `<tbody>${data.map(row =>
+                `<tr>${allowed.map(h => {
+                    let cellContent = row[h] || "";
+                    let className = "";
+
+                    // Logika pewarnaan untuk skor_rata2 di tabel monitoring_pelatihan
+                    if (key === "monitoring_pelatihan" && h === "skor_rata2") {
+                        const score = parseFloat(cellContent);
+                        if (!isNaN(score)) {
+                            if (score >= 75) {
+                                className = "green";
+                            } else {
+                                className = "red";
+                            }
+                        }
+                    } else if (key === "pendaftaran_training" && h === "STATUS") { // Contoh untuk status di pendaftaran
+                        if (cellContent.toLowerCase() === "approved") {
+                            className = "approved";
+                        } else if (cellContent.toLowerCase() === "hold") {
+                            className = "hold";
+                        } else if (cellContent.toLowerCase() === "rejected") {
+                            className = "red";
+                        }
+                    }
+                    return `<td class="${className}">${cellContent}</td>`;
+                }).join("")}</tr>`
+            ).join("")}</tbody>`;
+        }
+
+        // Masukkan thead dan tbody ke dalam tabel
+        table.innerHTML = thead + tbodyHtml;
+        table.classList.remove("loaded"); // Hapus dulu untuk memastikan transisi
+        setTimeout(() => table.classList.add("loaded"), 10); // Tambahkan kelas 'loaded' setelah sedikit delay
+        console.log(`Tabel '${tableId}' dirender dengan ${data.length} baris.`);
+
+        // Tambahkan event listener setelah tabel dirender, khusus untuk tabel kompetensi
+        if (key === 'kompetensi') {
+            document.querySelectorAll('#table-kompetensi .kompetensi-row').forEach(rowElement => {
+                rowElement.addEventListener('click', () => {
+                    const nik = rowElement.dataset.nik;
+                    // Ambil data lengkap dari cache asli (bukan yang sudah difilter) untuk NIK ini
+                    const allKompetensiData = sheetDataCache[SHEET_SOURCES.kompetensi.sheet] || [];
+
+                    const personDetails = {};
+                    const personCompetencies = [];
+
+                    allKompetensiData.filter(item => item.NIK === nik).forEach(item => {
+                        // Ambil detail dasar (NIK, Nama, Dept, Jabatan) hanya dari baris pertama yang cocok
+                        if (Object.keys(personDetails).length === 0) {
+                            personDetails.NIK = item.NIK;
+                            personDetails.NAMA = item.NAMA;
+                            personDetails.DEPT = item.DEPT;
+                            personDetails.JABATAN = item.JABATAN;
+                        }
+                        // Tambahkan setiap kompetensi dan statusnya ke daftar kompetensi individu
+                        if (item.KOMPETENSI || item.STATUS) {
+                            personCompetencies.push({
+                                KOMPETENSI: item.KOMPETENSI,
+                                STATUS: item.STATUS
+                            });
+                        }
+                    });
+
+                    // Tampilkan modal dengan detail individu dan daftar kompetensinya
+                    if (Object.keys(personDetails).length > 0) {
+                        showModal({ person: personDetails, competencies: personCompetencies }, 'kompetensi');
+                    } else {
+                        console.warn(`Data lengkap untuk NIK ${nik} tidak ditemukan di cache.`);
+                    }
+                });
+            });
+        }
+    }
+
+    // Fungsi untuk memuat data dan merender konten tab
+    async function loadTabData(tabId) {
+        showLoader();
+        try {
+            let data;
+            let tableId;
+            switch (tabId) {
+                case 'calendar':
+                    data = await fetchSheet(SHEET_SOURCES.jadwal_training.id, SHEET_SOURCES.jadwal_training.sheet);
+                    allEvents = data.map(ev => ({
+                        ...ev,
+                        tanggal_mulai: formatTanggal(ev.tanggal_mulai),
+                        tanggal_selesai: formatTanggal(ev.tanggal_selesai)
+                    }));
+                    initFilters(allEvents); // Inisialisasi filter dengan data baru
+                    applyFilters(); // Terapkan filter dan render kalender
+                    break;
+                case 'pendaftaran_training':
+                    data = await fetchSheet(SHEET_SOURCES.pendaftaran_training.id, SHEET_SOURCES.pendaftaran_training.sheet);
+                    initPendaftaranFilters(); // Ini akan memanggil applyPendaftaranFilter dan renderTable
+                    break;
+                case 'monitoring_pelatihan':
+                    data = await fetchSheet(SHEET_SOURCES.monitoring_pelatihan.id, SHEET_SOURCES.monitoring_pelatihan.sheet);
+                    tableId = 'table-monitoring_pelatihan';
+                    renderTable(data, tableId);
+                    // TODO: Tambahkan logika rendering chart di sini jika ada
+                    break;
+                case 'kompetensi':
+                    data = await fetchSheet(SHEET_SOURCES.kompetensi.id, SHEET_SOURCES.kompetensi.sheet);
+                    initKompetensiFilters(); // Ini akan memanggil applyKompetensiFilter dan renderTable
+                    break;
+                default:
+                    console.warn(`Tidak ada logika pemuatan data untuk tab: ${tabId}`);
+            }
+        } catch (error) {
+            console.error(`Error memuat data untuk tab ${tabId}:`, error);
+        } finally {
+            hideLoader();
+        }
+    }
+
+    // Inisialisasi tab dan pemuatan data awal
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTabId = button.dataset.tab;
+
+            // Mencegah pemuatan ulang jika sudah aktif
+            if (button.classList.contains('active')) {
+                return;
+            }
+
+            // Hapus kelas 'active' dari semua tombol dan konten
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Tambahkan kelas 'active' ke tombol yang diklik
+            button.classList.add('active');
+
+            // Tampilkan konten tab yang sesuai
+            const targetTabContent = document.getElementById(targetTabId);
+            if (targetTabContent) {
+                targetTabContent.classList.add('active');
+            }
+
+            // Muat data untuk tab yang baru aktif
+            loadTabData(targetTabId);
+        });
     });
-  });
 
-  // Set tab "Jadwal Pelatihan" sebagai default saat halaman dimuat
-  // Asumsi ID div konten untuk "Jadwal Pelatihan" adalah 'calendar'
-  openTab('calendar', document.querySelector('.tab-btn[data-tab="calendar"]'));
+    // Menangani splash screen
+    const splashScreen = document.querySelector('.splash-screen');
+    const navbar = document.querySelector('.navbar');
 
+    splashScreen.addEventListener('animationend', () => {
+        splashScreen.style.display = 'none';
+        if (navbar) {
+            navbar.classList.add('show');
+        }
+        // Setelah splash screen selesai, muat data untuk tab yang aktif secara default
+        const initialActiveTabButton = document.querySelector('.tab-btn.active');
+        if (initialActiveTabButton) {
+            loadTabData(initialActiveTabButton.dataset.tab);
+        } else {
+            // Fallback: jika tidak ada tab yang memiliki kelas 'active' secara default, muat yang pertama
+            const firstTabButton = document.querySelector('.tab-btn');
+            if (firstTabButton) {
+                firstTabButton.classList.add('active');
+                document.getElementById(firstTabButton.dataset.tab).classList.add('active');
+                loadTabData(firstTabButton.dataset.tab);
+            }
+        }
+    });
+
+    // Pastikan tab yang aktif saat ini ditampilkan saat halaman dimuat
+    // Ini mungkin tidak diperlukan lagi karena loadTabData akan menangani visibilitas
+    // const activeTabContent = document.querySelector('.tab-content.active');
+    // if (activeTabContent) {
+    //     activeTabContent.style.display = 'block';
+    // }
+
+    // Event listener untuk tombol navigasi kalender
+    if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            applyFilters(); // Render ulang kalender setelah bulan berubah
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            applyFilters(); // Render ulang kalender setelah bulan berubah
+        });
+    }
+
+    // Inisialisasi tampilan tanggal dan waktu saat ini (jika elemennya ada)
+    const currentDateTimeElement = document.getElementById("currentDateTime");
+    if (currentDateTimeElement) {
+        const updateDateTime = () => {
+            const now = new Date();
+            currentDateTimeElement.textContent = now.toLocaleString("id-ID", {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        };
+        updateDateTime(); // Panggil sekali saat dimuat
+        setInterval(updateDateTime, 1000); // Perbarui setiap detik
+    }
 });

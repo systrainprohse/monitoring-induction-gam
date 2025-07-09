@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📋 Monitoring Pelatihan</title>
-  <link rel="stylesheet" href="pelatihan.css" />
   <link rel="stylesheet" href="style.css" />
   
   <!-- Chart.js & Plugin -->
@@ -38,15 +37,17 @@
 
     <!-- Navigasi Tab -->
     <div class="tabs">
-      <!-- Menghapus onclick dan menggunakan data-tab -->
-      <button class="tab-btn active" data-tab="calendar">📄 Jadwal Pelatihan</button>
-      <button class="tab-btn" data-tab="pendaftaran_training">📄 Pendaftaran Pelatihan</button>
-      <button class="tab-btn" data-tab="grafik">📈 Monitoring Pelatihan</button>
-      <button class="tab-btn" data-tab="kompetensi">📈 Kompetensi Manpower</button>
-    </div>
+      <!-- Menghapus onclick dan menggunakan data-tab -->
+      <!-- PERBAIKAN DI SINI: Hapus kelas 'active' dari tombol Jadwal Pelatihan -->
+      <button class="tab-btn" data-tab="calendar">📄 Jadwal Pelatihan</button>
+      <button class="tab-btn" data-tab="pendaftaran_training">📄 Pendaftaran Pelatihan</button>
+      <!-- Mengubah data-tab menjadi lebih deskriptif dan menjadikannya aktif -->
+      <button class="tab-btn active" data-tab="monitoring_pelatihan">📈 Monitoring Pelatihan</button>
+      <button class="tab-btn" data-tab="kompetensi">📈 Kompetensi Manpower</button>
+    </div>
 
     <!-- Konten Tab: Kalender -->
-    <div id="calendar" class="tab-content active">
+    <div id="calendar" class="tab-content">
       <div class="filter-bar">
         <label for="filterPIC">Filter PIC:</label>
         <select id="filterPIC"><option value="">Semua</option></select>
@@ -71,8 +72,9 @@
           <div class="day-name">Kam</div>
           <div class="day-name">Jum</div>
           <div class="day-name">Sab</div>
-          <div id="calendarDays" class="calendar-days"></div>
         </div>
+        <!-- Pindahkan #calendarDays ke luar dari .calendar-grid agar sejajar -->
+        <div id="calendarDays" class="calendar-days"></div>
       </div>
 
       <!-- Legend -->
@@ -86,81 +88,149 @@
     <!-- Konten Tab: Pendaftaran -->
     <div id="pendaftaran_training" class="tab-content">
       <div class="table-wrapper">
-
-        <div id="filter-pendaftaran-controls">
-          <label>Training:
-            <select id="filterTrainingPendaftaran">
-              <option value="all">Semua</option>
-            </select>
-          </label>
-          <label>Nama:
-            <input type="text" id="filterNamaPendaftaran" placeholder="Cari nama peserta...">
-          </label>
-          <label>Tanggal:
-            <input type="date" id="startDatePendaftaran"> s.d.
-            <input type="date" id="endDatePendaftaran">
-          </label>
-          <button id="resetFilterPendaftaran">Reset</button>
+        <!-- Menggunakan class "filter-bar" dan struktur yang sama dengan filter kompetensi -->
+        <div class="filter-bar">
+          <label for="filterTrainingPendaftaran">Training:</label>
+          <select id="filterTrainingPendaftaran">
+            <option value="all">Semua</option>
+          </select>
+          <label for="filterNamaPendaftaran">Nama:</label>
+          <input type="text" id="filterNamaPendaftaran" placeholder="Cari nama peserta...">
+          <label for="startDatePendaftaran">Tanggal:</label>
+          <input type="date" id="startDatePendaftaran">
+          <span>s.d.</span>
+          <input type="date" id="endDatePendaftaran">
+          <button id="resetFilterPendaftaran">Reset Filter</button>
         </div>
 
-        <p id="resultCountPendaftaran"></p>
+        <!-- Menambahkan teks default dan kelas yang sama dengan filter kompetensi -->
+        <p id="resultCountPendaftaran" class="result-count">Menampilkan 0 entri.</p>
         <table id="table-pendaftaran_training" class="data-table"></table>
 
       </div>
     </div>
 
-    <!-- Konten Tab: Grafik -->
-    <div id="grafik" class="tab-content">
-      <canvas id="chartScore1"></canvas>
-      <canvas id="chartScore2"></canvas>
-      <!-- Tambahkan elemen tabel untuk monitoring_pelatihan jika perlu -->
-      <div class="table-wrapper">
-          <table id="table-monitoring_pelatihan" class="data-table"></table>
-      </div>
-    </div>
+     <!-- Konten Tab: Grafik -->
+    <!-- PERBAIKAN DI SINI: Tambahkan kelas 'active' ke div ini -->
+    <div id="monitoring_pelatihan" class="tab-content active">
+      <canvas id="chartScore1"></canvas>
+      <canvas id="chartScore2"></canvas>
+      <div class="table-wrapper">
+          <table id="table-monitoring_pelatihan" class="data-table"></table>
+      </div>
+    </div>
 
-    <!-- Konten Tab: Kompetensi -->
+
+ <!--Kompetensi -->
     <div id="kompetensi" class="tab-content">
-      <div class="filter-container">
-        <label>🏢</label>
-        <!-- Menghapus onchange -->
-        <select id="filter-kompetensi"></select>
-        <label>📅</label>
-        <!-- Menghapus onchange -->
-        <input type="date" id="startDate-kompetensi" />
-        <span>s.d.</span>
-        <!-- Menghapus onchange -->
-        <input type="date" id="endDate-kompetensi" />
-      </div>
-      <div class="table-wrapper">
-        <table id="table-kompetensi"></table>
-      </div>
-    </div>
-  </div>
+        <h2>Data Kompetensi Manpower</h2>
 
-  <!-- Modal Detail Event -->
-  <div id="modal" class="modal">
-      <div class="modal-content">
-          <span class="close" id="closeModal">&times;</span>
-          <h3 id="modalTitle"></h3>
-          <p><strong>Tanggal:</strong> <span id="modalDate"></span></p>
-          <p><strong>Ruangan:</strong> <span id="modalRoom"></span></p>
-          <p><strong>Peserta:</strong> <span id="modalParticipants"></span></p>
-          <p><strong>PIC:</strong> <span id="modalPIC"></span></p>
-          <!-- Konten ekstra akan ditambahkan di sini untuk beberapa event -->
-      </div>
-  </div>
+        <div class="filter-bar">
+            <label for="filterDeptKompetensi">Departemen:</label>
+            <select id="filterDeptKompetensi">
+                <option value="all">Semua</option>
+            </select>
+
+            <label for="filterJabatanKompetensi">Jabatan:</label>
+            <select id="filterJabatanKompetensi">
+                <option value="all">Semua</option>
+            </select>
+
+            <label for="filterKompetensiDropdown">Kompetensi:</label>
+            <select id="filterKompetensiDropdown">
+                <option value="all">Semua</option>
+            </select>
+
+            <label for="filterNamaKompetensi">Nama:</label>
+            <input type="text" id="filterNamaKompetensi" placeholder="Cari nama...">
+
+            <button id="resetFilterKompetensi">Reset Filter</button>
+        </div>
+
+        <!-- Menambahkan kelas untuk konsistensi gaya -->
+        <p id="resultCountKompetensi" class="result-count">Menampilkan 0 entri.</p>
+        <table id="table-kompetensi" class="data-table">
+            </table>
+    </div>
+
+<!-- MODAL POP-UP (Diperbarui dengan struktur baru) -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3> <!-- Judul utama modal -->
+                <span class="close-button" id="closeModal">&times;</span>
+            </div>
+            
+            <!-- Bagian untuk detail Kompetensi -->
+            <div id="kompetensiModalContent">
+                <div class="profile-header">
+                    <div class="profile-avatar">😊</div> 
+                    <h3 id="modalProfileName"></h3>
+                    <p id="modalProfileTitle"></p>
+                </div>
+
+                <div class="detail-section">
+                    <h4 class="section-title">Detail Pribadi</h4>
+                    <div class="detail-item">
+                        <label>NIK:</label>
+                        <div id="modalProfileNIK"></div>
+                        <span class="detail-icon">👤</span> 
+                    </div>
+                    <div class="detail-item">
+                        <label>Departemen:</label>
+                        <div id="modalProfileDept"></div>
+                        <span class="detail-icon">🏢</span> 
+                    </div>
+                    <div class="detail-item">
+                        <label>Jabatan:</label>
+                        <div id="modalProfileJabatan"></div>
+                        <span class="detail-icon">💼</span> 
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4 class="section-title">Daftar Kompetensi</h4>
+                    <ul id="kompetensiList" class="competency-list">
+                        <!-- Kompetensi akan dimuat di sini oleh JavaScript -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bagian untuk detail Kalender -->
+            <div id="calendarModalContent" style="display: none;">
+                <h4 class="section-title">Detail Kegiatan</h4>
+                <div class="detail-item">
+                    <label>Tanggal:</label>
+                    <div id="modalDate"></div>
+                </div>
+                <div class="detail-item">
+                    <label>Ruangan:</label>
+                    <div id="modalRoom"></div>
+                </div>
+                <div class="detail-item">
+                    <label>Jumlah Peserta:</label>
+                    <div id="modalParticipants"></div>
+                </div>
+                <div class="detail-item">
+                    <label>PIC:</label>
+                    <div id="modalPIC"></div>
+                </div>
+                <div class="extra-calendar-events"></div> <!-- Untuk multiple events -->
+            </div>
+        </div>
+    </div>
+
+
 
   <footer class="minimal-footer">
-    <p>© 2025 Induksi Monitoring. All rights reserved.</p>
-    <p>AHMAD FAQIH I</p>
-    <p>HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT</p>
+    <p class="copyright">© 2025 Induksi Monitoring. All rights reserved.</p>
+    <p class="developer-info">AHMAD FAQIH I</p>
+    <p class="developer-title">HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT</p>
   </footer>
 
   <!-- Floating WhatsApp & Form, Safety Toast -->
   <!-- ... kode Anda tetap di sini ... -->
-
-  <script src="script.js" defer></script>
   <script src="pelatihanscript.js" defer></script>
+
 </body>
 </html>
