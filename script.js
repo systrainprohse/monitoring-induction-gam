@@ -40,6 +40,8 @@ const kolomTampilkan = {
 
 let perusahaanList = [];
 let allOriginalData = {}; // Stores all fetched, original data
+let currentFilteredData = {}; // Stores the currently filtered data for each table
+let sortState = {}; // Objek untuk menyimpan status sorting setiap tabel { key: { column, direction } }
 let audioUnlocked = false; // Flag untuk melacak apakah audio sudah diizinkan
 
 // --- Utility Functions ---
@@ -168,7 +170,60 @@ function getCellStyle(header, value) {
     return { warna, emoji };
 }
 
+/**
+ * Exports an array of objects to an Excel file.
+ * @param {Array<Object>} data - The data to export.
+ * @param {string} filename - The desired filename (without extension).
+ */
+function exportToExcel(data, filename) {
+  if (typeof XLSX === 'undefined') {
+    alert("Gagal mengekspor. Pustaka Excel (XLSX) tidak berhasil dimuat. Periksa koneksi internet Anda dan coba lagi.");
+    return;
+  }
+  if (!data || data.length === 0) {
+    alert("Tidak ada data untuk diekspor.");
+    return;
+  }
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  // Logika untuk auto-fit lebar kolom
+  const objectMaxLength = [];
+  // Dapatkan panjang maksimum untuk setiap kolom dari data
+  data.forEach(item => {
+    Object.keys(item).forEach((key, i) => {
+      const value = item[key] || '';
+      const len = String(value).length;
+      objectMaxLength[i] = Math.max(objectMaxLength[i] || 0, len);
+    });
+  });
+  // Bandingkan dengan panjang header dan tambahkan padding
+  const headers = Object.keys(data[0]);
+  const wscols = headers.map((key, i) => ({
+    wch: Math.max(key.length, objectMaxLength[i] || 0) + 2
+  }));
+  worksheet['!cols'] = wscols;
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+  XLSX.writeFile(workbook, `${filename}.xlsx`);
+}
+
 // --- DOM Manipulation and Event Handlers ---
+
+/**
+ * Mengatur status sorting untuk tabel tertentu dan memicu filter ulang.
+ * @param {string} key - Kunci tabel (misal: "newhire").
+ * @param {string} column - Nama kolom yang akan diurutkan.
+ */
+function setSortAndRefilter(key, column) {
+    const currentSort = sortState[key];
+    let direction = 'asc';
+    if (currentSort && currentSort.column === column) {
+        direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+    }
+    sortState[key] = { column, direction };
+    applyFilter(key); // Terapkan filter ulang untuk mengurutkan dan merender ulang
+}
 
 /**
  * Renders data into a specific table.
@@ -194,6 +249,16 @@ function renderTable(data, tableId, key) {
   allowed.forEach(h => {
     const th = document.createElement('th');
     th.textContent = h.toUpperCase(); // Membuat header menjadi kapital
+    th.style.cursor = 'pointer';
+    th.title = `Urutkan berdasarkan ${h}`;
+
+    // Tambahkan indikator panah jika kolom ini sedang diurutkan
+    if (sortState[key] && sortState[key].column === h) {
+        th.innerHTML += sortState[key].direction === 'asc' ? ' <span class="sort-arrow">▲</span>' : ' <span class="sort-arrow">▼</span>';
+    }
+
+    // Tambahkan event listener untuk sorting
+    th.addEventListener('click', () => setSortAndRefilter(key, h));
     headerRow.appendChild(th);
   });
   thead.appendChild(headerRow);
@@ -241,6 +306,31 @@ function renderTable(data, tableId, key) {
   // Clear existing table content before appending new fragment
   table.innerHTML = '';
   table.appendChild(fragment);
+
+  // Add click event listener for zoom effect using event delegation
+  const tableBody = table.querySelector('tbody');
+  if (tableBody) {
+    tableBody.addEventListener('click', (event) => {
+      const clickedRow = event.target.closest('tr');
+      if (!clickedRow || !clickedRow.parentElement) return; // Exit if not a row or if row is detached
+
+      const allRows = tableBody.querySelectorAll('tr');
+      const isAlreadyZoomed = clickedRow.classList.contains('zoomed-in');
+
+      // Reset all rows first
+      allRows.forEach(r => r.classList.remove('zoomed-in', 'zoomed-out'));
+
+      // If the row wasn't already zoomed, apply the effect
+      if (!isAlreadyZoomed) {
+        clickedRow.classList.add('zoomed-in');
+        allRows.forEach(r => {
+          if (r !== clickedRow) {
+            r.classList.add('zoomed-out');
+          }
+        });
+      }
+    });
+  }
 
   // Populate filter dropdown if available
   const filter = document.getElementById(`filter-${key}`);
@@ -301,6 +391,32 @@ function applyFilter(key) {
     return matchPerusahaan && matchDate && matchSearch;
   });
 
+  // Lakukan sorting pada data yang sudah difilter (kecuali untuk grafik)
+  if (key !== 'grafik' && sortState[key]) {
+      const { column, direction } = sortState[key];
+      filtered.sort((a, b) => {
+          let valA = a[column] || '';
+          let valB = b[column] || '';
+
+          // Coba parse sebagai angka
+          const numA = parseFloat(valA);
+          const numB = parseFloat(valB);
+
+          if (!isNaN(numA) && !isNaN(numB)) {
+              // Jika keduanya angka, bandingkan sebagai angka
+              return direction === 'asc' ? numA - numB : numB - numA;
+          }
+
+          // Jika bukan angka, bandingkan sebagai string (case-insensitive)
+          valA = String(valA).toLowerCase();
+          valB = String(valB).toLowerCase();
+
+          if (valA < valB) return direction === 'asc' ? -1 : 1;
+          if (valA > valB) return direction === 'asc' ? 1 : -1;
+          return 0;
+      });
+  }
+
   // Render ulang tabel atau grafik berdasarkan `key`
   if (key === 'grafik') {
     // Urutkan data berdasarkan tanggal secara menaik (ascending) sebelum merender grafik
@@ -310,8 +426,10 @@ function applyFilter(key) {
         const dateB = parseTanggal(b["TANGGAL INDUKSI"]);
         return dateA - dateB;
     });
+    currentFilteredData[key] = filtered; // Store filtered & sorted data for export
     initializeCharts(filtered);
   } else {
+    currentFilteredData[key] = filtered; // Store filtered data for export
     renderTable(filtered, `table-${key}`, key);
   }
 }
@@ -655,6 +773,40 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
   });
+
+  /**
+   * Menangani klik pada tombol ekspor.
+   * @param {Event} event - Objek event klik.
+   */
+  function exportHandler(event) {
+    if (!event.target.matches('.export-btn')) return;
+
+    const key = event.target.id.replace('export-', '');
+    const dataToExport = currentFilteredData[key];
+
+    if (!dataToExport || dataToExport.length === 0) {
+        alert(`Tidak ada data yang telah difilter untuk diekspor pada tab ${key}. Coba filter data terlebih dahulu.`);
+        return;
+    }
+
+    const startDate = document.getElementById(`startDate-${key}`)?.value;
+    const endDate = document.getElementById(`endDate-${key}`)?.value;
+
+    let datePart = new Date().toISOString().slice(0, 10);
+    if (startDate && endDate) {
+        datePart = `${startDate}_to_${endDate}`;
+    } else if (startDate) {
+        datePart = `from_${startDate}`;
+    } else if (endDate) {
+        datePart = `until_${endDate}`;
+    }
+
+    const filename = `Export_${key}_${datePart}`;
+    exportToExcel(dataToExport, filename);
+  }
+
+  // Event listener untuk tombol export
+  document.body.addEventListener('click', exportHandler);
 
   // WA form toggle dengan null checks
   const openWaFormBtn = document.getElementById('open-wa-form');

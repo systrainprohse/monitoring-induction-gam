@@ -19,10 +19,6 @@ window.addEventListener('DOMContentLoaded', () => {
         kompetensi: {
             id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
             sheet: "kompetensi_manpower" // Pastikan nama sheet ini sesuai di Google Sheet Anda
-        },
-        score: {
-            id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
-            sheet: "score_data" // ASUMSI: Nama sheet untuk data score
         }
     };
 
@@ -32,8 +28,7 @@ window.addEventListener('DOMContentLoaded', () => {
         pendaftaran_training: ["TRAINING", "PERUSAHAAN", "TANGGAL", "DEPT", "NAMA"],
         jadwal_training: ["tanggal_mulai", "tanggal_selesai", "nama_kegiatan", "ruangan", "jumlah_peserta", "pic"],
         // KOLOM UNTUK TABEL UTAMA KOMPETENSI (hanya NIK, Nama, Departemen, Jabatan)
-        kompetensi: ["NIK", "NAMA", "DEPT", "JABATAN"],
-        score: ["DATE SCORE", "NAMA", "PERUSAHAAN", "DEPARTEMENT", "JABATAN", "PEMATERI", "STATUS"]
+        kompetensi: ["NIK", "NAMA", "DEPT", "JABATAN"]
     };
 
     const sheetDataCache = {}; // Cache untuk menyimpan data yang sudah diambil dari Google Sheets
@@ -64,12 +59,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const startDatePendaftaran = document.getElementById("startDatePendaftaran");
     const endDatePendaftaran = document.getElementById("endDatePendaftaran");
     const resetFilterPendaftaran = document.getElementById("resetFilterPendaftaran");
-
-    // Elemen filter untuk Score
-    const filterPerusahaanScore = document.getElementById("filterPerusahaanScore");
-    const startDateScore = document.getElementById("startDateScore");
-    const endDateScore = document.getElementById("endDateScore");
-    const resetFilterScore = document.getElementById("resetFilterScore");
 
     // Elemen modal spesifik untuk detail kompetensi (sesuai desain baru)
     // Perbaikan: Pastikan ID elemen ini ada di HTML Anda.
@@ -113,11 +102,6 @@ window.addEventListener('DOMContentLoaded', () => {
     let searchNamaPendaftaran = "";
     let selectedStartDatePendaftaran = "";
     let selectedEndDatePendaftaran = "";
-
-    // State filter untuk tab Score
-    let selectedPerusahaanScore = "all";
-    let selectedStartDateScore = "";
-    let selectedEndDateScore = "";
 
     // Fungsi untuk menampilkan dan menyembunyikan loader
     function showLoader() {
@@ -316,7 +300,6 @@ window.addEventListener('DOMContentLoaded', () => {
         // Panggil fungsi filter yang relevan untuk merender ulang tabel
         if (key === 'kompetensi') applyKompetensiFilter();
         else if (key === 'pendaftaran_training') applyPendaftaranFilter();
-        else if (key === 'score') applyScoreFilter();
         else if (key === 'monitoring_pelatihan') {
             // Tab ini tidak memiliki filter, jadi kita hanya perlu mengurutkan dan merender ulang datanya.
             const data = sheetDataCache[SHEET_SOURCES.monitoring_pelatihan.sheet] || [];
@@ -402,29 +385,69 @@ window.addEventListener('DOMContentLoaded', () => {
         return palette[hash % palette.length];
     }
 
-    // Fungsi debounce untuk menunda eksekusi fungsi (misalnya saat mengetik di search bar)
-    function debounce(func, delay) {
-        let timeout;
-        return function(...args) {
-            const context = this;
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(context, args), delay);
-        };
-    }
+   // Fungsi debounce untuk menunda eksekusi fungsi (misalnya saat mengetik di search bar)
+   function debounce(func, delay) {
+     let timeout;
+     return function(...args) {
+       const context = this;
+       clearTimeout(timeout);
+       timeout = setTimeout(() => func.apply(context, args), delay);
+     };
+   }
 
-    // Membuat versi debounced dari fungsi filter untuk input teks
-    const debouncedApplyPendaftaranFilter = debounce(applyPendaftaranFilter, 300);
-    const debouncedApplyKompetensiFilter = debounce(applyKompetensiFilter, 300);
+   // Membuat versi debounced dari fungsi filter untuk input teks
+   const debouncedApplyPendaftaranFilter = debounce(applyPendaftaranFilter, 300);
+   const debouncedApplyKompetensiFilter = debounce(applyKompetensiFilter, 300);
+
+   /**
+    * Mengambil data dari Google Sheet menggunakan opensheet.elk.sh dengan retry mechanism.
+    * Menggunakan cache untuk menghindari pengambilan data berulang.
+    * @param {string} id - ID spreadsheet Google Sheet.
+    * @param {string} sheet - Nama sheet di spreadsheet.
+    * @param {number} maxRetries - Jumlah maksimum percobaan ulang.
+    * @returns {Promise<Array<Object>>} Promise yang berisi data dari sheet.
+    */
+   async function fetchSheet(id, sheet, maxRetries = 3) {
+     // Cek cache terlebih dahulu
+     if (sheetDataCache[sheet]) {
+       console.log(`Mengembalikan data yang di-cache untuk sheet: ${sheet}`);
+       return sheetDataCache[sheet];
+     }
+     let attempt = 0;
+     while (attempt < maxRetries) {
+       showLoader(); // Tampilkan loader saat fetching
+       try {
+         const res = await fetch(`https://opensheet.elk.sh/${id}/${sheet}`);
+         if (!res.ok) throw new Error(`Gagal mengambil data dari sheet: ${sheet}`);
+         const data = await res.json();
+         sheetDataCache[sheet] = data; // Simpan data ke cache
+         console.log(`Data berhasil diambil dan di-cache untuk sheet: ${sheet}`, data);
+         return data;
+       } catch (err) {
+         console.error(`Error fetching sheet ${sheet} (attempt ${attempt + 1}):`, err);
+         attempt++;
+         if (attempt < maxRetries) {
+           console.log(`Attempting retry ${attempt} of ${maxRetries} after a delay...`);
+           await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retrying
+         }
+       } finally {
+         hideLoader(); // Sembunyikan loader setelah fetching selesai (berhasil/gagal)
+       }
+     }
+     console.error(`Failed to fetch sheet ${sheet} after ${maxRetries} attempts.`);
+     return []; // Kembalikan array kosong jika gagal setelah semua percobaan
+   }
+
+   /**
+    * Menerapkan filter pada data kompetensi dan merender tabel.
+    */
+   function applyKompetensiFilter() {
+     // Ambil data dari cache dan saring entri yang undefined/null
+     const dataToFilter = (sheetDataCache[SHEET_SOURCES.kompetensi.sheet] || []).filter(Boolean);
+     console.log("Data untuk difilter (Kompetensi):", dataToFilter);
+     const key = 'kompetensi';
 
 
-    /**
-     * Menerapkan filter pada data kompetensi dan merender tabel.
-     */
-    function applyKompetensiFilter() {
-        // Ambil data dari cache dan saring entri yang undefined/null
-        const dataToFilter = (sheetDataCache[SHEET_SOURCES.kompetensi.sheet] || []).filter(Boolean);
-        console.log("Data untuk difilter (Kompetensi):", dataToFilter);
-        const key = 'kompetensi';
         const filtered = dataToFilter.filter(row => {
             // Double-check: pastikan 'row' adalah objek yang valid sebelum mengakses propertinya
             if (typeof row !== 'object' || row === null) {
@@ -499,71 +522,6 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         renderTable(sortedData, "table-pendaftaran_training");
-    }
-
-    /**
-     * Menerapkan filter pada data score dan merender tabel.
-     */
-    function applyScoreFilter() {
-        const dataToFilter = (sheetDataCache[SHEET_SOURCES.score.sheet] || []).filter(Boolean);
-        const key = 'score';
-        const filtered = dataToFilter.filter(row => {
-            if (typeof row !== 'object' || row === null) return false;
-
-            const perusahaanRow = (row.PERUSAHAAN || "").toLowerCase();
-            const tanggalRow = formatTanggal(row['DATE SCORE']); // Gunakan formatTanggal helper
-
-            const matchPerusahaan = selectedPerusahaanScore === "all" || perusahaanRow === selectedPerusahaanScore.toLowerCase();
-
-            let matchDate = true;
-            if (selectedStartDateScore && selectedEndDateScore) {
-                matchDate = tanggalRow >= selectedStartDateScore && tanggalRow <= selectedEndDateScore;
-            } else if (selectedStartDateScore) {
-                matchDate = tanggalRow >= selectedStartDateScore;
-            } else if (selectedEndDateScore) {
-                matchDate = tanggalRow <= selectedEndDateScore;
-            }
-
-            return matchPerusahaan && matchDate;
-        });
-
-        // Urutkan data yang sudah difilter
-        const sortedData = sortData(filtered, key);
-
-        currentFilteredData[key] = sortedData; // Simpan data untuk diekspor
-
-        const resultCountEl = document.getElementById("resultCountScore");
-        if (resultCountEl) {
-            resultCountEl.textContent = `Menampilkan ${sortedData.length} entri.`;
-        }
-
-        renderTable(sortedData, "table-score");
-    }
-
-    /**
-     * Menginisialisasi filter dropdown untuk tab Score.
-     */
-    function initScoreFilters() {
-        const data = sheetDataCache[SHEET_SOURCES.score.sheet] || [];
-
-        if (!filterPerusahaanScore || !startDateScore || !endDateScore || !resetFilterScore) {
-            console.warn("Elemen filter Score tidak ditemukan.");
-            return;
-        }
-
-        if (!filterPerusahaanScore.dataset.listenerAttached) {
-            const uniquePerusahaan = [...new Set(data.map(row => row.PERUSAHAAN).filter(Boolean))].sort();
-            filterPerusahaanScore.innerHTML = `<option value="all">Semua</option>` +
-                uniquePerusahaan.map(p => `<option value="${p}">${p}</option>`).join("");
-
-            filterPerusahaanScore.addEventListener("change", e => { selectedPerusahaanScore = e.target.value; applyScoreFilter(); });
-            startDateScore.addEventListener("change", e => { selectedStartDateScore = e.target.value; applyScoreFilter(); });
-            endDateScore.addEventListener("change", e => { selectedEndDateScore = e.target.value; applyScoreFilter(); });
-
-            resetFilterScore.addEventListener("click", () => { filterPerusahaanScore.value = "all"; startDateScore.value = ""; endDateScore.value = ""; selectedPerusahaanScore = "all"; selectedStartDateScore = ""; selectedEndDateScore = ""; applyScoreFilter(); });
-            filterPerusahaanScore.dataset.listenerAttached = "true";
-        }
-        applyScoreFilter(); // Panggil untuk render awal
     }
 
     /**
@@ -912,14 +870,15 @@ window.addEventListener('DOMContentLoaded', () => {
             // Buat baris tabel untuk setiap individu unik
             tbodyHtml = `<tbody>${individualsArray.map(person => {
                 const rowData = [
-                    person.NIK,
-                    person.NAMA,
-                    person.DEPT,
-                    person.JABATAN
+                    person.NIK || "",
+                    person.NAMA || "",
+                    person.DEPT || "",
+                    person.JABATAN || ""
                 ];
+                const headers = kolomTampilkan.kompetensi; // Mengambil header dari konfigurasi
                 // Baris ini akan memiliki event listener untuk menampilkan modal kompetensi
                 return `<tr class="kompetensi-row" data-nik="${person.NIK}">
-                                ${rowData.map(cell => `<td>${cell || ""}</td>`).join("")}
+                                ${rowData.map((cell, index) => `<td data-label="${headers[index]}">${cell}</td>`).join("")}
                             </tr>`;
             }).join("")}</tbody>`;
 
@@ -929,6 +888,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 `<tr>${allowed.map(h => {
                     let cellContent = row[h] || "";
                     let className = "";
+                    let cellHtml = cellContent;
 
                     // Logika pewarnaan untuk kolom PROGRESS di tabel monitoring_pelatihan
                     if (key === "monitoring_pelatihan" && h === "PROGRESS") {
@@ -950,7 +910,12 @@ window.addEventListener('DOMContentLoaded', () => {
                             className = "red";
                         }
                     }
-                    return `<td class="${className}">${cellContent}</td>`;
+
+                    // Jika ada kelas khusus (misal: status), bungkus dengan span untuk penataan yang lebih baik
+                    if (className) {
+                        cellHtml = `<span class="badge ${className}">${cellContent}</span>`;
+                    }
+                    return `<td data-label="${h}">${cellHtml}</td>`;
                 }).join("")}</tr>`
             ).join("")}</tbody>`;
         }
@@ -1123,6 +1088,56 @@ window.addEventListener('DOMContentLoaded', () => {
         console.log(`Grafik monitoring pelatihan berhasil dirender dalam ${Math.ceil(data.length / CHUNK_SIZE)} bagian.`);
     }
 
+    /**
+     * Konfigurasi untuk setiap tab, mendefinisikan sumber data dan fungsi inisialisasi.
+     * Ini menggantikan blok switch-case yang besar di loadTabData.
+     */
+    const TAB_CONFIG = {
+        'calendar': {
+            source: SHEET_SOURCES.jadwal_training,
+            init: (data) => {
+                allEvents = data.map(ev => ({
+                    ...ev,
+                    tanggal_mulai: formatTanggal(ev.tanggal_mulai),
+                    tanggal_selesai: formatTanggal(ev.tanggal_selesai)
+                }));
+                initFilters(allEvents);
+                applyFilters();
+            }
+        },
+        'pendaftaran_training': {
+            source: SHEET_SOURCES.pendaftaran_training,
+            init: () => initPendaftaranFilters()
+        },
+        'monitoring_pelatihan': {
+            source: SHEET_SOURCES.monitoring_pelatihan,
+            init: (data) => {
+                currentFilteredData['monitoring_pelatihan'] = data;
+                renderTable(data, 'table-monitoring_pelatihan');
+                renderMonitoringChart(data);
+            }
+        },
+        'kompetensi': {
+            source: SHEET_SOURCES.kompetensi,
+            init: () => initKompetensiFilters()
+        }
+    };
+
+    /**
+     * Memuat data untuk tab yang dipilih berdasarkan TAB_CONFIG.
+     * @param {string} tabId - ID dari tab yang akan dimuat.
+     */
+    async function loadTabData(tabId) {
+        const config = TAB_CONFIG[tabId];
+        if (!config) {
+            console.warn(`Tidak ada konfigurasi pemuatan data untuk tab: ${tabId}`);
+            return;
+        }
+
+        const data = await fetchSheet(config.source.id, config.source.sheet);
+        config.init(data); // Panggil fungsi inisialisasi dengan data yang diambil
+    }
+
     // Fungsi untuk memuat data dan merender konten tab
     async function loadTabData(tabId) {
         showLoader();
@@ -1155,10 +1170,6 @@ window.addEventListener('DOMContentLoaded', () => {
                     data = await fetchSheet(SHEET_SOURCES.kompetensi.id, SHEET_SOURCES.kompetensi.sheet);
                     initKompetensiFilters(); // Ini akan memanggil applyKompetensiFilter dan renderTable
                     break;
-                case 'score':
-                    data = await fetchSheet(SHEET_SOURCES.score.id, SHEET_SOURCES.score.sheet);
-                    initScoreFilters();
-                    break;
                 default:
                     console.warn(`Tidak ada logika pemuatan data untuk tab: ${tabId}`);
             }
@@ -1168,6 +1179,7 @@ window.addEventListener('DOMContentLoaded', () => {
             hideLoader();
         }
     }
+
 
     // Inisialisasi tab dan pemuatan data awal
     const tabButtons = document.querySelectorAll('.tab-btn');
@@ -1192,7 +1204,7 @@ window.addEventListener('DOMContentLoaded', () => {
             // Tampilkan konten tab yang sesuai
             const targetTabContent = document.getElementById(targetTabId);
             if (targetTabContent) {
-                targetTabContent.classList.add('active');
+             targetTabContent.classList.add('active');
             }
 
             // Muat data untuk tab yang baru aktif
@@ -1219,8 +1231,8 @@ window.addEventListener('DOMContentLoaded', () => {
         const startDateInput = document.getElementById(`startDate${key.charAt(0).toUpperCase() + key.slice(1).replace('_training', 'Pendaftaran')}`);
         const endDateInput = document.getElementById(`endDate${key.charAt(0).toUpperCase() + key.slice(1).replace('_training', 'Pendaftaran')}`);
         
-        const startDate = startDateInput ? startDateInput.value : document.getElementById(`startDateScore`)?.value;
-        const endDate = endDateInput ? endDateInput.value : document.getElementById(`endDateScore`)?.value;
+        const startDate = startDateInput ? startDateInput.value : null;
+        const endDate = endDateInput ? endDateInput.value : null;
 
         let datePart = new Date().toISOString().slice(0, 10);
         if (startDate && endDate) {
@@ -1245,7 +1257,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (navbar) {
             navbar.classList.add('show');
         }
-        // Setelah splash screen selesai, muat data untuk tab yang aktif secara default
+       // Setelah splash screen selesai, muat data untuk tab yang aktif secara default
         const initialActiveTabButton = document.querySelector('.tab-btn.active');
         if (initialActiveTabButton) {
             loadTabData(initialActiveTabButton.dataset.tab);

@@ -259,6 +259,19 @@ h1 {
     color: var(--color-primary);
 }
 
+/* Gaya khusus untuk tombol Export */
+.export-btn {
+    background-color: #1d6f42; /* Warna hijau khas Excel */
+    color: white;
+    border-color: #1d6f42;
+    margin-left: auto; /* Mendorong tombol ke ujung kanan */
+}
+
+.export-btn:hover {
+    background-color: #165934; /* Warna hijau lebih gelap saat hover */
+    border-color: #165934;
+}
+
 /* Gaya untuk teks jumlah hasil (result count) */
 .result-count {
     font-size: 0.9em;
@@ -296,7 +309,6 @@ table {
     margin-bottom: 0;
     opacity: 0;
     transition: opacity 0.4s ease-in-out;
-    min-width: 720px;
     table-layout: auto;
     margin-top: 0;
     font-size: 0.9em;
@@ -383,6 +395,42 @@ tbody tr:last-child td {
     color: #047857;
 }
 
+/* --- Progress Bar --- */
+.progress-bar-container {
+    position: relative;
+    width: 100%;
+    background-color: var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.progress-bar {
+    height: 100%;
+    transition: width 0.5s ease-in-out;
+    border-radius: 8px 0 0 8px; /* Sudut kiri membulat */
+}
+
+/* Jika progress 100%, buat sudut kanan juga membulat */
+.progress-bar[style*="width: 100%"] {
+    border-radius: 8px;
+}
+
+.progress-bar.approved, .progress-bar.green { background-color: #047857; }
+.progress-bar.hold { background-color: #a16207; }
+.progress-bar.red { background-color: #b91c1c; }
+
+.progress-bar-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 600;
+    font-size: 12px;
+    mix-blend-mode: difference; /* Trik agar warna teks kontras */
+    color: white; /* Warna dasar teks */
+}
 
 /* --- Loader Disesuaikan --- */
 .loader {
@@ -698,6 +746,54 @@ th:hover {
     .minimal-header nav { /* Ini adalah .navbar */
         gap: 0.8rem;
     }
+
+    /* --- Tabel & Modal Responsif (Format Kartu) --- */
+    .data-table {
+        border: 0;
+        min-width: 100%; /* Pastikan tabel tidak menyusut */
+    }
+
+    .data-table thead {
+        display: none; /* Sembunyikan header tabel di layar kecil */
+    }
+
+    .data-table tr {
+        display: block; /* Ubah baris menjadi blok seperti kartu */
+        margin-bottom: 1.5em;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        padding: 0.5em;
+    }
+
+    .data-table td {
+        display: block; /* Sel juga menjadi blok */
+        text-align: right; /* Konten sel rata kanan */
+        font-size: 14px;
+        border-bottom: 1px dotted #ccc;
+        padding: 10px;
+        position: relative;
+        white-space: normal; /* Izinkan teks untuk wrap, ini penting! */
+    }
+
+    .data-table td::before {
+        content: attr(data-label); /* Tampilkan header dari atribut data-label */
+        position: absolute;
+        left: 10px; /* Header rata kiri */
+        font-weight: bold;
+        text-transform: uppercase;
+        color: var(--color-text-dark);
+    }
+
+    .modal-content {
+        max-height: 90vh; /* Batasi tinggi dan aktifkan scroll jika perlu */
+        overflow-y: auto;
+    }
+
+    .profile-header {
+        flex-direction: column; /* Tumpuk avatar dan nama secara vertikal */
+        text-align: center;
+    }
 }
 
 @media (max-width: 600px) {
@@ -731,7 +827,6 @@ th:hover {
     table th, table td {
         font-size: 11px; /* Perkecil font tabel */
         padding: 8px 5px; /* Perkecil padding sel tabel, terutama horizontal */
-        white-space: nowrap; /* Mencegah teks membungkus dan merusak tinggi baris */
     }
     .badge {
         font-size: 10px; /* Perkecil badge status */
@@ -1075,8 +1170,9 @@ th:hover {
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: #222; /* Warna latar belakang konsisten, dikembalikan seperti semula */
-    color: #fff;
+    background-color: rgba(248, 250, 252, 0.7); /* Latar belakang semi-transparan (frosted glass) */
+    color: var(--color-text-dark); /* Ubah warna teks agar terbaca */
+    backdrop-filter: blur(4px); /* Efek blur pada latar belakang */
     font-size: 16px;
     padding: 10px 0;
     z-index: 9990; /* Di bawah semua elemen mengambang lainnya */
