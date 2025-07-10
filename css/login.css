@@ -19,6 +19,7 @@ body {
     background-color: var(--color-bg-main);
     color: var(--color-text-dark);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
@@ -465,4 +466,47 @@ body {
     margin: 0 0 10px 0;
     font-size: 0.9em;
     line-height: 1.5;
+}
+
+/* --- Quick Menu Container --- */
+.quick-menu-container {
+    text-align: center;
+    padding: 25px;
+    margin: 0 20px 20px 20px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    background-color: #fdfdfd; /* Slightly off-white, different from main card */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.quick-menu-container h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--color-text-dark);
+    font-weight: 500;
+    font-size: 1.2em;
+}
+
+/* Override for login button inside quick menu */
+.quick-menu-container .login-button {
+    width: auto; /* Override width: 100% from base .login-button */
+    padding: 12px 20px;
+    text-decoration: none;
+    margin-top: 0; /* Reset margin from base .login-button */
+    display: inline-flex; /* Use flexbox for alignment */
+    align-items: center;
+    gap: 10px; /* Space between icon and text */
+    justify-content: center;
+}
+
+.quick-menu-container .login-button .icon {
+    font-size: 1.2em; /* Make icon slightly larger */
+    line-height: 1; /* Ensure proper vertical alignment */
+}
+
+.quick-menu-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px; /* Spacing between buttons */
 }
