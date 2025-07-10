@@ -108,6 +108,18 @@ h1 {
     color: var(--color-primary);
 }
 
+/* Gaya khusus untuk tombol logout */
+.nav-button.logout {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.nav-button.logout:hover {
+    background-color: #fecaca;
+    color: #991b1b;
+}
+
 /* --- Navigasi Tab Disesuaikan --- */
 .tabs {
     display: flex;
@@ -1201,7 +1213,7 @@ th:hover {
 
 .safety-toast {
     position: fixed;
-    top: 20px;
+    top: 90px; /* Diturunkan agar tidak menutupi header */
     right: 20px;
     background-color: var(--color-bg-card);
     padding: 15px 20px;

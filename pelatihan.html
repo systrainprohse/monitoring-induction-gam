@@ -8,13 +8,21 @@
   
   <!-- Chart.js & Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
   <!-- Audio Notification -->
   <audio id="notif-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3" preload="auto"></audio>
 </head>
 <body>
+<script>
+    const userRole = localStorage.getItem('userRole');
+    // If no role or role is 'mitra', redirect away
+    if (!userRole || userRole === 'mitra') {
+        alert('Akses ditolak. Silakan login dengan akses yang sesuai.');
+        window.location.href = 'index.html'; // Back to login
+    }
+</script>
 
   <header class="minimal-header">
     <h1>SITE PT. GANDA ALAM MAKMUR</h1>
@@ -27,26 +35,28 @@
 
     <!-- Navbar -->
     <nav class="navbar fade-in">
-      <a href="index.html" class="nav-button"><i class="fas fa-lightbulb"></i> INDUKSI</a>
+      <a href="induksi.html" class="nav-button"><i class="fas fa-lightbulb"></i> INDUKSI</a>
       <a href="pelatihan.html" class="nav-button"><i class="fas fa-chalkboard-teacher"></i> PELATIHAN</a>
+      <a href="index.html" class="nav-button logout" id="logout-button">Logout</a>
     </nav>
   </header>
 
-  <div class="container">
-    <h1>📋 Monitoring Pelatihan</h1>
+  <main class="container">
+    <h2>📋 Monitoring Pelatihan</h2>
     <div class="loader" id="loader"></div>
 
     <!-- Navigasi Tab -->
-    <div class="tabs">
-      <!-- Menghapus onclick dan menggunakan data-tab -->
-      <!-- PERBAIKAN DI SINI: Hapus kelas 'active' dari tombol Jadwal Pelatihan -->
-      <button class="tab-btn" data-tab="calendar">📄 Jadwal Pelatihan</button>
-      <button class="tab-btn" data-tab="pendaftaran_training">📄 Pendaftaran Pelatihan</button>
-      <!-- Mengubah data-tab menjadi lebih deskriptif dan menjadikannya aktif -->
-      <button class="tab-btn active" data-tab="monitoring_pelatihan">📈 Monitoring Pelatihan</button>
-      <button class="tab-btn" data-tab="score">📊 SCORE</button>
-      <button class="tab-btn" data-tab="kompetensi">📈 Kompetensi Manpower</button>
-    </div>
+    <nav aria-label="Navigasi Konten Pelatihan">
+      <div class="tabs">
+        <!-- Menghapus onclick dan menggunakan data-tab -->
+        <!-- PERBAIKAN DI SINI: Hapus kelas 'active' dari tombol Jadwal Pelatihan -->
+        <button class="tab-btn" data-tab="calendar">📄 Jadwal Pelatihan</button>
+        <button class="tab-btn" data-tab="pendaftaran_training">📄 Pendaftaran Pelatihan</button>
+        <!-- Mengubah data-tab menjadi lebih deskriptif dan menjadikannya aktif -->
+        <button class="tab-btn active" data-tab="monitoring_pelatihan">📈 Monitoring Pelatihan</button>
+        <button class="tab-btn" data-tab="kompetensi">📈 Kompetensi Manpower</button>
+      </div>
+    </nav>
 
     <!-- Konten Tab: Kalender -->
     <div id="calendar" class="tab-content">
@@ -101,7 +111,7 @@
           <label for="startDatePendaftaran">Tanggal:</label>
           <input type="date" id="startDatePendaftaran">
           <span>s.d.</span>
-          <input type="date" id="endDatePendaftaran">
+          <input type="date" id="endDatePendaftaran" aria-label="Tanggal akhir pendaftaran">
           <button id="export-pendaftaran_training" class="export-btn">Export Excel</button>
           <button id="resetFilterPendaftaran">Reset Filter</button>
         </div>
@@ -161,41 +171,18 @@
             </table>
     </div>
 
-    <!-- Konten Tab: Score -->
-    <div id="score" class="tab-content">
-        <h2>Data Score Pelatihan</h2>
-
-        <div class="filter-bar">
-            <label for="filterPerusahaanScore">Perusahaan:</label>
-            <select id="filterPerusahaanScore">
-                <option value="all">Semua</option>
-            </select>
-
-            <label for="startDateScore">Tanggal:</label>
-            <input type="date" id="startDateScore">
-            <span>s.d.</span>
-            <input type="date" id="endDateScore">
-
-            <button id="export-score" class="export-btn">Export Excel</button>
-            <button id="resetFilterScore">Reset Filter</button>
-        </div>
-
-        <p id="resultCountScore" class="result-count">Menampilkan 0 entri.</p>
-        <table id="table-score" class="data-table"></table>
-    </div>
-
 <!-- MODAL POP-UP (Diperbarui dengan struktur baru) -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitle"></h3> <!-- Judul utama modal -->
-                <span class="close-button" id="closeModal">&times;</span>
+                <h3 id="modalTitle"></h3>
+                <button class="close-button" id="closeModal" aria-label="Tutup Modal">&times;</button>
             </div>
             
             <!-- Bagian untuk detail Kompetensi -->
             <div id="kompetensiModalContent">
                 <div class="profile-header">
-                    <div class="profile-avatar">😊</div> 
+                    <div class="profile-avatar" aria-hidden="true">😊</div> 
                     <h3 id="modalProfileName"></h3>
                     <p id="modalProfileTitle"></p>
                 </div>
@@ -250,7 +237,7 @@
             </div>
         </div>
     </div>
-
+  </main>
 
 
   <footer class="minimal-footer">
@@ -262,6 +249,19 @@
   <!-- Floating WhatsApp & Form, Safety Toast -->
   <!-- ... kode Anda tetap di sini ... -->
   <script src="pelatihanscript.js" defer></script>
+<script>
+    // Handle logout
+    document.addEventListener('DOMContentLoaded', () => {
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('userRole');
+                window.location.href = 'index.html';
+            });
+        }
+    });
+</script>
 
 </body>
 </html>

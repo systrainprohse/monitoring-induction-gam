@@ -1,0 +1,468 @@
+:root {
+    --color-primary: #7c3aed;
+    --color-bg-main: #f8fafc;
+    --color-bg-card: #ffffff;
+    --color-text-dark: #1f2937;
+    --color-text-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-error: #b91c1c;
+    --border-radius: 12px;
+    --transition: 0.2s ease;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--color-bg-main);
+    color: var(--color-text-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.page-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+    width: 100%;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 0; /* Padding sudah ada di .login-form */
+}
+.login-form {
+    background-color: var(--color-bg-card);
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border: 1px solid var(--color-border);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h2 {
+    font-size: 3rem;
+    margin: 0;
+}
+
+.login-header h3 {
+    margin: 10px 0 0;
+    font-weight: 600;
+    color: var(--color-text-dark);
+}
+
+.access-type {
+    display: flex;
+    justify-content: space-around;
+    background-color: var(--color-bg-main);
+    border-radius: 8px;
+    padding: 5px;
+    margin-bottom: 25px;
+}
+
+.access-type label {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+.access-type input[type="radio"] {
+    display: none; /* Sembunyikan radio button asli */
+}
+
+.access-type input[type="radio"]:checked + span {
+    background-color: var(--color-bg-card);
+    color: var(--color-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+    max-height: 100px; /* A value larger than the element's height */
+    overflow: hidden;
+    opacity: 1;
+    transition: all 0.4s ease;
+}
+
+.form-group.hidden {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--color-text-muted);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 1em;
+    transition: var(--transition);
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-password-icon {
+    position: absolute;
+    right: 12px;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    user-select: none; /* Mencegah teks ikon terseleksi */
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+}
+
+.success-message {
+    color: #047857; /* Green text */
+    background-color: #def7ec; /* Light green background */
+    border: 1px solid #a7f3d0;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.login-button {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 10px;
+}
+
+.login-button:hover {
+    opacity: 0.9;
+}
+
+.login-button.loading {
+    cursor: wait;
+    background-color: #a78bfa; /* Lighter purple */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.login-button.loading::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.error-message {
+    color: var(--color-error);
+    background-color: #fee2e2;
+    border: 1px solid var(--color-error);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+    display: none; /* Disembunyikan secara default */
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+
+.login-footer a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- Judul Widget Kalender --- */
+.calendar-widget-title {
+    text-align: center;
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* --- Calendar Widget --- */
+.calendar-widget-container {
+    background-color: var(--color-bg-card);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border: 1px solid var(--color-border);
+    width: 100%;
+    max-width: 380px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.calendar-header button {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+}
+
+.calendar-header button:hover {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+}
+
+.day-name {
+    font-weight: 600;
+    color: var(--color-text-muted);
+    padding-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.day {
+    padding: 8px;
+    min-height: 80px; /* Taller to fit events */
+    border: 1px solid transparent;
+    border-radius: 8px;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column; /* Stack date number and events */
+    justify-content: flex-start; /* Align to top */
+    align-items: flex-start; /* Align to left */
+    font-weight: 500;
+    overflow: hidden; /* Hide overflowing event labels */
+}
+
+.day .date-number {
+    font-weight: 600;
+    margin-bottom: 4px;
+    width: 100%;
+}
+
+.day.other-month {
+    color: var(--color-text-muted);
+    opacity: 0.5;
+}
+
+.day.today .date-number {
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.day.has-event {
+    background-color: #f3e8ff; /* Light purple, to match theme */
+}
+
+.events-container {
+    width: 100%;
+}
+
+.event-label {
+    font-size: 0.8em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: white;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.day.today {
+    background-color: var(--color-primary);
+    color: white;
+    font-weight: 700;
+}
+
+/* --- Responsive --- */
+@media (max-width: 800px) {
+    .page-wrapper {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .calendar-widget-container {
+        max-width: 400px; /* Samakan dengan form login */
+    }
+}
+
+/* --- Modal Styles --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 5000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: var(--color-bg-card);
+    padding: 24px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 450px;
+    color: var(--color-text-dark);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.close-button {
+    color: #888;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    background: transparent;
+    border: none;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #333;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.95em;
+}
+
+.detail-item label {
+    font-weight: 600;
+    width: 80px;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.extra-calendar-events {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #ccc;
+}
+
+.extra-calendar-events p {
+    background-color: #f9fafb;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 0 0 10px 0;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
