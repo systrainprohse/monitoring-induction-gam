@@ -141,6 +141,15 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Tambahkan event listener untuk menutup modal drilldown grafik
+    const closeDrilldownBtn = document.getElementById('close-drilldown-modal');
+    const drilldownModal = document.getElementById('chart-drilldown-modal');
+    if (closeDrilldownBtn && drilldownModal) {
+        closeDrilldownBtn.addEventListener('click', () => {
+            drilldownModal.classList.add('hidden');
+        });
+    }
+
     /**
      * Menampilkan modal dengan detail yang relevan berdasarkan tipe.
      * @param {Object|Array} items - Data yang akan ditampilkan di modal.
@@ -993,99 +1002,209 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * Merender bar chart untuk data monitoring pelatihan.
-     * @param {Array<Object>} data - Data yang akan dirender ke dalam grafik.
-     */
-    function renderMonitoringChart(data) {
-        const chartContainer = document.getElementById("monitoringChartContainer");
-        if (!chartContainer) {
-            console.warn("Elemen kontainer dengan ID 'monitoringChartContainer' tidak ditemukan.");
-            return;
-        }
+    // --- FUNGSI-FUNGSI BARU UNTUK DASHBOARD ---
 
-        // Bersihkan kontainer dari grafik sebelumnya
-        chartContainer.innerHTML = '';
+    function renderDashboardKPIs(monitoringData, kompetensiData) {
+        const kpiContainer = document.getElementById('kpi-container');
+        if (!kpiContainer) return;
 
-        if (!data || data.length === 0) {
-            chartContainer.innerHTML = '<p style="text-align:center; padding: 20px;">Tidak ada data untuk ditampilkan pada grafik.</p>';
-            return;
-        }
+        const totalDone = monitoringData.reduce((sum, item) => sum + (parseInt(item.DONE, 10) || 0), 0);
+        const totalNeedTraining = monitoringData.reduce((sum, item) => sum + (parseInt(item['NEED TRAINING'], 10) || 0), 0);
+        const totalKompetensi = kompetensiData.length;
 
-        // Palet warna untuk membedakan setiap grafik
-        const colorPalettes = [
-            { done: { bg: 'rgba(54, 162, 235, 0.7)', border: 'rgba(54, 162, 235, 1)' }, needTraining: { bg: 'rgba(255, 159, 64, 0.7)', border: 'rgba(255, 159, 64, 1)' } }, // Biru & Oranye
-            { done: { bg: 'rgba(75, 192, 192, 0.7)', border: 'rgba(75, 192, 192, 1)' }, needTraining: { bg: 'rgba(255, 99, 132, 0.7)', border: 'rgba(255, 99, 132, 1)' } },   // Hijau & Merah
-            { done: { bg: 'rgba(153, 102, 255, 0.7)', border: 'rgba(153, 102, 255, 1)' }, needTraining: { bg: 'rgba(255, 206, 86, 0.7)', border: 'rgba(255, 206, 86, 1)' } }, // Ungu & Kuning
-            { done: { bg: 'rgba(0, 128, 128, 0.7)', border: 'rgba(0, 128, 128, 1)' }, needTraining: { bg: 'rgba(233, 30, 99, 0.7)', border: 'rgba(233, 30, 99, 1)' } }      // Teal & Pink
+        const kpis = [
+            { title: 'Total Kompetensi Tercatat', value: totalKompetensi },
+            { title: 'Total Manpower Terlatih', value: totalDone },
+            { title: 'Total Kebutuhan Pelatihan', value: totalNeedTraining },
         ];
 
-        const CHUNK_SIZE = 10; // Jumlah item per grafik. Sesuaikan jika perlu agar label tidak tumpang tindih.
+        kpiContainer.innerHTML = kpis.map(kpi => `
+            <div class="kpi-card">
+                <div class="kpi-title">${kpi.title}</div>
+                <div class="kpi-value">${kpi.value.toLocaleString('id-ID')}</div>
+            </div>
+        `).join('');
+    }
 
-        for (let i = 0; i < data.length; i += CHUNK_SIZE) {
-            const chunk = data.slice(i, i + CHUNK_SIZE);
-            const chartIndex = i / CHUNK_SIZE;
-            const palette = colorPalettes[chartIndex % colorPalettes.length]; // Siklus melalui palet warna
-            
-            // Buat wrapper dan canvas untuk setiap grafik
-            const canvasWrapper = document.createElement('div');
-            canvasWrapper.style.position = 'relative';
-            canvasWrapper.style.height = '450px';
-            canvasWrapper.style.width = '100%';
-            canvasWrapper.style.marginBottom = '40px'; // Jarak antar grafik
+    function createOverallProgressChart(monitoringData) {
+        const canvas = document.getElementById('overallProgressChart');
+        if (!canvas) return;
 
-            const canvas = document.createElement('canvas');
-            canvas.id = `monitoringChart-${chartIndex}`;
+        const totalDone = monitoringData.reduce((sum, item) => sum + (parseInt(item.DONE, 10) || 0), 0);
+        const totalNeedTraining = monitoringData.reduce((sum, item) => sum + (parseInt(item['NEED TRAINING'], 10) || 0), 0);
 
-            canvasWrapper.appendChild(canvas);
-            chartContainer.appendChild(canvasWrapper);
+        if (window.myOverallProgressChart) window.myOverallProgressChart.destroy();
 
-            // Siapkan data untuk chunk saat ini
-            const labels = chunk.map(d => d['INTERNAL TRAINING'] || 'N/A');
-            const doneData = chunk.map(d => parseInt(d['DONE'], 10) || 0);
-            const needTrainingData = chunk.map(d => parseInt(d['NEED TRAINING'], 10) || 0);
-
-            // Buat grafik baru
-            new Chart(canvas.getContext("2d"), {
-                type: 'bar', // Tipe tetap 'bar'
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'DONE',
-                            data: doneData,
-                            backgroundColor: palette.done.bg,
-                            borderColor: palette.done.border,
-                            borderWidth: 1
-                        }, {
-                            label: 'NEED TRAINING',
-                            data: needTrainingData,
-                            backgroundColor: palette.needTraining.bg,
-                            borderColor: palette.needTraining.border,
-                            borderWidth: 1
+        window.myOverallProgressChart = new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Sudah Dilatih', 'Perlu Pelatihan'],
+                datasets: [{
+                    data: [totalDone, totalNeedTraining],
+                    backgroundColor: ['rgba(75, 192, 192, 0.8)', 'rgba(255, 159, 64, 0.8)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold' },
+                        formatter: (value, ctx) => {
+                            const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percentage = (value / total * 100).toFixed(1) + '%';
+                            return percentage;
                         }
-                    ]
-                },
-                options: {
-                    indexAxis: 'y', // Ini yang membuat grafik menjadi horizontal
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top' },
-                        title: {
-                            display: true,
-                            text: `Progress Pelatihan Internal (Data ${i + 1} - ${Math.min(i + CHUNK_SIZE, data.length)})`,
-                            font: { size: 18 }
-                        }
-                    },
-                    scales: {
-                        x: { beginAtZero: true, title: { display: true, text: 'Jumlah Manpower' } }, // Sumbu X sekarang adalah nilai
-                        y: { title: { display: true, text: 'Jenis Training' } } // Sumbu Y sekarang adalah label
                     }
                 }
-            });
+            }
+        });
+    }
+
+    function createTopNeedTrainingChart(monitoringData) {
+        const canvas = document.getElementById('topNeedTrainingChart');
+        if (!canvas) return;
+
+        const sortedData = [...monitoringData]
+            .sort((a, b) => (parseInt(b['NEED TRAINING'], 10) || 0) - (parseInt(a['NEED TRAINING'], 10) || 0))
+            .slice(0, 5); // Ambil 5 teratas
+
+        const labels = sortedData.map(d => d['INTERNAL TRAINING']);
+        const data = sortedData.map(d => parseInt(d['NEED TRAINING'], 10) || 0);
+
+        if (window.myTopNeedTrainingChart) window.myTopNeedTrainingChart.destroy();
+
+        window.myTopNeedTrainingChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Jumlah Manpower',
+                    data: data,
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Membuat grafik menjadi horizontal
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'end',
+                        color: '#444',
+                        font: { weight: 'bold' }
+                    }
+                },
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    /**
+     * Membuat grafik batang interaktif untuk sebaran kompetensi POP, POM, dan POU.
+     * @param {Array<Object>} kompetensiData - Data dari sheet kompetensi.
+     */
+    function createPOChart(kompetensiData) {
+        const poCanvas = document.getElementById('popPomPouChart');
+        if (!poCanvas) return;
+
+        const poCounts = { 'POP': 0, 'POM': 0, 'POU': 0 };
+
+        // Logika penghitungan yang lebih akurat: menghitung setiap sertifikasi yang dimiliki.
+        kompetensiData.forEach(item => {
+            const kompetensi = item.KOMPETENSI ? item.KOMPETENSI.toUpperCase() : '';
+            if (kompetensi.includes('POP')) poCounts['POP']++;
+            if (kompetensi.includes('POM')) poCounts['POM']++;
+            if (kompetensi.includes('POU')) poCounts['POU']++;
+        });
+
+        const chartData = {
+            labels: Object.keys(poCounts),
+            datasets: [{
+                label: 'Jumlah Manpower per Kompetensi',
+                data: Object.values(poCounts),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',  // Merah untuk POP
+                    'rgba(54, 162, 235, 0.7)', // Biru untuk POM
+                    'rgba(255, 206, 86, 0.7)', // Kuning untuk POU
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // Hancurkan chart lama jika ada untuk mencegah duplikasi
+        if (window.myPOChart instanceof Chart) {
+            window.myPOChart.destroy();
         }
-        console.log(`Grafik monitoring pelatihan berhasil dirender dalam ${Math.ceil(data.length / CHUNK_SIZE)} bagian.`);
+
+        // Fungsi yang akan dijalankan saat bar di grafik diklik
+        const handleChartClick = (event, elements, chart) => {
+            if (elements.length === 0) return; // Keluar jika klik tidak mengenai bar
+
+            const elementIndex = elements[0].index;
+            const clickedLabel = chart.data.labels[elementIndex]; // Mendapatkan label yang diklik (misal: 'POP')
+
+            // Filter data asli untuk menemukan nama yang cocok dengan kompetensi yang diklik
+            const matchingManpower = kompetensiData
+                .filter(item => {
+                    const kompetensi = item.KOMPETENSI ? item.KOMPETENSI.toUpperCase() : '';
+                    return kompetensi.includes(clickedLabel);
+                })
+                .map(item => item.NAMA); // Ambil namanya saja
+
+            // Dapatkan elemen-elemen modal
+            const modal = document.getElementById('chart-drilldown-modal');
+            const modalTitle = document.getElementById('drilldown-modal-title');
+            const modalContent = document.getElementById('drilldown-modal-content');
+
+            if (!modal || !modalTitle || !modalContent) {
+                console.error('Elemen modal drilldown tidak ditemukan!');
+                return;
+            }
+
+            // Isi modal dengan data dan tampilkan
+            modalTitle.textContent = `Daftar Manpower dengan Kompetensi ${clickedLabel}`;
+            if (matchingManpower.length > 0) {
+                modalContent.innerHTML = `<ul class="competency-list">${matchingManpower.map(nama => `<li>${nama}</li>`).join('')}</ul>`;
+            } else {
+                modalContent.innerHTML = '<p>Tidak ada data manpower yang ditemukan untuk kompetensi ini.</p>';
+            }
+
+            modal.classList.remove('hidden');
+        };
+
+        // Buat chart baru dengan opsi interaktif
+        window.myPOChart = new Chart(poCanvas, {
+            type: 'bar',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                onClick: handleChartClick,
+                onHover: (event, chartElement) => { event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default'; },
+                plugins: {
+                    title: { display: true, text: 'Grafik Sebaran Kompetensi POP, POM, POU', font: { size: 18 }, padding: { top: 10, bottom: 20 } },
+                    legend: { display: false },
+                    datalabels: { anchor: 'end', align: 'top', formatter: (value) => value > 0 ? value : '', color: '#444' }
+                },
+                scales: { y: { beginAtZero: true, title: { display: true, text: 'Jumlah Manpower' } } }
+            }
+        });
     }
 
     /**
@@ -1111,10 +1230,17 @@ window.addEventListener('DOMContentLoaded', () => {
         },
         'monitoring_pelatihan': {
             source: SHEET_SOURCES.monitoring_pelatihan,
-            init: (data) => {
-                currentFilteredData['monitoring_pelatihan'] = data;
-                renderTable(data, 'table-monitoring_pelatihan');
-                renderMonitoringChart(data);
+            init: async (data) => { // 1. Jadikan fungsi ini 'async' untuk menggunakan 'await'
+                // 2. Ambil data kompetensi secara terpisah
+                const kompetensiData = await fetchSheet(SHEET_SOURCES.kompetensi.id, SHEET_SOURCES.kompetensi.sheet);
+                
+                // 3. Panggil semua fungsi rendering untuk dashboard
+                if (data && kompetensiData) {
+                    renderDashboardKPIs(data, kompetensiData);
+                    createOverallProgressChart(data);
+                    createTopNeedTrainingChart(data);
+                    createPOChart(kompetensiData);
+                }
             }
         },
         'kompetensi': {
@@ -1136,48 +1262,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
         const data = await fetchSheet(config.source.id, config.source.sheet);
         config.init(data); // Panggil fungsi inisialisasi dengan data yang diambil
-    }
-
-    // Fungsi untuk memuat data dan merender konten tab
-    async function loadTabData(tabId) {
-        showLoader();
-        try {
-            let data;
-            let tableId;
-            switch (tabId) {
-                case 'calendar':
-                    data = await fetchSheet(SHEET_SOURCES.jadwal_training.id, SHEET_SOURCES.jadwal_training.sheet);
-                    allEvents = data.map(ev => ({
-                        ...ev,
-                        tanggal_mulai: formatTanggal(ev.tanggal_mulai),
-                        tanggal_selesai: formatTanggal(ev.tanggal_selesai)
-                    }));
-                    initFilters(allEvents); // Inisialisasi filter dengan data baru
-                    applyFilters(); // Terapkan filter dan render kalender
-                    break;
-                case 'pendaftaran_training':
-                    data = await fetchSheet(SHEET_SOURCES.pendaftaran_training.id, SHEET_SOURCES.pendaftaran_training.sheet);
-                    initPendaftaranFilters(); // Ini akan memanggil applyPendaftaranFilter dan renderTable
-                    break;
-                case 'monitoring_pelatihan':
-                    data = await fetchSheet(SHEET_SOURCES.monitoring_pelatihan.id, SHEET_SOURCES.monitoring_pelatihan.sheet);
-                    currentFilteredData['monitoring_pelatihan'] = data; // Simpan data awal untuk ekspor
-                    tableId = 'table-monitoring_pelatihan';
-                    renderTable(data, tableId); // Render tabel
-                    renderMonitoringChart(data); // Render grafik baru
-                    break;
-                case 'kompetensi':
-                    data = await fetchSheet(SHEET_SOURCES.kompetensi.id, SHEET_SOURCES.kompetensi.sheet);
-                    initKompetensiFilters(); // Ini akan memanggil applyKompetensiFilter dan renderTable
-                    break;
-                default:
-                    console.warn(`Tidak ada logika pemuatan data untuk tab: ${tabId}`);
-            }
-        } catch (error) {
-            console.error(`Error memuat data untuk tab ${tabId}:`, error);
-        } finally {
-            hideLoader();
-        }
     }
 
 

@@ -40,6 +40,10 @@
         <i class="fas fa-chalkboard-teacher"></i>
         PELATIHAN
       </a>
+      <a href="ptw.html" class="nav-button" id="nav-ptw">
+        <i class="fas fa-file-signature"></i>
+        PTW / IKK
+      </a>
       <a href="index.html" class="nav-button logout" id="logout-button">Logout</a>
   </nav>
 
@@ -50,6 +54,9 @@
   <main class="container">
 
     <h2>📋 Monitoring Induksi, SPDK, CHECKLISTK, KELENGKAPAN MINE PERMIT</h2>
+    <!-- Kontainer untuk Kartu KPI -->
+    <div id="kpi-container-induksi" class="kpi-container"></div>
+
     <div class="loader" id="loader"></div>
 
     <nav aria-label="Navigasi Konten Induksi">
@@ -78,9 +85,9 @@
         <label for="filter-newhire">Perusahaan:</label>
         <select id="filter-newhire"><option value="all">Semua</option></select>
         <label for="startDate-newhire">Tanggal:</label>
-        <input type="date" id="startDate-newhire" />
+        <input type="date" id="startDate-newhire">
         <span>s.d.</span>
-        <input type="date" id="endDate-newhire" />
+        <input type="date" id="endDate-newhire" aria-label="Tanggal akhir">
         <label for="search-newhire">Cari:</label>
         <input type="text" id="search-newhire" placeholder="Cari nama..." />
         <button id="export-newhire" class="export-btn">Export Excel</button>
@@ -98,7 +105,7 @@
         <label for="filter-pendaftaran">🏢</label>
         <select id="filter-pendaftaran" aria-label="Filter berdasarkan perusahaan"></select>
         <label for="startDate-pendaftaran">📅</label>
-        <input type="date" id="startDate-pendaftaran" />
+        <input type="date" id="startDate-pendaftaran" aria-label="Tanggal mulai pendaftaran" />
         <span>s.d.</span>
         <input type="date" id="endDate-pendaftaran" aria-label="Tanggal akhir pendaftaran" />
         <label for="search-pendaftaran">🔍</label>
@@ -117,7 +124,7 @@
         <label for="filter-spdk">🏢</label>
         <select id="filter-spdk" aria-label="Filter berdasarkan perusahaan"></select>
         <label for="startDate-spdk">📅</label>
-        <input type="date" id="startDate-spdk" />
+        <input type="date" id="startDate-spdk" aria-label="Tanggal mulai SPDK" />
         <span>s.d.</span>
         <input type="date" id="endDate-spdk" aria-label="Tanggal akhir SPDK" />
         <label for="search-spdk">🔍</label>
@@ -136,7 +143,7 @@
         <label for="filter-checklist_induksi">🏢</label>
         <select id="filter-checklist_induksi" aria-label="Filter berdasarkan perusahaan"></select>
         <label for="startDate-checklist_induksi">📅</label>
-        <input type="date" id="startDate-checklist_induksi" />
+        <input type="date" id="startDate-checklist_induksi" aria-label="Tanggal mulai checklist induksi" />
         <span>s.d.</span>
         <input type="date" id="endDate-checklist_induksi" aria-label="Tanggal akhir checklist induksi" />
         <label for="search-checklist_induksi">🔍</label>
@@ -155,7 +162,7 @@
         <label for="filter-hasil_induksi">🏢</label>
         <select id="filter-hasil_induksi" aria-label="Filter berdasarkan perusahaan"></select>
         <label for="startDate-hasil_induksi">📅</label>
-        <input type="date" id="startDate-hasil_induksi" />
+        <input type="date" id="startDate-hasil_induksi" aria-label="Tanggal mulai hasil induksi" />
         <span>s.d.</span>
         <input type="date" id="endDate-hasil_induksi" aria-label="Tanggal akhir hasil induksi" />
         <label for="search-hasil_induksi">🔍</label>
@@ -175,7 +182,7 @@
         <label for="filter-remidial">🏢</label>
         <select id="filter-remidial" aria-label="Filter berdasarkan perusahaan"></select>
         <label for="startDate-remidial">📅</label>
-        <input type="date" id="startDate-remidial" />
+        <input type="date" id="startDate-remidial" aria-label="Tanggal mulai remidial" />
         <span>s.d.</span>
         <input type="date" id="endDate-remidial" aria-label="Tanggal akhir remidial" />
         <label for="search-remidial">🔍</label>
@@ -195,7 +202,7 @@
         <label for="startDate-grafik">Tanggal:</label>
         <input type="date" id="startDate-grafik" />
         <span>s.d.</span>
-        <input type="date" id="endDate-grafik" />
+        <input type="date" id="endDate-grafik" aria-label="Tanggal akhir grafik" />
         <label for="search-grafik">Cari Jabatan:</label>
         <input type="text" id="search-grafik" placeholder="Cari nama jabatan..." />
       </div>
@@ -211,7 +218,7 @@
         <label for="startDate-temporary">Tanggal:</label>
         <input type="date" id="startDate-temporary" />
         <span>s.d.</span>
-        <input type="date" id="endDate-temporary" />
+        <input type="date" id="endDate-temporary" aria-label="Tanggal akhir temporary" />
         <label for="search-temporary">Cari:</label>
         <input type="text" id="search-temporary" placeholder="Cari nama..." />
         <button id="export-temporary" class="export-btn">Export Excel</button>
@@ -266,6 +273,7 @@
     </div>
   </div>
 
+  <script src="js/common.js" defer></script>
   <script src="js/script.js" defer></script>
 <script>
     // Hide Pelatihan button for Mitra and handle logout

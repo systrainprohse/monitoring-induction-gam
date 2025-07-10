@@ -1,8 +1,8 @@
 // --- Global Variables and Constants ---
 updateBannerText("🚧 Hari ini ada inspeksi K3 di area workshop • Pastikan semua APD lengkap •");
 
+// Konfigurasi sumber data Google Sheet untuk halaman Induksi
 const SHEET_SOURCES = {
-  // <— induksi
   pendaftaran: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "pendaftaran_induksi" },
   spdk: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "spdk" },
   checklist_induksi: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "induction_checklist" },
@@ -42,51 +42,15 @@ let perusahaanList = [];
 let allOriginalData = {}; // Stores all fetched, original data
 let currentFilteredData = {}; // Stores the currently filtered data for each table
 let sortState = {}; // Objek untuk menyimpan status sorting setiap tabel { key: { column, direction } }
+let offlineTimestamps = {}; // Objek untuk menyimpan timestamp data offline { key: "timestamp" }
 let audioUnlocked = false; // Flag untuk melacak apakah audio sudah diizinkan
-
-// --- Utility Functions ---
-
-function showLoader() {
-  document.getElementById('loader')?.style.setProperty("display", "block");
-}
-
-function hideLoader() {
-  document.getElementById('loader')?.style.setProperty("display", "none");
-}
-
-/**
- * Fetches data from a Google Sheet. Caches data to avoid redundant fetches.
- * @param {string} key - The key from SHEET_SOURCES.
- * @returns {Promise<Array>} - The fetched data.
- */
-async function fetchSheetByKey(key) {
-  if (allOriginalData[key]) {
-    // console.log(`Returning cached data for ${key}`);
-    return allOriginalData[key];
-  }
-
-  showLoader();
-  try {
-    const { id, sheet } = SHEET_SOURCES[key];
-    const url = `https://opensheet.elk.sh/${id}/${sheet}`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Gagal mengambil ${sheet}`);
-    const data = await response.json();
-    allOriginalData[key] = data; // Cache the fetched data
-    return data;
-  } catch (err) {
-    console.error(`Error fetching ${key}:`, err);
-    return [];
-  } finally {
-    hideLoader();
-  }
-}
 
 /**
  * Loads and sorts the unique list of companies from the "setting" sheet.
  */
 async function loadPerusahaanList() {
-  const data = await fetchSheetByKey("setting");
+  const { id, sheet } = SHEET_SOURCES["setting"];
+  const data = await fetchSheet(id, sheet); // Menggunakan fetchSheet dari common.js
   const seen = new Set();
   perusahaanList = [];
 
@@ -170,44 +134,6 @@ function getCellStyle(header, value) {
     return { warna, emoji };
 }
 
-/**
- * Exports an array of objects to an Excel file.
- * @param {Array<Object>} data - The data to export.
- * @param {string} filename - The desired filename (without extension).
- */
-function exportToExcel(data, filename) {
-  if (typeof XLSX === 'undefined') {
-    alert("Gagal mengekspor. Pustaka Excel (XLSX) tidak berhasil dimuat. Periksa koneksi internet Anda dan coba lagi.");
-    return;
-  }
-  if (!data || data.length === 0) {
-    alert("Tidak ada data untuk diekspor.");
-    return;
-  }
-  const worksheet = XLSX.utils.json_to_sheet(data);
-
-  // Logika untuk auto-fit lebar kolom
-  const objectMaxLength = [];
-  // Dapatkan panjang maksimum untuk setiap kolom dari data
-  data.forEach(item => {
-    Object.keys(item).forEach((key, i) => {
-      const value = item[key] || '';
-      const len = String(value).length;
-      objectMaxLength[i] = Math.max(objectMaxLength[i] || 0, len);
-    });
-  });
-  // Bandingkan dengan panjang header dan tambahkan padding
-  const headers = Object.keys(data[0]);
-  const wscols = headers.map((key, i) => ({
-    wch: Math.max(key.length, objectMaxLength[i] || 0) + 2
-  }));
-  worksheet['!cols'] = wscols;
-
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-  XLSX.writeFile(workbook, `${filename}.xlsx`);
-}
-
 // --- DOM Manipulation and Event Handlers ---
 
 /**
@@ -226,6 +152,42 @@ function setSortAndRefilter(key, column) {
 }
 
 /**
+ * Membuat dan menyisipkan notifikasi offline jika data berasal dari cache.
+ * @param {string} key - Kunci data (misal: "newhire").
+ * @param {HTMLElement} tableElement - Elemen tabel tempat notifikasi akan disisipkan.
+ */
+function renderOfflineNotice(key, tableElement) {
+    const tabContent = tableElement.closest('.tab-content');
+    if (!tabContent) return;
+
+    // Hapus notifikasi lama untuk mencegah duplikasi
+    const existingNotice = tabContent.querySelector('.offline-notice');
+    if (existingNotice) existingNotice.remove();
+
+    const lastUpdateTimestamp = offlineTimestamps[key];
+    if (lastUpdateTimestamp) {
+        const notice = document.createElement('div');
+        notice.className = 'offline-notice';
+        notice.innerHTML = `Anda melihat data offline. Terakhir diperbarui: <strong>${new Date(lastUpdateTimestamp).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}</strong>`;
+        
+        const firstChild = tabContent.querySelector('.filter-bar, .filter-container, .table-wrapper');
+        if (firstChild) {
+            tabContent.insertBefore(notice, firstChild);
+        } else {
+            tabContent.prepend(notice);
+        }
+    }
+}
+
+/**
+ * Menambahkan efek zoom interaktif pada baris tabel.
+ * @param {HTMLElement} tableBody - Elemen tbody dari tabel.
+ */
+function addZoomEffectListener(tableBody) {
+    // Implementasi logika zoom yang sudah ada...
+}
+
+/**
  * Renders data into a specific table.
  * @param {Array} data - The data to render.
  * @param {string} tableId - The ID of the table element.
@@ -237,6 +199,8 @@ function renderTable(data, tableId, key) {
     console.error(`Table element with ID '${tableId}' not found.`);
     return; // Keluar jika elemen tabel tidak ditemukan
   }
+
+  renderOfflineNotice(key, table);
 
   const allowed = kolomTampilkan[key] || Object.keys(data[0]);
 
@@ -344,6 +308,107 @@ function renderTable(data, tableId, key) {
 }
 
 /**
+ * Merender kartu-kartu Key Performance Indicator (KPI) untuk halaman Induksi.
+ * @param {Array<Object>} pendaftaranData - Data dari sheet pendaftaran.
+ * @param {Array<Object>} hasilInduksiData - Data dari sheet hasil_induksi.
+ * @param {Array<Object>} temporaryData - Data dari sheet temporary.
+ */
+function renderInduksiKPIs(pendaftaranData, hasilInduksiData, temporaryData) {
+    const kpiContainer = document.getElementById('kpi-container-induksi');
+    if (!kpiContainer) return;
+
+    // 1. Hitung Total Pendaftaran
+    const totalPendaftaran = pendaftaranData.length;
+
+    // 2. Hitung statistik skor dari sheet 'hasil_induksi'
+    const scores = hasilInduksiData
+        .map(item => parseFloat(item['S.RATA-RATA']))
+        .filter(score => !isNaN(score)); // Filter hanya nilai yang valid (angka)
+
+    let minScore = 0;
+    let maxScore = 0;
+    let avgScore = 0;
+
+    if (scores.length > 0) {
+        minScore = Math.min(...scores);
+        maxScore = Math.max(...scores);
+        const sumScores = scores.reduce((sum, score) => sum + score, 0);
+        avgScore = (sumScores / scores.length).toFixed(1);
+    }
+
+    // 3. Hitung Total Permit Temporary
+    const totalTemporary = temporaryData.length;
+
+    // 4. Hitung Total Approval (menggunakan data 'newhire' yang sudah di-cache)
+    const totalApproval = allOriginalData['newhire'] ? allOriginalData['newhire'].length : 0;
+
+    const kpis = [
+        { title: 'Total Pendaftaran', value: totalPendaftaran.toLocaleString('id-ID'), tab: 'pendaftaran' },
+        { title: 'Total Approval Permit', value: totalApproval.toLocaleString('id-ID'), tab: 'newhire' },
+        { title: 'Permit Temporary Aktif', value: totalTemporary.toLocaleString('id-ID'), tab: 'temporary' },
+        { 
+            title: 'Statistik Skor Induksi', 
+            values: [
+                { label: 'Terendah', value: minScore },
+                { label: 'Tertinggi', value: maxScore },
+                { label: 'Rata-rata', value: avgScore }
+            ], 
+            tab: 'hasil_induksi' 
+        },
+    ];
+
+    kpiContainer.innerHTML = kpis.map(kpi => {
+        if (kpi.values) { // Render kartu multi-nilai
+            return `
+                <div class="kpi-card clickable" data-tab="${kpi.tab}" role="button" tabindex="0" aria-label="Lihat detail ${kpi.title}">
+                    <div class="kpi-title">${kpi.title}</div>
+                    <div class="kpi-multi-value">
+                        ${kpi.values.map(item => `
+                            <div class="kpi-sub-item">
+                                <span class="kpi-sub-label">${item.label}</span>
+                                <span class="kpi-sub-value">${item.value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        } else { // Render kartu nilai tunggal standar
+            return `
+                <div class="kpi-card clickable" data-tab="${kpi.tab}" role="button" tabindex="0" aria-label="Lihat detail ${kpi.title}">
+                    <div class="kpi-title">${kpi.title}</div>
+                    <div class="kpi-value">${kpi.value}</div>
+                </div>
+            `;
+        }
+    }).join('');
+}
+
+/**
+ * Memeriksa kondisi filter untuk satu baris data.
+ * @param {Object} dataRow - Baris data yang akan diperiksa.
+ * @param {Object} filters - Objek berisi nilai filter saat ini.
+ * @returns {boolean} - True jika baris cocok dengan filter.
+ */
+function checkFilterMatch(dataRow, filters) {
+    const { key, perusahaan, start, end, search } = filters;
+
+    const perusahaanData = dataRow["perusahaan"] || dataRow["Perusahaan"] || "";
+    const matchPerusahaan = perusahaan === "all" || perusahaanData.trim().toLowerCase() === perusahaan.trim().toLowerCase();
+
+    const tanggalStr = dataRow["tanggal"] || dataRow["Tanggal"] || dataRow["TANGGAL"] || dataRow["DATE"] || dataRow["TANGGAL INDUKSI"];
+    const rowDate = parseTanggal(tanggalStr);
+    const isDateValid = !isNaN(rowDate.getTime());
+    const startTime = start ? new Date(start).setHours(0, 0, 0, 0) : -Infinity;
+    const endTime = end ? new Date(end).setHours(23, 59, 59, 999) : Infinity;
+    const matchDate = !isDateValid && (start || end) ? false : rowDate.getTime() >= startTime && rowDate.getTime() <= endTime;
+
+    const nama = (dataRow["NAMA"] || dataRow["Nama"] || "").toLowerCase();
+    const matchSearch = !search || nama.includes(search);
+
+    return matchPerusahaan && matchDate && matchSearch;
+}
+
+/**
  * Filters the data based on user input (company, date range, search term)
  * and re-renders the table.
  * @param {string} key - The key identifying the data source.
@@ -357,38 +422,14 @@ function applyFilter(key) {
   // Always filter from the original, full dataset
   const dataToFilter = allOriginalData[key] || [];
 
-  const filtered = dataToFilter.filter(d => {
-    // Filter Perusahaan (tidak berlaku untuk grafik, tapi aman untuk dipertahankan)
-    const perusahaanData = d["perusahaan"] || d["Perusahaan"] || "";
-    const matchPerusahaan = perusahaan === "all" ||
-      perusahaanData.trim().toLowerCase() === perusahaan.trim().toLowerCase();
-
-    // Filter Tanggal (menambahkan 'TANGGAL INDUKSI' untuk data grafik)
-    const tanggalStr = d["tanggal"] || d["Tanggal"] || d["TANGGAL"] || d["DATE"] || d["TANGGAL INDUKSI"];
-    const rowDate = parseTanggal(tanggalStr);
-    const isDateValid = !isNaN(rowDate.getTime());
-    let matchDate = true;
-    if (isDateValid) {
-      const startTime = start ? new Date(start).setHours(0, 0, 0, 0) : -Infinity;
-      const endTime = end ? new Date(end).setHours(23, 59, 59, 999) : Infinity;
-      matchDate = rowDate.getTime() >= startTime && rowDate.getTime() <= endTime;
-    } else if (start || end) {
-      matchDate = false;
-    }
-
-    // Filter Pencarian (disesuaikan untuk setiap tab)
-    let matchSearch = true;
-    if (search) {
+  const filtered = dataToFilter.filter(row => {
+      const filters = { key, perusahaan, start, end, search };
       if (key === 'grafik') {
-        const jabatan = (d["NAMA JABATAN"] || "").toLowerCase();
-        matchSearch = jabatan.includes(search);
-      } else {
-        const nama = (d["NAMA"] || d["Nama"] || "").toLowerCase();
-        matchSearch = nama.includes(search);
+          const jabatan = (row["NAMA JABATAN"] || "").toLowerCase();
+          const matchJabatan = !search || jabatan.includes(search);
+          return checkFilterMatch(row, { ...filters, search: '' }) && matchJabatan; // Cek filter lain tanpa search nama
       }
-    }
-
-    return matchPerusahaan && matchDate && matchSearch;
+      return checkFilterMatch(row, filters);
   });
 
   // Lakukan sorting pada data yang sudah difilter (kecuali untuk grafik)
@@ -434,27 +475,33 @@ function applyFilter(key) {
   }
 }
 
-// Debounce function to limit how often a function is called
-function debounce(func, delay) {
-  let timeout;
-  return function(...args) {
-    const context = this;
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(context, args), delay);
-  };
-}
-
 const debouncedApplyFilter = debounce(applyFilter, 300); // 300ms delay
 
 /**
  * Initializes charts based on "grafik" data.
  * @param {Array} data - The data for charts.
  */
-function initializeCharts(data) {
+function initializeCharts(data) { // data di sini bisa berupa array atau objek offline
   // Clear previous charts if they exist to prevent memory leaks/re-rendering issues
   Chart.getChart("chartScore")?.destroy();
   Chart.getChart("chartScore1")?.destroy();
   Chart.getChart("chartScore2")?.destroy();
+
+  // Buat dan sisipkan notifikasi offline jika ada
+  const chartTab = document.getElementById('grafik');
+  // Hapus notifikasi lama
+  const existingNotice = chartTab?.querySelector('.offline-notice');
+  if (existingNotice) {
+      existingNotice.remove();
+  }
+  const lastUpdateTimestamp = offlineTimestamps['grafik'];
+  if (lastUpdateTimestamp && chartTab) {
+      const notice = document.createElement('div');
+      notice.className = 'offline-notice';
+      notice.innerHTML = `Anda melihat data offline. Terakhir diperbarui: <strong>${new Date(lastUpdateTimestamp).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}</strong>`;
+      const filterBar = chartTab.querySelector('.filter-bar');
+      chartTab.insertBefore(notice, filterBar);
+  }
 
   // Grafik 1 (chartScore) dinonaktifkan karena sumber data 'DashboardGrafik'
   // tidak memiliki kolom 'Kategori' dan 'Nilai'.
@@ -550,12 +597,11 @@ function initializeCharts(data) {
  * Initializes all data and renders tables/charts.
  */
 async function init() {
-  showLoader(); // Show loader at the very beginning of init
+  showLoader();
   try {
-    await loadPerusahaanList(); // Ensure companies are loaded first
+    await loadPerusahaanList();
 
-    // Hanya proses kunci yang relevan untuk index.html
-    const relevantKeysForIndexHtml = [
+    const relevantKeys = [
       "newhire",
       "pendaftaran",
       "spdk",
@@ -563,22 +609,38 @@ async function init() {
       "hasil_induksi",
       "remidial",
       "grafik",
-      "temporary" // Tambahkan 'temporary' ke daftar kunci yang relevan
+      "temporary"
     ];
 
-    for (const key of relevantKeysForIndexHtml) {
-      const data = await fetchSheetByKey(key); // This will use cached data if available
+    // Ambil semua data secara paralel untuk performa yang lebih baik
+    const dataPromises = relevantKeys.map(async (key) => {
+        const { id, sheet } = SHEET_SOURCES[key];
+        const data = await fetchSheet(id, sheet); // Menggunakan fetchSheet dari common.js
+        allOriginalData[key] = data;
+    });
+    await Promise.all(dataPromises);
 
-      if (key === "grafik") {
+    // Setelah semua data ada di cache, render KPI
+    renderInduksiKPIs(
+      allOriginalData.pendaftaran || [],
+      allOriginalData.hasil_induksi || [],
+      allOriginalData.temporary || []
+    );
+
+    // Render semua tabel dan grafik
+    relevantKeys.forEach(key => {
+      const data = allOriginalData[key] || [];
+      if (key === 'grafik') {
         initializeCharts(data);
       } else {
         renderTable(data, `table-${key}`, key);
       }
-    }
+    });
+
   } catch (error) {
     console.error("Initialization failed:", error);
   } finally {
-    hideLoader(); // Sembunyikan loader setelah semua data diproses
+    hideLoader();
   }
 }
 
@@ -739,10 +801,7 @@ function updateBannerText(newText) {
   }
 }
 
-// --- Initial Setup on Page Load ---
-document.addEventListener("DOMContentLoaded", () => {
-  // Combine DOMContentLoaded logic
-  openTab('newhire'); // Open default tab
+function setupEventListeners() {
   startSafetyRotation(); // Start safety message rotation
 
   // Event listeners for filters using debounced function
@@ -773,6 +832,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
   });
+
+  // Event listener untuk KPI cards yang bisa diklik
+  const kpiContainer = document.getElementById('kpi-container-induksi');
+  if (kpiContainer) {
+      kpiContainer.addEventListener('click', (event) => {
+          const card = event.target.closest('.kpi-card.clickable');
+          if (card) {
+              const tabId = card.dataset.tab;
+              const tabButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+              if (tabButton) {
+                  tabButton.click(); // Memicu event klik pada tombol tab yang sesuai
+              }
+          }
+      });
+  }
 
   /**
    * Menangani klik pada tombol ekspor.
@@ -885,6 +959,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+}
+
+// --- Initial Setup on Page Load ---
+document.addEventListener("DOMContentLoaded", () => {
+  openTab('newhire'); // Open default tab
+  setupEventListeners();
 });
 
 // Run initial data fetching and rendering when the window loads

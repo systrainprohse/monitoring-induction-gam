@@ -132,6 +132,7 @@ body {
     align-items: center;
 }
 
+/* Icon for toggling password visibility in password input fields */
 .toggle-password-icon {
     position: absolute;
     right: 12px;

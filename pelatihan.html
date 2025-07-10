@@ -37,6 +37,7 @@
     <nav class="navbar fade-in">
       <a href="induksi.html" class="nav-button"><i class="fas fa-lightbulb"></i> INDUKSI</a>
       <a href="pelatihan.html" class="nav-button"><i class="fas fa-chalkboard-teacher"></i> PELATIHAN</a>
+      <a href="ptw.html" class="nav-button"><i class="fas fa-file-signature"></i> PTW / IKK</a>
       <a href="index.html" class="nav-button logout" id="logout-button">Logout</a>
     </nav>
   </header>
@@ -125,17 +126,33 @@
 
      <!-- Konten Tab: Grafik -->
     <!-- PERBAIKAN DI SINI: Tambahkan kelas 'active' ke div ini -->
-    <div id="monitoring_pelatihan" class="tab-content active">
-      <div id="monitoringChartContainer" style="width:95%; max-width: 1000px; margin: 20px auto;">
-        <!-- Grafik akan dimasukkan di sini secara dinamis oleh script -->
-      </div>
-      <div class="table-wrapper">
-        <div class="filter-bar">
-            <button id="export-monitoring_pelatihan" class="export-btn">Export Excel</button>
+    <div id="monitoring_pelatihan" class="tab-content active">
+        <div class="dashboard-header">
+            <h3>Dashboard Pelatihan & Kompetensi</h3>
+            <p>Ringkasan visual dari data pelatihan dan kompetensi manpower.</p>
         </div>
-          <table id="table-monitoring_pelatihan" class="data-table"></table>
-      </div>
-    </div>
+
+        <!-- KPI Cards -->
+        <div id="kpi-container" class="kpi-container">
+            <!-- KPI akan diisi oleh JavaScript -->
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card span-col-2">
+                <div class="card-header">Grafik Sebaran Kompetensi POP, POM, POU</div>
+                <canvas id="popPomPouChart"></canvas>
+            </div>
+            <div class="dashboard-card">
+                <div class="card-header">Progress Pelatihan Keseluruhan</div>
+                <canvas id="overallProgressChart"></canvas>
+            </div>
+            <div class="dashboard-card span-col-3">
+                <div class="card-header">Top 5 Pelatihan yang Paling Dibutuhkan</div>
+                <canvas id="topNeedTrainingChart"></canvas>
+            </div>
+        </div>
+    </div>
 
 
  <!--Kompetensi -->
@@ -215,7 +232,7 @@
             </div>
 
             <!-- Bagian untuk detail Kalender -->
-            <div id="calendarModalContent" style="display: none;">
+            <div id="calendarModalContent" class="hidden">
                 <h4 class="section-title">Detail Kegiatan</h4>
                 <div class="detail-item">
                     <label>Tanggal:</label>
@@ -235,6 +252,18 @@
                 </div>
                 <div class="extra-calendar-events"></div> <!-- Untuk multiple events -->
             </div>
+        </div>
+    </div>
+
+    <!-- Modal baru untuk menampilkan daftar nama dari grafik -->
+    <div id="chart-drilldown-modal" class="modal hidden">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3 id="drilldown-modal-title">Daftar Manpower</h3>
+                <button id="close-drilldown-modal" class="close-button" type="button">&times;</button>
+            </div>
+            <!-- Konten daftar nama akan dimuat di sini -->
+            <div id="drilldown-modal-content" class="mt-4"></div>
         </div>
     </div>
   </main>

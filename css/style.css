@@ -401,6 +401,18 @@ tbody tr:last-child td {
     color: #a16207;
 }
 
+/* Gaya untuk warna biru (In Progress) */
+.badge.blue {
+    background-color: #dbeafe; /* Tailwind's blue-100 */
+    color: #1e40af; /* Tailwind's blue-800 */
+}
+
+/* Gaya untuk warna abu-abu (Completed/Default) */
+.badge.gray {
+    background-color: #e5e7eb; /* Tailwind's gray-200 */
+    color: #374151; /* Tailwind's gray-700 */
+}
+
 /* Gaya untuk warna hijau (Completed) */
 .badge.green {
     background-color: #def7ec;
@@ -454,6 +466,7 @@ tbody tr:last-child td {
     width: 100%;
     height: 100%;
     background: rgba(248, 250, 252, 0.7); /* Latar belakang semi-transparan */
+    -webkit-backdrop-filter: blur(4px); /* Efek blur untuk Safari */
     backdrop-filter: blur(4px); /* Efek blur */
     justify-content: center;
     align-items: center;
@@ -515,6 +528,20 @@ th:hover {
     width: 90%;
     max-width: 450px;
     color: var(--color-text-dark);
+}
+
+/* Modifier untuk ukuran dan posisi modal */
+.modal.modal-top {
+    align-items: flex-start;
+    padding-top: 5vh;
+}
+
+.modal-content.modal-sm {
+    max-width: 400px;
+}
+
+.modal-content.modal-lg {
+    max-width: 600px;
 }
 
 /* Header modal (untuk judul dan tombol close) */
@@ -1184,6 +1211,7 @@ th:hover {
     width: 100%;
     background-color: rgba(248, 250, 252, 0.7); /* Latar belakang semi-transparan (frosted glass) */
     color: var(--color-text-dark); /* Ubah warna teks agar terbaca */
+    -webkit-backdrop-filter: blur(4px); /* Efek blur untuk Safari */
     backdrop-filter: blur(4px); /* Efek blur pada latar belakang */
     font-size: 16px;
     padding: 10px 0;
@@ -1258,3 +1286,378 @@ th:hover {
   transform: scale(0.98); /* Sedikit memperkecil baris */
   opacity: 0.7; /* Membuat baris lain kurang menonjol */
 }
+
+/* Gaya untuk Kontainer Grafik */
+.chart-container {
+    width: 95%;
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+/* Utility class for hiding elements */
+.hidden {
+    display: none;
+}
+
+/* Gaya untuk notifikasi data offline (digunakan di induksi.html & pelatihan.html) */
+.offline-notice {
+    background-color: #fffbeb; /* bg-yellow-50 */
+    color: #92400e; /* text-yellow-800 */
+    border: 1px solid #fef3c7; /* border-yellow-200 */
+    padding: 0.75rem 1rem; /* p-3 px-4 */
+    border-radius: 8px; /* rounded-lg */
+    margin-bottom: 1.5rem; /* mb-6 */
+    text-align: center;
+    font-size: 0.9em;
+}
+
+/* Gaya untuk form di dalam modal */
+.modal-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.modal-form .form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-muted);
+    font-size: 0.9em;
+}
+
+.modal-form .form-input,
+.modal-form .form-select,
+.modal-form .form-textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.2s ease;
+}
+
+.modal-form .form-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* --- Gaya Halaman PTW yang Ditingkatkan --- */
+
+.ptw-page .app-container {
+    padding: 1.5rem;
+}
+
+/* Filter Bar untuk PTW */
+.ptw-filter-bar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--color-bg-card);
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-border);
+}
+
+.ptw-filter-bar .form-input,
+.ptw-filter-bar .form-select {
+    min-width: 180px;
+}
+
+.ptw-filter-bar .form-input {
+    flex-grow: 1;
+}
+
+/* Gaya untuk Header Tabel yang Bisa Di-sort */
+.table-header-cell.sortable {
+    cursor: pointer;
+    position: relative;
+    padding-right: 2rem; /* Ruang untuk ikon sort */
+    transition: background-color 0.2s ease;
+}
+
+.table-header-cell.sortable:hover {
+    background-color: #f1f5f9; /* slate-100 */
+}
+
+.table-header-cell .sort-icon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+}
+
+.table-header-cell.sortable:hover .sort-icon {
+    opacity: 1;
+}
+
+.table-header-cell.sorted .sort-icon {
+    opacity: 1;
+    color: var(--color-primary);
+}
+
+/* Gaya untuk Kontainer Detail PTW */
+.ptw-detail-container {
+    background: var(--color-bg-card);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* --- Gaya yang Diimpor dari ptw.css --- */
+
+/* Utilitas Flexbox & Grid */
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.flex-grow { flex-grow: 1; }
+.grid { display: grid; }
+.md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* Utilitas Spasi & Gap */
+.space-x-3 > *:not(:first-child) { margin-left: 0.75rem; }
+.space-x-4 > *:not(:first-child) { margin-left: 1rem; }
+.space-y-4 > *:not(:first-child) { margin-top: 1rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mr-2 { margin-right: 0.5rem; }
+
+/* Utilitas Tipografi */
+.text-lg { font-size: 1.125rem; }
+.text-sm { font-size: 0.875rem; }
+.text-right { text-align: right; }
+
+/* Utilitas untuk aksesibilitas (Screen Reader Only) */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Tombol Kustom untuk PTW */
+.button-base {
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.15s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+.button-primary:hover {
+    opacity: 0.9;
+}
+
+.button-secondary {
+    background-color: #64748b; /* slate-500 */
+    color: white;
+}
+.button-secondary:hover {
+    background-color: #475569; /* slate-600 */
+}
+
+.button-outline {
+    background-color: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+.button-outline:hover {
+    background-color: var(--color-primary-light);
+}
+
+.button-back {
+    color: var(--color-primary);
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+}
+.button-back:hover {
+    opacity: 0.8;
+}
+
+/* Gaya Tabel Kustom untuk PTW */
+.table-container { width: 100%; overflow-x: auto; }
+.table-min-width { min-width: 100%; }
+.table-divide-y > tbody > tr:not(:last-child) { border-bottom-width: 1px; border-color: var(--color-border); }
+.table-header-bg { background-color: #f9fafb; }
+.table-header-cell { padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.table-body-row { background-color: #fff; }
+.table-body-row:hover { background-color: var(--color-hover); }
+.table-body-cell { padding: 1rem 1.5rem; font-size: 0.875rem; color: var(--color-text-muted); vertical-align: middle; }
+.table-action-button { color: var(--color-primary); cursor: pointer; background: none; border: none; font-weight: 600; }
+.table-action-button:hover { text-decoration: underline; }
+
+/* Gaya untuk Skeleton Loader */
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+.skeleton {
+    background-color: #e0e0e0;
+    background-image: linear-gradient(to right, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%);
+    background-repeat: no-repeat;
+    background-size: 2000px 100%;
+    animation: shimmer 2s linear infinite;
+    border-radius: 0.25rem;
+}
+
+.skeleton-title {
+    height: 2rem;
+    width: 40%;
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-row {
+    height: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.skeleton-wrapper .skeleton-row:last-child {
+    margin-bottom: 0;
+}
+
+/* Gaya untuk Transisi Fade-in Konten */
+.content-fade-in {
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+.content-fade-in.visible {
+    opacity: 1;
+}
+
+/* --- Gaya Dashboard Terpusat --- */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.dashboard-header h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    margin: 0;
+}
+.dashboard-header p {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    max-width: 600px;
+    margin: 0.5rem auto 0;
+}
+
+/* KPI Cards */
+.kpi-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+.kpi-card {
+    background-color: var(--color-bg-card);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.kpi-card .kpi-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+}
+.kpi-card .kpi-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+.kpi-card.clickable {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card.clickable:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* Gaya untuk kartu KPI multi-nilai */
+.kpi-multi-value {
+    display: flex;
+    justify-content: space-between; /* Beri jarak di antara item */
+    align-items: baseline; /* Sejajarkan berdasarkan baseline teks */
+    margin-top: 0.75rem;
+}
+
+.kpi-sub-item {
+    text-align: center;
+}
+
+.kpi-sub-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.kpi-sub-value {
+    display: block;
+    font-size: 1.75rem; /* Sedikit lebih kecil dari nilai KPI utama */
+    font-weight: 700;
+    color: var(--color-text-dark); /* Warna lebih gelap agar kontras */
+    line-height: 1.2;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+.dashboard-card {
+    background-color: var(--color-bg-card);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+    display: flex;
+    flex-direction: column;
+}
+.dashboard-card .card-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+}
+.dashboard-card canvas {
+    /* Hapus flex-grow agar grafik tidak meregang dan atur tinggi maksimum */
+    max-height: 350px;
+}
+.dashboard-card.span-col-2 { grid-column: span 2 / span 2; }
+.dashboard-card.span-col-3 { grid-column: span 3 / span 3; }
