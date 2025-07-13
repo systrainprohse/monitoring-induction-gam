@@ -1,74 +1,155 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📋 Monitoring Induksi</title>
-  <link rel="stylesheet" href="css/style.css" />
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📋 Monitoring Induksi</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- Tambahkan link Font Awesome untuk ikon -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
 
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
-<audio id="notif-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3" preload="auto"></audio>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
-</head>
-<body>
-<script>
-    // Redirect to login if not logged in
-    const userRole = localStorage.getItem('userRole');
-    if (!userRole) {
-        window.location.href = 'index.html'; // index.html is the login page
-    }
-</script>
+    <audio
+      id="notif-sound"
+      src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3"
+      preload="auto"
+    ></audio>
+  </head>
+  <body>
+    <script>
+      // Redirect to login if not logged in
+      const userRole = localStorage.getItem("userRole");
+      if (!userRole) {
+        window.location.href = "index.html"; // index.html is the login page
+      }
+    </script>
 
-  <header class="minimal-header">
-  <h1>SITE PT. GANDA ALAM MAKMUR</h1>
-   <audio id="intro-audio" src="sounds/intro.mp3" preload="auto"></audio>
+    <header class="minimal-header">
+      <h1>SITE PT. GANDA ALAM MAKMUR</h1>
+      <audio id="intro-audio" src="sounds/intro.mp3" preload="auto"></audio>
 
-    <div class="splash-screen">
-    <div class="splash-logo">🚀</div>
-    <p class="splash-text">Memuat Aplikasi...</p>
-  </div>
+      <div class="splash-screen">
+        <div class="splash-logo">🚀</div>
+        <p class="splash-text">Memuat Aplikasi...</p>
+      </div>
+    </header>
 
-  <nav class="navbar fade-in">
-      <a href="induksi.html" class="nav-button">
-        <i class="fas fa-lightbulb"></i>
-        INDUKSI
-      </a>
-      <a href="pelatihan.html" class="nav-button" id="nav-pelatihan">
-        <i class="fas fa-chalkboard-teacher"></i>
-        PELATIHAN
-      </a>
-      <a href="ptw.html" class="nav-button" id="nav-ptw">
-        <i class="fas fa-file-signature"></i>
-        PTW / IKK
-      </a>
-      <a href="index.html" class="nav-button logout" id="logout-button">Logout</a>
-  </nav>
+    <main class="container">
+      <h2 class="page-title-container">
+        <span
+          >📋 Monitoring Induksi, SPDK, CHECKLISTK, KELENGKAPAN MINE
+          PERMIT</span
+        >
+        <button
+          id="force-refresh-btn"
+          title="Paksa Muat Ulang Data dari Spreadsheet"
+          class="header-action-btn"
+        >
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </h2>
 
+      <!-- Kontainer untuk Kartu KPI Harian -->
+      <div id="kpi-container-harian" class="kpi-container">
+        <!-- Card untuk Induksi Hari Ini (Core) dengan ikon dan warna -->
+        <div class="kpi-card kpi-core">
+          <div class="kpi-icon">
+            <i class="fas fa-building"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value" id="induksi-core-today-count">0</div>
+            <div class="kpi-label">Induksi Hari Ini (Core)</div>
+            <div class="kpi-comparison" id="core-comparison">
+              <span class="comparison-arrow"></span>
+              <span class="comparison-value">0</span> vs kemarin
+            </div>
+            <small class="kpi-sublabel">GAM, UT, WEM/TEM, BMJ</small>
+          </div>
+        </div>
+        <!-- Card untuk Induksi Hari Ini (Mitra) dengan ikon dan warna -->
+        <div class="kpi-card kpi-mitra">
+          <div class="kpi-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value" id="induksi-mitra-today-count">0</div>
+            <div class="kpi-label">Induksi Hari Ini (Mitra)</div>
+            <div class="kpi-comparison" id="mitra-comparison">
+              <span class="comparison-arrow"></span>
+              <span class="comparison-value">0</span> vs kemarin
+            </div>
+            <small class="kpi-sublabel">Perusahaan Lainnya</small>
+          </div>
+        </div>
+        <!-- Card untuk Induksi Hari Ini (New Hire & Cuti) -->
+        <div class="kpi-card kpi-summary">
+          <div class="kpi-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-title">Status Hari Ini</div>
+            <div class="kpi-multi-value">
+              <div class="kpi-sub-item">
+                <span class="kpi-sub-label">New Hire</span>
+                <span
+                  class="kpi-sub-value"
+                  id="induksi-newhire-today-count"
+                ></span>
+                <div class="kpi-comparison" id="newhire-comparison">
+                  <span class="comparison-arrow"></span>
+                  <span class="comparison-value">0</span> vs kemarin
+                </div>
+              </div>
+              <div class="kpi-sub-item">
+                <span class="kpi-sub-label">Cuti</span>
+                <span
+                  class="kpi-sub-value"
+                  id="induksi-cuti-today-count"
+                ></span>
+                <div class="kpi-comparison" id="cuti-comparison">
+                  <span class="comparison-arrow"></span>
+                  <span class="comparison-value">0</span> vs kemarin
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-</header>
+      <!-- Kontainer untuk Kartu KPI Total (diisi oleh JS) -->
+      <div id="kpi-container-total" class="kpi-container"></div>
 
+      <div class="loader" id="loader"></div>
 
-  <main class="container">
-
-    <h2>📋 Monitoring Induksi, SPDK, CHECKLISTK, KELENGKAPAN MINE PERMIT</h2>
-    <!-- Kontainer untuk Kartu KPI -->
-    <div id="kpi-container-induksi" class="kpi-container"></div>
-
-    <div class="loader" id="loader"></div>
-
-    <nav aria-label="Navigasi Konten Induksi">
-      <div class="tabs">
-          <button class="tab-btn active" data-tab="newhire">📄 Approval Induksi - Permit</button>
+      <nav aria-label="Navigasi Konten Induksi">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="newhire">
+            📄 Approval Induksi - Permit
+          </button>
           <button class="tab-btn" data-tab="pendaftaran">📄 Pendaftaran</button>
-  
+
           <div class="tab-group-collapsible">
-            <button class="tab-group-toggle" id="toggle-induksi" data-group-id="induksi-group">📘 Proses Induksi ▾</button>
+            <button
+              class="tab-group-toggle"
+              id="toggle-induksi"
+              data-group-id="induksi-group"
+            >
+              📘 Proses Induksi ▾
+            </button>
             <div id="induksi-group" class="tab-subgroup">
-              <button class="tab-btn" data-tab="checklist_induksi">✅ Checklist</button>
-              <button class="tab-btn" data-tab="hasil_induksi">📘 Induksi</button>
+              <button class="tab-btn" data-tab="checklist_induksi">
+                ✅ Checklist
+              </button>
+              <button class="tab-btn" data-tab="hasil_induksi">
+                📘 Induksi
+              </button>
               <button class="tab-btn" data-tab="spdk">📝 SPDK</button>
               <button class="tab-btn" data-tab="remidial">📊 REMIDIAL</button>
             </div>
@@ -76,224 +157,346 @@
           <button class="tab-btn" data-tab="grafik">📈 Grafik</button>
           <button class="tab-btn" data-tab="temporary">🚧 Temporary</button>
         </div>
-    </nav>
+      </nav>
 
+      <div id="newhire" class="tab-content active">
+        <!-- Menggunakan class "filter-bar" dan struktur label yang lebih jelas -->
+        <div class="filter-bar">
+          <label for="filter-newhire">Perusahaan:</label>
+          <select id="filter-newhire">
+            <option value="all">Semua</option>
+          </select>
+          <label for="startDate-newhire">Tanggal:</label>
+          <input type="date" id="startDate-newhire" />
+          <span>s.d.</span>
+          <input type="date" id="endDate-newhire" aria-label="Tanggal akhir" />
+          <label for="search-newhire">Cari:</label>
+          <input type="text" id="search-newhire" placeholder="Cari nama..." />
+          <button id="export-newhire" class="export-btn">Export Excel</button>
+        </div>
 
-    <div id="newhire" class="tab-content active">
-      <!-- Menggunakan class "filter-bar" dan struktur label yang lebih jelas -->
-      <div class="filter-bar">
-        <label for="filter-newhire">Perusahaan:</label>
-        <select id="filter-newhire"><option value="all">Semua</option></select>
-        <label for="startDate-newhire">Tanggal:</label>
-        <input type="date" id="startDate-newhire">
-        <span>s.d.</span>
-        <input type="date" id="endDate-newhire" aria-label="Tanggal akhir">
-        <label for="search-newhire">Cari:</label>
-        <input type="text" id="search-newhire" placeholder="Cari nama..." />
-        <button id="export-newhire" class="export-btn">Export Excel</button>
+        <div class="table-wrapper">
+          <table id="table-newhire">
+            <tbody>
+              <tr>
+                <td colspan="11" class="placeholder-cell">
+                  Data masih di progress...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div class="table-wrapper">
-        <table id="table-newhire">
-          <tbody><tr><td colspan="11" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
-        </table>
+      <div id="pendaftaran" class="tab-content">
+        <div class="filter-container">
+          <label for="filter-pendaftaran">🏢</label>
+          <select
+            id="filter-pendaftaran"
+            aria-label="Filter berdasarkan perusahaan"
+          ></select>
+          <label for="startDate-pendaftaran">📅</label>
+          <input
+            type="date"
+            id="startDate-pendaftaran"
+            aria-label="Tanggal mulai pendaftaran"
+          />
+          <span>s.d.</span>
+          <input
+            type="date"
+            id="endDate-pendaftaran"
+            aria-label="Tanggal akhir pendaftaran"
+          />
+          <label for="search-pendaftaran">🔍</label>
+          <input
+            type="text"
+            id="search-pendaftaran"
+            placeholder="Cari nama..."
+          />
+          <button id="export-pendaftaran" class="export-btn">
+            Export Excel
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <table id="table-pendaftaran">
+            <tbody>
+              <tr>
+                <td colspan="7" class="placeholder-cell">
+                  Data masih di progress...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="spdk" class="tab-content">
+        <div class="filter-container">
+          <label for="filter-spdk">🏢</label>
+          <select
+            id="filter-spdk"
+            aria-label="Filter berdasarkan perusahaan"
+          ></select>
+          <label for="startDate-spdk">📅</label>
+          <input
+            type="date"
+            id="startDate-spdk"
+            aria-label="Tanggal mulai SPDK"
+          />
+          <span>s.d.</span>
+          <input
+            type="date"
+            id="endDate-spdk"
+            aria-label="Tanggal akhir SPDK"
+          />
+          <label for="search-spdk">🔍</label>
+          <input type="text" id="search-spdk" placeholder="Cari nama..." />
+          <button id="export-spdk" class="export-btn">Export Excel</button>
+        </div>
+        <div class="table-wrapper">
+          <table id="table-spdk">
+            <tbody>
+              <tr>
+                <td colspan="4" class="placeholder-cell">
+                  Data masih di progress...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="checklist_induksi" class="tab-content">
+        <div class="filter-container">
+          <label for="filter-checklist_induksi">🏢</label>
+          <select
+            id="filter-checklist_induksi"
+            aria-label="Filter berdasarkan perusahaan"
+          ></select>
+          <label for="startDate-checklist_induksi">📅</label>
+          <input
+            type="date"
+            id="startDate-checklist_induksi"
+            aria-label="Tanggal mulai checklist induksi"
+          />
+          <span>s.d.</span>
+          <input
+            type="date"
+            id="endDate-checklist_induksi"
+            aria-label="Tanggal akhir checklist induksi"
+          />
+          <label for="search-checklist_induksi">🔍</label>
+          <input
+            type="text"
+            id="search-checklist_induksi"
+            placeholder="Cari nama..."
+          />
+          <button id="export-checklist_induksi" class="export-btn">
+            Export Excel
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <table id="table-checklist_induksi">
+            <tbody>
+              <tr>
+                <td colspan="4" class="placeholder-cell">
+                  Data masih di progress...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="hasil_induksi" class="tab-content">
+        <div class="filter-container">
+          <label for="filter-hasil_induksi">🏢</label>
+          <select
+            id="filter-hasil_induksi"
+            aria-label="Filter berdasarkan perusahaan"
+          ></select>
+          <label for="startDate-hasil_induksi">📅</label>
+          <input
+            type="date"
+            id="startDate-hasil_induksi"
+            aria-label="Tanggal mulai hasil induksi"
+          />
+          <span>s.d.</span>
+          <input
+            type="date"
+            id="endDate-hasil_induksi"
+            aria-label="Tanggal akhir hasil induksi"
+          />
+          <label for="search-hasil_induksi">🔍</label>
+          <input
+            type="text"
+            id="search-hasil_induksi"
+            placeholder="Cari nama..."
+          />
+          <button id="export-hasil_induksi" class="export-btn">
+            Export Excel
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <table id="table-hasil_induksi">
+            <tbody>
+              <tr>
+                <td colspan="9" class="placeholder-cell">
+                  Data masih di progress...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="remidial" class="tab-content">
+        <h2>SCORE MINIMAL 75</h2>
+        <div class="filter-container">
+          <label for="filter-remidial">🏢</label>
+          <select
+            id="filter-remidial"
+            aria-label="Filter berdasarkan perusahaan"
+          ></select>
+          <label for="startDate-remidial">📅</label>
+          <input
+            type="date"
+            id="startDate-remidial"
+            aria-label="Tanggal mulai remidial"
+          />
+          <span>s.d.</span>
+          <input
+            type="date"
+            id="endDate-remidial"
+            aria-label="Tanggal akhir remidial"
+          />
+          <label for="search-remidial">🔍</label>
+          <input type="text" id="search-remidial" placeholder="Cari nama..." />
+          <button id="export-remidial" class="export-btn">Export Excel</button>
+        </div>
+        <div class="table-wrapper">
+          <table id="table-remidial">
+            <tbody>
+              <tr>
+                <td colspan="9" class="placeholder-cell">
+                  Data masih di progress...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="grafik" class="tab-content">
+        <!-- Filter untuk Grafik -->
+        <div class="filter-bar">
+          <label for="startDate-grafik">Tanggal:</label>
+          <input type="date" id="startDate-grafik" />
+          <span>s.d.</span>
+          <input
+            type="date"
+            id="endDate-grafik"
+            aria-label="Tanggal akhir grafik"
+          />
+          <label for="search-grafik">Cari Jabatan:</label>
+          <input
+            type="text"
+            id="search-grafik"
+            placeholder="Cari nama jabatan..."
+          />
+        </div>
+        <!-- Kanvas untuk Chart -->
+        <canvas id="chartScore1"></canvas>
+        <canvas id="chartScore2"></canvas>
+        <canvas id="chartScore"></canvas>
+        <!-- Kanvas baru untuk grafik perusahaan berdasarkan jenis, style dipindahkan ke CSS -->
+        <canvas id="companyTypeChart"></canvas>
+        <!-- Kontainer untuk tabel detail yang akan muncul saat grafik diklik -->
+        <div id="company-type-details-wrapper" class="details-container hidden">
+          <h3 id="company-type-details-title">Detail Induksi</h3>
+          <div class="table-wrapper">
+            <table id="company-type-details-table">
+              <!-- Konten tabel akan diisi oleh JavaScript -->
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="temporary" class="tab-content">
+        <h2>Data Temporary</h2>
+        <div class="filter-bar">
+          <label for="filter-temporary">Perusahaan:</label>
+          <select id="filter-temporary">
+            <option value="all">Semua</option>
+          </select>
+          <label for="startDate-temporary">Tanggal:</label>
+          <input type="date" id="startDate-temporary" />
+          <span>s.d.</span>
+          <input
+            type="date"
+            id="endDate-temporary"
+            aria-label="Tanggal akhir temporary"
+          />
+          <label for="search-temporary">Cari:</label>
+          <input type="text" id="search-temporary" placeholder="Cari nama..." />
+          <button id="export-temporary" class="export-btn">Export Excel</button>
+        </div>
+        <div class="table-wrapper">
+          <table id="table-temporary">
+            <!-- Placeholder, akan diisi oleh script.js -->
+            <tbody>
+              <tr>
+                <td colspan="8" class="placeholder-cell">Memuat data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <div
+      class="whatsapp-float"
+      id="open-wa-form"
+      role="button"
+      tabindex="0"
+      aria-label="Buka form WhatsApp"
+    >
+      <img
+        src="https://img.icons8.com/color/48/whatsapp--v1.png"
+        alt="WhatsApp"
+      />
+    </div>
+
+    <div id="wa-form-popup" class="wa-popup hidden">
+      <label for="wa-nama">👤 Nama:</label>
+      <input type="text" id="wa-nama" placeholder="Masukkan nama Anda" />
+      <label for="wa-pesan">❓ Pertanyaan:</label>
+      <textarea id="wa-pesan" placeholder="Tulis pertanyaan Anda..."></textarea>
+      <button id="kirim-wa-btn">💬 Kirim via WhatsApp</button>
+      <button id="close-wa-form" class="close-btn" aria-label="Tutup">X</button>
+    </div>
+
+    <div id="safety-banner" class="safety-banner">
+      <div class="banner-container">
+        <span class="banner-icon">📢</span>
+        <div id="banner-text" class="banner-text">
+          Selalu gunakan APD saat bekerja • Jaga jarak aman • Utamakan
+          keselamatan kerja • Laporkan potensi bahaya ke supervisor •
+        </div>
       </div>
     </div>
 
-    <div id="pendaftaran" class="tab-content">
-      <div class="filter-container">
-        <label for="filter-pendaftaran">🏢</label>
-        <select id="filter-pendaftaran" aria-label="Filter berdasarkan perusahaan"></select>
-        <label for="startDate-pendaftaran">📅</label>
-        <input type="date" id="startDate-pendaftaran" aria-label="Tanggal mulai pendaftaran" />
-        <span>s.d.</span>
-        <input type="date" id="endDate-pendaftaran" aria-label="Tanggal akhir pendaftaran" />
-        <label for="search-pendaftaran">🔍</label>
-        <input type="text" id="search-pendaftaran" placeholder="Cari nama..." />
-        <button id="export-pendaftaran" class="export-btn">Export Excel</button>
-      </div>
-      <div class="table-wrapper">
-        <table id="table-pendaftaran">
-          <tbody><tr><td colspan="7" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
-        </table>
+    <div id="safety-alert" class="safety-toast hidden">
+      <img
+        src="https://img.icons8.com/emoji/48/warning-emoji.png"
+        alt="Warning Icon"
+      />
+      <div class="safety-message">
+        ⚠️ Pesan keselamatan akan muncul di sini.
       </div>
     </div>
 
-    <div id="spdk" class="tab-content">
-      <div class="filter-container">
-        <label for="filter-spdk">🏢</label>
-        <select id="filter-spdk" aria-label="Filter berdasarkan perusahaan"></select>
-        <label for="startDate-spdk">📅</label>
-        <input type="date" id="startDate-spdk" aria-label="Tanggal mulai SPDK" />
-        <span>s.d.</span>
-        <input type="date" id="endDate-spdk" aria-label="Tanggal akhir SPDK" />
-        <label for="search-spdk">🔍</label>
-        <input type="text" id="search-spdk" placeholder="Cari nama..." />
-        <button id="export-spdk" class="export-btn">Export Excel</button>
-      </div>
-      <div class="table-wrapper">
-        <table id="table-spdk">
-          <tbody><tr><td colspan="4" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="checklist_induksi" class="tab-content">
-      <div class="filter-container">
-        <label for="filter-checklist_induksi">🏢</label>
-        <select id="filter-checklist_induksi" aria-label="Filter berdasarkan perusahaan"></select>
-        <label for="startDate-checklist_induksi">📅</label>
-        <input type="date" id="startDate-checklist_induksi" aria-label="Tanggal mulai checklist induksi" />
-        <span>s.d.</span>
-        <input type="date" id="endDate-checklist_induksi" aria-label="Tanggal akhir checklist induksi" />
-        <label for="search-checklist_induksi">🔍</label>
-        <input type="text" id="search-checklist_induksi" placeholder="Cari nama..." />
-        <button id="export-checklist_induksi" class="export-btn">Export Excel</button>
-      </div>
-      <div class="table-wrapper">
-        <table id="table-checklist_induksi">
-          <tbody><tr><td colspan="4" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="hasil_induksi" class="tab-content">
-      <div class="filter-container">
-        <label for="filter-hasil_induksi">🏢</label>
-        <select id="filter-hasil_induksi" aria-label="Filter berdasarkan perusahaan"></select>
-        <label for="startDate-hasil_induksi">📅</label>
-        <input type="date" id="startDate-hasil_induksi" aria-label="Tanggal mulai hasil induksi" />
-        <span>s.d.</span>
-        <input type="date" id="endDate-hasil_induksi" aria-label="Tanggal akhir hasil induksi" />
-        <label for="search-hasil_induksi">🔍</label>
-        <input type="text" id="search-hasil_induksi" placeholder="Cari nama..." />
-        <button id="export-hasil_induksi" class="export-btn">Export Excel</button>
-      </div>
-      <div class="table-wrapper">
-        <table id="table-hasil_induksi">
-          <tbody><tr><td colspan="9" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="remidial" class="tab-content">
-      <h2>SCORE MINIMAL 75</h2>
-      <div class="filter-container">
-        <label for="filter-remidial">🏢</label>
-        <select id="filter-remidial" aria-label="Filter berdasarkan perusahaan"></select>
-        <label for="startDate-remidial">📅</label>
-        <input type="date" id="startDate-remidial" aria-label="Tanggal mulai remidial" />
-        <span>s.d.</span>
-        <input type="date" id="endDate-remidial" aria-label="Tanggal akhir remidial" />
-        <label for="search-remidial">🔍</label>
-        <input type="text" id="search-remidial" placeholder="Cari nama..." />
-        <button id="export-remidial" class="export-btn">Export Excel</button>
-      </div>
-      <div class="table-wrapper">
-        <table id="table-remidial">
-          <tbody><tr><td colspan="9" class="placeholder-cell">Data masih di progress...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="grafik" class="tab-content">
-      <!-- Filter untuk Grafik -->
-      <div class="filter-bar">
-        <label for="startDate-grafik">Tanggal:</label>
-        <input type="date" id="startDate-grafik" />
-        <span>s.d.</span>
-        <input type="date" id="endDate-grafik" aria-label="Tanggal akhir grafik" />
-        <label for="search-grafik">Cari Jabatan:</label>
-        <input type="text" id="search-grafik" placeholder="Cari nama jabatan..." />
-      </div>
-      <!-- Kanvas untuk Chart -->
-      <canvas id="chartScore1"></canvas>  <canvas id="chartScore2"></canvas>  <canvas id="chartScore"></canvas>
-    </div>
-
-    <div id="temporary" class="tab-content">
-      <h2>Data Temporary</h2>
-      <div class="filter-bar">
-        <label for="filter-temporary">Perusahaan:</label>
-        <select id="filter-temporary"><option value="all">Semua</option></select>
-        <label for="startDate-temporary">Tanggal:</label>
-        <input type="date" id="startDate-temporary" />
-        <span>s.d.</span>
-        <input type="date" id="endDate-temporary" aria-label="Tanggal akhir temporary" />
-        <label for="search-temporary">Cari:</label>
-        <input type="text" id="search-temporary" placeholder="Cari nama..." />
-        <button id="export-temporary" class="export-btn">Export Excel</button>
-      </div>
-      <div class="table-wrapper">
-        <table id="table-temporary">
-          <!-- Placeholder, akan diisi oleh script.js -->
-          <tbody><tr><td colspan="8" class="placeholder-cell">Memuat data...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-
-  </main>
-
-
-
-  <footer class="minimal-footer">
-    <p class="copyright">© 2025 Induksi Monitoring. All rights reserved.</p>
-    <p class="developer-info">AHMAD FAQIH I</p>
-    <p class="developer-title">HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT</p>
-</footer>
-
-
-<div class="whatsapp-float" id="open-wa-form" role="button" tabindex="0" aria-label="Buka form WhatsApp">
-  <img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp" />
-</div>
-
-<div id="wa-form-popup" class="wa-popup hidden">
-  <label for="wa-nama">👤 Nama:</label>
-  <input type="text" id="wa-nama" placeholder="Masukkan nama Anda" />
-  <label for="wa-pesan">❓ Pertanyaan:</label>
-  <textarea id="wa-pesan" placeholder="Tulis pertanyaan Anda..."></textarea>
-  <button id="kirim-wa-btn">💬 Kirim via WhatsApp</button>
-  <button id="close-wa-form" class="close-btn" aria-label="Tutup">X</button>
-</div>
-
-<div id="safety-banner" class="safety-banner">
-  <div class="banner-container">
-    <span class="banner-icon">📢</span>
-    <div id="banner-text" class="banner-text">
-      Selalu gunakan APD saat bekerja • Jaga jarak aman • Utamakan keselamatan kerja • Laporkan potensi bahaya ke supervisor •
-    </div>
-  </div>
-</div>
-
-
-
-  <div id="safety-alert" class="safety-toast hidden">
-    <img src="https://img.icons8.com/emoji/48/warning-emoji.png" alt="Warning Icon" />
-    <div class="safety-message">
-      ⚠️ Pesan keselamatan akan muncul di sini.
-    </div>
-  </div>
-
-  <script src="js/common.js" defer></script>
-  <script src="js/script.js" defer></script>
-<script>
-    // Hide Pelatihan button for Mitra and handle logout
-    document.addEventListener('DOMContentLoaded', () => {
-        const userRole = localStorage.getItem('userRole');
-        const pelatihanNav = document.getElementById('nav-pelatihan');
-        const logoutButton = document.getElementById('logout-button');
-
-        if (userRole === 'mitra' && pelatihanNav) {
-            pelatihanNav.style.display = 'none';
-        }
-
-        if (logoutButton) {
-            logoutButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                localStorage.removeItem('userRole');
-                window.location.href = 'index.html';
-            });
-        }
-    });
-</script>
-</body>
+    <script src="js/common.js" defer></script>
+    <script src="js/script.js" defer></script>
+  </body>
 </html>

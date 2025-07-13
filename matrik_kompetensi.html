@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matrix Kompetensi K3</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link ke file CSS utama aplikasi untuk konsistensi gaya -->
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- Tambahkan link Font Awesome untuk ikon -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="bg-gray-100 matrix-page-body">
+    <script>
+      // Redirect to login if not logged in as admin
+      const userRole = localStorage.getItem("userRole");
+      if (userRole !== "gam") {
+        alert("Akses ditolak. Halaman ini hanya untuk Admin.");
+        window.location.href = "index.html"; // Back to login
+      }
+    </script>
+
+    <header class="minimal-header">
+      <h1>SITE PT. GANDA ALAM MAKMUR</h1>
+      <!-- Navbar -->
+    </header>
+    <div class="max-w-full mx-auto p-4 sm:p-6 lg:p-8">
+      <!-- Struktur Tabs -->
+      <div>
+        <!-- Tab Buttons -->
+        <div id="tab-nav" class="flex -mb-px matrix-tabs">
+          <button
+            data-target="tab-matrix"
+            class="tab-button active text-sm font-medium text-gray-700 py-3 px-6 bg-gray-200 rounded-t-lg border border-gray-300 border-b-0"
+          >
+            MATRIX KOMPETENSI
+          </button>
+          <button
+            data-target="tab-tna"
+            class="tab-button text-sm font-medium text-gray-500 py-3 px-6 bg-gray-200 rounded-t-lg border border-gray-300 border-b-0"
+          >
+            TNA
+          </button>
+          <button
+            data-target="tab-add-kompetensi"
+            class="tab-button text-sm font-medium text-gray-500 py-3 px-6 bg-gray-200 rounded-t-lg border border-gray-300 border-b-0"
+          >
+            ADD KOMPETENSI
+          </button>
+          <button
+            data-target="tab-setting"
+            class="tab-button text-sm font-medium text-gray-500 py-3 px-6 bg-gray-200 rounded-t-lg border border-gray-300 border-b-0"
+          >
+            SETTING KOMPETENSI X JABATAN
+          </button>
+          <button
+            data-target="tab-tna-individu"
+            class="tab-button text-sm font-medium text-gray-500 py-3 px-6 bg-gray-200 rounded-t-lg border border-gray-300 border-b-0"
+          >
+            TNA INDIVIDU
+          </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div
+          class="bg-white rounded-b-xl rounded-tr-xl shadow-md border border-gray-300 relative"
+        >
+          <!-- Tab 1: Matrix Kompetensi -->
+          <div id="tab-matrix" class="tab-content p-8 active">
+            <h1 class="text-2xl font-bold text-gray-800 text-center mb-2">
+              MATRIX KOMPETENSI K3
+            </h1>
+            <h2 class="text-xl font-semibold text-gray-700 text-center mb-8">
+              Jabatan x Kompetensi ( Staff )
+            </h2>
+
+            <div class="matrix-filter-bar sticky top-0 z-20">
+              <div class="filter-group">
+                <div class="filter-item">
+                  <label
+                    for="filter-department"
+                    class="block text-sm font-medium text-gray-700"
+                    >Departemen</label
+                  >
+                  <select
+                    id="filter-department"
+                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  ></select>
+                </div>
+                <div class="filter-item">
+                  <label
+                    for="filter-section"
+                    class="block text-sm font-medium text-gray-700"
+                    >Section</label
+                  >
+                  <select
+                    id="filter-section"
+                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  ></select>
+                </div>
+                <div class="filter-item">
+                  <label
+                    for="filter-jabatan"
+                    class="block text-sm font-medium text-gray-700"
+                    >Jabatan</label
+                  >
+                  <select
+                    id="filter-jabatan"
+                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  ></select>
+                </div>
+                <div class="filter-item">
+                  <label
+                    for="filter-level"
+                    class="block text-sm font-medium text-gray-700"
+                    >Level Kompetensi</label
+                  >
+                  <select
+                    id="filter-level"
+                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  >
+                    <option value="">Semua Level</option>
+                    <option value="N5">N5</option>
+                    <option value="N4">N4</option>
+                    <option value="N3">N3</option>
+                    <option value="N2">N2</option>
+                  </select>
+                </div>
+              </div>
+              <div class="action-group">
+                <button
+                  id="zoom-out-matrix"
+                  class="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+                >
+                  -
+                </button>
+                <button
+                  id="zoom-in-matrix"
+                  class="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div id="table-wrapper-matrix" class="overflow-x-auto">
+              <div id="loader-matrix" class="text-center">
+                <div class="local-spinner"></div>
+                <p class="text-gray-500">Mengambil data Matrix...</p>
+              </div>
+              <div id="table-container-matrix"></div>
+            </div>
+          </div>
+
+          <!-- Tab 2: TNA -->
+          <div id="tab-tna" class="tab-content p-8">
+            <h1 class="text-2xl font-bold text-gray-800 text-center mb-2">
+              Training Need Analysis (TNA)
+            </h1>
+            <div class="matrix-filter-bar sticky top-0 z-20">
+              <div class="filter-group">
+                <div class="filter-item">
+                  <label
+                    for="tna-filter-section"
+                    class="block text-sm font-medium text-gray-700"
+                    >Section</label
+                  >
+                  <select
+                    id="tna-filter-section"
+                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  ></select>
+                </div>
+                <div class="filter-item">
+                  <label
+                    for="tna-filter-jabatan"
+                    class="block text-sm font-medium text-gray-700"
+                    >Jabatan</label
+                  >
+                  <select
+                    id="tna-filter-jabatan"
+                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  ></select>
+                </div>
+              </div>
+              <div class="action-group">
+                <button
+                  id="zoom-out-tna"
+                  class="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+                >
+                  -
+                </button>
+                <button
+                  id="zoom-in-tna"
+                  class="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div id="tna-table-wrapper" class="overflow-x-auto">
+              <div id="loader-tna" class="text-center">
+                <div class="local-spinner"></div>
+                <p class="text-gray-500">Mengambil data TNA...</p>
+              </div>
+              <div id="table-container-tna"></div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Add Kompetensi -->
+          <div id="tab-add-kompetensi" class="tab-content p-8">
+            <h1 class="text-2xl font-bold text-gray-800 text-center mb-4">
+              Add Kompetensi
+            </h1>
+            <div
+              class="sticky top-0 z-20 bg-white bg-opacity-95 backdrop-blur-sm pt-2 mb-4 rounded-lg flex items-center justify-between"
+            >
+              <div class="border-b border-gray-200 flex-grow">
+                <nav
+                  id="add-kompetensi-sub-nav"
+                  class="-mb-px flex space-x-8"
+                  aria-label="Tabs"
+                >
+                  <button
+                    data-target="sub-tab-internal"
+                    class="sub-tab-button active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                  >
+                    INTERNAL KOMPETENSI
+                  </button>
+                  <button
+                    data-target="sub-tab-all"
+                    class="sub-tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  >
+                    ALL KOMPETENSI
+                  </button>
+                </nav>
+              </div>
+              <div class="px-4 flex items-center space-x-2">
+                <button
+                  id="zoom-out-add"
+                  class="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+                >
+                  -
+                </button>
+                <button
+                  id="zoom-in-add"
+                  class="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div class="mt-6">
+              <div id="sub-tab-internal" class="sub-tab-content">
+                <div class="flex justify-end mb-4">
+                  <button
+                    onclick="openAddEditModal('internal')"
+                    class="flex items-center gap-2 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    Tambah Data Baru
+                  </button>
+                </div>
+                <div id="loader-internal" class="text-center">
+                  <div class="local-spinner"></div>
+                  <p>Memuat data Internal Kompetensi...</p>
+                </div>
+                <div
+                  id="table-container-internal"
+                  class="overflow-x-auto"
+                ></div>
+              </div>
+              <div id="sub-tab-all" class="sub-tab-content hidden">
+                <div class="flex justify-end mb-4">
+                  <button
+                    onclick="openAddEditModal('all')"
+                    class="flex items-center gap-2 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    Tambah Data Baru
+                  </button>
+                </div>
+                <div id="loader-all" class="text-center">
+                  <div class="local-spinner"></div>
+                  <p>Memuat data All Kompetensi...</p>
+                </div>
+                <div id="table-container-all" class="overflow-x-auto"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 4: Setting Kompetensi -->
+          <div id="tab-setting" class="tab-content p-8">
+            <h1 class="text-2xl font-bold text-gray-800 text-center mb-2">
+              Setting Kompetensi x Jabatan
+            </h1>
+            <div class="matrix-filter-bar sticky top-0 z-20">
+              <div class="filter-group">
+                <div class="filter-item">
+                  <label
+                    for="setting-filter-jabatan"
+                    class="block text-sm font-medium text-gray-700"
+                    >Jabatan</label
+                  >
+                  <select
+                    id="setting-filter-jabatan"
+                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  ></select>
+                </div>
+                <div class="filter-item">
+                  <label
+                    for="setting-filter-level"
+                    class="block text-sm font-medium text-gray-700"
+                    >Level</label
+                  >
+                  <select
+                    id="setting-filter-level"
+                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  ></select>
+                </div>
+                <div class="filter-item">
+                  <label
+                    for="setting-filter-refresh"
+                    class="block text-sm font-medium text-gray-700"
+                    >Refresh</label
+                  >
+                  <select
+                    id="setting-filter-refresh"
+                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  ></select>
+                </div>
+              </div>
+              <div class="action-group">
+                <button
+                  onclick="openAddEditModal('setting')"
+                  class="btn-add-new"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  Tambah
+                </button>
+                <button
+                  id="zoom-out-setting"
+                  class="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+                >
+                  -
+                </button>
+                <button
+                  id="zoom-in-setting"
+                  class="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div id="setting-table-wrapper" class="overflow-x-auto">
+              <div id="loader-setting" class="text-center">
+                <div class="local-spinner"></div>
+                <p class="text-gray-500">Mengambil data Setting...</p>
+              </div>
+              <div id="table-container-setting"></div>
+            </div>
+          </div>
+
+          <!-- Tab 5: TNA Individu -->
+          <div id="tab-tna-individu" class="tab-content p-8">
+            <h1 class="text-2xl font-bold text-gray-800 text-center mb-4">
+              TNA Individu
+            </h1>
+            <div class="border-b border-gray-200">
+              <nav
+                id="tna-individu-sub-nav"
+                class="-mb-px flex space-x-8"
+                aria-label="Tabs"
+              >
+                <button
+                  data-target="sub-tab-pelatihan"
+                  class="sub-tab-button active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                >
+                  BASE PELATIHAN
+                </button>
+                <button
+                  data-target="sub-tab-manpower"
+                  class="sub-tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                >
+                  BASE MANPOWER
+                </button>
+                <button
+                  data-target="sub-tab-tna-final"
+                  class="sub-tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                >
+                  TNA
+                </button>
+              </nav>
+            </div>
+            <div class="mt-6">
+              <div id="sub-tab-pelatihan" class="sub-tab-content">
+                <div id="loader-pelatihan" class="text-center">
+                  <div class="local-spinner"></div>
+                  <p>Memuat data Base Pelatihan...</p>
+                </div>
+                <div
+                  id="table-container-pelatihan"
+                  class="overflow-x-auto"
+                ></div>
+              </div>
+              <div id="sub-tab-manpower" class="sub-tab-content hidden">
+                <div
+                  id="password-gate-manpower"
+                  class="p-4 border rounded-lg bg-gray-50"
+                >
+                  <div class="flex items-center gap-4">
+                    <input
+                      type="password"
+                      id="password-manpower"
+                      class="block w-full max-w-xs p-2 border-gray-300 rounded-md shadow-sm"
+                      placeholder="Masukkan Kata Sandi"
+                    />
+                    <button
+                      id="unlock-manpower"
+                      class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                    >
+                      Buka
+                    </button>
+                  </div>
+                  <p
+                    id="password-error-manpower"
+                    class="text-red-500 text-sm mt-2 hidden"
+                  >
+                    Kata sandi salah.
+                  </p>
+                </div>
+                <div id="loader-manpower" class="text-center mt-4">
+                  <div class="local-spinner"></div>
+                  <p>Memuat data Base Manpower...</p>
+                </div>
+                <div
+                  id="table-container-manpower"
+                  class="overflow-x-auto filter blur-sm transition-all duration-300"
+                ></div>
+              </div>
+              <div id="sub-tab-tna-final" class="sub-tab-content hidden">
+                <div class="mb-6 p-4 border rounded-lg bg-gray-50">
+                  <label
+                    for="search-tna-individu"
+                    class="block text-sm font-medium text-gray-700"
+                    >Cari Nama Karyawan</label
+                  >
+                  <div class="mt-1 flex rounded-md shadow-sm">
+                    <input
+                      type="text"
+                      id="search-tna-individu"
+                      class="flex-1 block w-full rounded-none rounded-l-md p-2 border-gray-300"
+                      placeholder="Masukkan nama..."
+                    />
+                    <button
+                      id="search-tna-btn"
+                      class="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 hover:bg-gray-100"
+                      aria-label="Cari"
+                      title="Cari"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  <p
+                    id="search-error-tna"
+                    class="text-red-500 text-sm mt-2 hidden"
+                  >
+                    Karyawan tidak ditemukan.
+                  </p>
+                </div>
+                <div
+                  id="tna-results-container"
+                  class="grid grid-cols-1 lg:grid-cols-2 gap-8"
+                >
+                  <div id="completed-trainings-container"></div>
+                  <div id="recommended-trainings-container"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal untuk Add/Edit -->
+    <div
+      id="data-modal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50"
+    >
+      <div
+        class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white"
+      >
+        <div class="flex justify-between items-center border-b pb-3">
+          <h3 id="modal-title" class="text-lg font-medium text-gray-900">
+            Formulir Data
+          </h3>
+          <button
+            id="close-modal"
+            class="text-gray-400 hover:text-gray-600"
+            aria-label="Tutup Modal"
+          >
+            &times;
+          </button>
+        </div>
+        <div class="mt-5">
+          <form id="modal-form" class="space-y-4">
+            <!-- Input fields akan digenerate oleh JavaScript di sini -->
+          </form>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3 border-t pt-4">
+          <button
+            id="cancel-modal"
+            type="button"
+            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+          >
+            Batal
+          </button>
+          <button
+            id="save-modal"
+            type="button"
+            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          >
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/common.js" defer></script>
+    <script src="js/matrix.js"></script>
+  </body>
+</html>

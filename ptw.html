@@ -1,142 +1,279 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PTW Dashboard - Sistem Manajemen Izin Kerja</title>
     <!-- Font Inter untuk tipografi yang bersih -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <!-- Lucide Icons CDN untuk ikon vektor yang ringan -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Tambahkan link Font Awesome untuk ikon di navbar -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
     <!-- Leaflet CSS & JS untuk peta -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <!-- Link ke file CSS utama aplikasi untuk konsistensi gaya -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-<script>
-    // Pemeriksaan Sesi Pengguna
-    // Jika tidak ada 'userRole' di localStorage, arahkan kembali ke halaman login.
-    if (!localStorage.getItem('userRole')) {
-        window.location.href = 'index.html';
-    }
-</script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      // Pemeriksaan Sesi Pengguna
+      // Jika tidak ada 'userRole' di localStorage, arahkan kembali ke halaman login.
+      if (!localStorage.getItem("userRole")) {
+        window.location.href = "index.html";
+      }
+    </script>
 
-<header class="minimal-header">
-    <h1 id="main-title">SITE PT. GANDA ALAM MAKMUR</h1>
-    <nav class="navbar">
-        <a href="induksi.html" class="nav-button">Induksi</a>
-        <a href="pelatihan.html" class="nav-button">Pelatihan</a>
-        <a href="ptw.html" class="nav-button active">PTW / IKK</a>
-        <a href="#" id="logout-button" class="nav-button logout">Logout</a>
-    </nav>
-</header>
+    <header class="minimal-header">
+      <h1 id="main-title" class="text-xl font-semibold text-purple-700">
+        SITE PT. GANDA ALAM MAKMUR
+      </h1>
+    </header>
 
-    <!-- Kontainer Aplikasi Utama -->
-    <div id="app" class="app-container ptw-page">
-        <main>
-            <!-- Tombol Aksi Utama -->
-            <section class="flex justify-center space-x-4 mb-8">
-                <button id="view-all-permits-btn" class="button-base button-secondary flex items-center">
-                    <svg class="lucide lucide-list mr-2" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
-                    Lihat Semua Izin
-                </button>
-                <button id="create-permit-btn" class="button-base button-outline flex items-center">
-                    <svg class="lucide lucide-plus-circle mr-2" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
-                    Buat Izin Baru
-                </button>
-            </section>
+    <div id="app" class="app-container ptw-page max-w-7xl mx-auto p-6">
+      <main>
+        <!-- Action Buttons -->
+        <section class="flex justify-center space-x-6 mb-10">
+          <button
+            id="view-all-permits-btn"
+            class="button-base button-secondary flex items-center shadow hover:shadow-lg transition-shadow duration-300"
+          >
+            <svg
+              class="lucide lucide-list mr-2"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="8" x2="21" y1="6" y2="6" />
+              <line x1="8" x2="21" y1="12" y2="12" />
+              <line x1="8" x2="21" y1="18" y2="18" />
+              <line x1="3" x2="3.01" y1="6" y2="6" />
+              <line x1="3" x2="3.01" y1="12" y2="12" />
+              <line x1="3" x2="3.01" y1="18" y2="18" />
+            </svg>
+            Lihat Semua Izin
+          </button>
+          <button
+            id="create-permit-btn"
+            class="button-base button-outline flex items-center shadow hover:shadow-lg transition-shadow duration-300"
+          >
+            <svg
+              class="lucide lucide-plus-circle mr-2"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M8 12h8" />
+              <path d="M12 8v8" />
+            </svg>
+            Buat Izin Baru
+          </button>
+        </section>
 
-            <!-- Area Konten Dinamis -->
-            <div id="content-area" class="content-area">
-                <!-- Kontainer untuk Tampilan Daftar Izin (Struktur Statis) -->
-                <div id="permit-list-container" class="w-full content-fade-in">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Daftar Izin Kerja</h2>
-                    
-                    <div class="ptw-filter-bar">
-                        <label for="search-filter" class="sr-only">Cari Izin</label>
-                        <input type="text" id="search-filter" class="form-input" placeholder="Cari berdasarkan judul, ID, kategori...">
-                        
-                        <label for="status-filter">Status:</label>
-                        <select id="status-filter" class="form-select">
-                            <!-- Opsi akan diisi oleh JavaScript -->
-                        </select>
-                    </div>
+        <!-- Filter and Search -->
+        <section
+          class="ptw-filter-bar mb-8 shadow rounded-lg p-4 bg-white border border-gray-200 flex items-center gap-4"
+        >
+          <label for="search-filter" class="sr-only">Cari Izin</label>
+          <input
+            type="text"
+            id="search-filter"
+            class="form-input flex-grow"
+            placeholder="Cari berdasarkan judul, ID, kategori..."
+          />
 
-                    <div class="bg-white p-6 rounded-lg shadow-lg">
-                        <div class="flex justify-between items-center mb-4">
-                            <p id="result-count" class="text-sm text-gray-600">Menampilkan 0 dari 0 total izin.</p>
-                        </div>
+          <label for="status-filter" class="font-semibold text-gray-700"
+            >Status:</label
+          >
+          <select id="status-filter" class="form-select w-48"></select>
+        </section>
 
-                        <div id="offline-notice-container"></div>
-                        <div class="overflow-x-auto table-container">
-                            <table id="permit-table" class="table-min-width table-divide-y">
-                                <thead id="permit-table-head" class="table-header-bg"></thead>
-                                <tbody id="permit-table-body" class="divide-y divide-gray-200"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+        <!-- Permit List -->
+        <section class="bg-white rounded-lg shadow-lg p-6">
+          <h2
+            class="page-title-container text-3xl font-extrabold text-gray-900 mb-8 border-b border-gray-300 pb-3"
+          >
+            Daftar Izin Kerja
+          </h2>
+
+          <div class="flex justify-between items-center mb-6">
+            <p
+              id="result-count"
+              class="result-count text-gray-600 text-sm italic"
+            >
+              Menampilkan 0 dari 0 total izin.
+            </p>
+          </div>
+
+          <div id="offline-notice-container" class="mb-4"></div>
+
+          <div
+            class="overflow-x-auto table-container rounded-md border border-gray-200"
+          >
+            <table
+              id="permit-table"
+              class="table-min-width table-divide-y w-full"
+            >
+              <thead id="permit-table-head" class="table-header-bg"></thead>
+              <tbody
+                id="permit-table-body"
+                class="divide-y divide-gray-200"
+              ></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
     </div>
 
     <!-- Modals -->
     <div id="message-modal" class="modal hidden">
-        <div class="modal-content text-center modal-sm">
-            <p id="modal-message" class="mb-6 text-base"></p>
-            <button id="modal-close-btn" class="button-primary mx-auto">
-                OK
-            </button>
-        </div>
+      <div class="modal-content text-center modal-sm">
+        <p id="modal-message" class="mb-6 text-base"></p>
+        <button
+          id="modal-close-btn"
+          class="button-primary mx-auto px-8 py-2 rounded-lg"
+        >
+          OK
+        </button>
+      </div>
     </div>
 
-    <div id="loading-spinner" class="loader hidden">
-        <!-- .loader::after dari style.css akan membuat visual spinner -->
-    </div>
+    <div id="loading-spinner" class="loader hidden"></div>
 
     <div id="create-permit-modal" class="modal hidden modal-top">
-        <div class="modal-content modal-lg">
-            <div class="modal-header">
-                <h3 class="text-lg font-bold">Buat Izin Kerja Baru</h3>
-                <button id="close-create-modal-btn" class="close-button" type="button">&times;</button>
-            </div>
-            <section>
-                <form id="create-permit-form" class="modal-form mt-4">
-                    <div class="form-group">
-                        <label for="title" class="form-label">Judul Pekerjaan</label>
-                        <input type="text" id="title" name="title" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="category" class="form-label">Kategori</label>
-                        <input type="text" id="category" name="category" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="location" class="form-label">Lokasi (Latitude, Longitude)</label>
-                        <input type="text" id="location" name="location" class="form-input" placeholder="Contoh: -6.200000, 106.816666" required>
-                    </div>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div class="form-group"><label for="startDate" class="form-label">Tanggal Mulai</label><input type="date" id="startDate" name="startDate" class="form-input" required></div>
-                        <div class="form-group"><label for="endDate" class="form-label">Tanggal Selesai</label><input type="date" id="endDate" name="endDate" class="form-input" required></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="description" class="form-label">Deskripsi Pekerjaan</label>
-                        <textarea id="description" name="description" class="form-textarea" rows="4" required></textarea>
-                    </div>
-                    <div class="flex justify-end mt-6"><button type="submit" class="button-primary">Buat Izin</button></div>
-                </form>
-            </section>
+      <div class="modal-content modal-lg">
+        <div
+          class="modal-header flex justify-between items-center border-b border-gray-300 pb-4 mb-6"
+        >
+          <h3 class="text-xl font-bold text-gray-900">Buat Izin Kerja Baru</h3>
+          <button
+            id="close-create-modal-btn"
+            class="close-button text-gray-600 hover:text-gray-900 text-3xl font-bold"
+            type="button"
+          >
+            &times;
+          </button>
         </div>
+        <section>
+          <form id="create-permit-form" class="modal-form mt-4 space-y-6">
+            <div class="form-group">
+              <label for="title" class="form-label font-semibold text-gray-700"
+                >Judul Pekerjaan</label
+              >
+              <input
+                type="text"
+                id="title"
+                name="title"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label
+                for="category"
+                class="form-label font-semibold text-gray-700"
+                >Kategori</label
+              >
+              <input
+                type="text"
+                id="category"
+                name="category"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label
+                for="location"
+                class="form-label font-semibold text-gray-700"
+                >Lokasi (Latitude, Longitude)</label
+              >
+              <input
+                type="text"
+                id="location"
+                name="location"
+                class="form-input"
+                placeholder="Contoh: -6.200000, 106.816666"
+                required
+              />
+            </div>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div class="form-group">
+                <label
+                  for="startDate"
+                  class="form-label font-semibold text-gray-700"
+                  >Tanggal Mulai</label
+                >
+                <input
+                  type="date"
+                  id="startDate"
+                  name="startDate"
+                  class="form-input"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label
+                  for="endDate"
+                  class="form-label font-semibold text-gray-700"
+                  >Tanggal Selesai</label
+                >
+                <input
+                  type="date"
+                  id="endDate"
+                  name="endDate"
+                  class="form-input"
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label
+                for="description"
+                class="form-label font-semibold text-gray-700"
+                >Deskripsi Pekerjaan</label
+              >
+              <textarea
+                id="description"
+                name="description"
+                class="form-textarea"
+                rows="4"
+                required
+              ></textarea>
+            </div>
+            <div class="flex justify-end">
+              <button type="submit" class="button-primary px-6 py-2 rounded-lg">
+                Buat Izin
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
     </div>
 
+    <script src="js/common.js" defer></script>
     <script src="js/ptw.js"></script>
-
-    <footer class="minimal-footer">
-        <p class="copyright">© 2025 Sistem Manajemen Izin Kerja. All rights reserved.</p>
-        <p class="developer-info">AHMAD FAQIH I</p>
-        <p class="developer-title">HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT</p>
-    </footer>
-</body>
+  </body>
 </html>
