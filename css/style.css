@@ -2411,7 +2411,7 @@ th:hover {
 
 /* --- Date Display Card --- */
 .kpi-card.kpi-date-display {
-  background: linear-gradient(135deg, #8b5cf6, #4f46e5, #6d28d9);
+  background: linear-gradient(135deg, #0e923a, #33b618, #18e656);
   background-size: 200% 200%;
   color: white;
   display: flex;
