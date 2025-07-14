@@ -2408,3 +2408,61 @@ th:hover {
 .kpi-company-slider:hover .kpi-company-list {
   animation-play-state: paused;
 }
+
+/* --- Date Display Card --- */
+.kpi-card.kpi-date-display {
+  background: linear-gradient(135deg, #8b5cf6, #4f46e5, #6d28d9);
+  background-size: 200% 200%;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+  animation: pulse-bg 8s ease infinite;
+  border: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.date-day {
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.9;
+}
+
+.date-full {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.date-year {
+  font-size: 1.1rem;
+}
+
+@keyframes pulse-bg {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.digital-clock {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  letter-spacing: 0.1em;
+  opacity: 0.95;
+  background-color: rgba(0, 0, 0, 0.15);
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-family: "ui-monospace", monospace; /* Font yang lebih cocok untuk jam */
+}

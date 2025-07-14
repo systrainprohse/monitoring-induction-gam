@@ -1084,6 +1084,46 @@ async function updatePasswordKpi() {
 }
 
 /**
+ * Updates the date display card with the current date.
+ */
+function updateDateDisplay() {
+  const dayEl = document.getElementById("current-day");
+  const dateEl = document.getElementById("current-date");
+  const yearEl = document.getElementById("current-year");
+
+  if (!dayEl || !dateEl || !yearEl) return;
+
+  const now = new Date();
+  const dayName = new Intl.DateTimeFormat("id-ID", { weekday: "long" }).format(
+    now
+  );
+  const dateNumber = now.getDate();
+  const monthYear = new Intl.DateTimeFormat("id-ID", {
+    month: "long",
+    year: "numeric",
+  }).format(now);
+
+  dayEl.textContent = dayName;
+  dateEl.textContent = dateNumber;
+  yearEl.textContent = monthYear;
+}
+
+/**
+ * Updates the digital clock display every second.
+ */
+function updateDigitalClock() {
+  const timeEl = document.getElementById("current-time");
+  if (!timeEl) return;
+
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  timeEl.textContent = `${hours}:${minutes}:${seconds}`;
+}
+
+/**
  * Memeriksa kondisi filter untuk satu baris data.
  * @param {Object} dataRow - Baris data yang akan diperiksa.
  * @param {Object} filters - Objek berisi nilai filter saat ini.
@@ -1724,6 +1764,8 @@ function updateBannerText(newText) {
 }
 
 function setupEventListeners() {
+  updateDateDisplay(); // Tampilkan tanggal hari ini
+  setInterval(updateDigitalClock, 1000); // Mulai jam digital
   startSafetyRotation(); // Start safety message rotation
 
   // Event listener untuk tombol "Paksa Muat Ulang"
