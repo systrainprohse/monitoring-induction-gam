@@ -1979,6 +1979,19 @@ th:hover {
   color: #14b8a6;
 }
 
+/* Password Card (Orange Accent) */
+.kpi-card.kpi-password {
+  border-left-color: #f97316; /* Modern Orange */
+}
+.kpi-card.kpi-password .kpi-icon {
+  color: #f97316;
+}
+.kpi-card.kpi-password .kpi-value {
+  cursor: pointer; /* Menandakan bisa diklik */
+  -webkit-user-select: all; /* Memudahkan memilih di Safari */
+  user-select: all; /* Memudahkan untuk memilih teks password */
+}
+
 /* Summary Card (Orange Accent) */
 .kpi-card.kpi-summary {
   border-left-color: #f59e0b; /* Modern Orange/Amber */

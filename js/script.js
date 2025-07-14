@@ -44,6 +44,10 @@ const SHEET_SOURCES = {
     id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
     sheet: "temporary_data",
   }, // Data untuk tab Temporary
+  password: {
+    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
+    sheet: "PASSWORD",
+  },
 };
 
 const kolomTampilkan = {
@@ -1006,6 +1010,80 @@ function updateDailyVisitorKpi(visitorData) {
 }
 
 /**
+ * Menghitung nomor minggu dalam setahun (ISO 8601).
+ * @param {Date} d - Objek tanggal.
+ * @returns {number} - Nomor minggu.
+ */
+function getWeekNumber(d) {
+  // Salin tanggal agar tidak mengubah objek aslinya
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  // Atur ke hari Kamis terdekat: tanggal saat ini + 4 - hari saat ini
+  // Jadikan Minggu sebagai hari ke-7
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  // Dapatkan hari pertama dalam setahun
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  // Hitung jumlah minggu penuh ke hari Kamis terdekat
+  const weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  return weekNo;
+}
+
+/**
+ * Mengambil dan menampilkan kata sandi untuk hari ini.
+ */
+async function updatePasswordKpi() {
+  const passwordEl = document.getElementById("password-today");
+  if (!passwordEl) {
+    console.error("Elemen KPI password tidak ditemukan.");
+    return;
+  }
+
+  try {
+    const { id, sheet } = SHEET_SOURCES.password;
+    // Ambil data langsung, tidak perlu cache jangka panjang untuk ini
+    const passwordData = await fetchSheet(id, sheet);
+
+    if (!passwordData || passwordData.length === 0) {
+      passwordEl.textContent = "Data Error";
+      return;
+    }
+
+    const now = new Date();
+    const currentWeek = getWeekNumber(now);
+    const currentMonth = now.getMonth() + 1; // getMonth() adalah 0-indexed
+    const currentYear = now.getFullYear();
+
+    // -- DEBUGGING --
+    // Baris ini akan menampilkan di konsol browser (F12) nilai apa yang sedang dicari.
+    // Anda bisa membandingkan ini dengan data di Google Sheet Anda.
+    console.log(
+      `Mencari password untuk: Minggu=${currentWeek}, Bulan=${currentMonth}, Tahun=${currentYear}`
+    );
+
+    const todayPasswordRow = passwordData.find(
+      (row) =>
+        parseInt(row.WEEK, 10) === currentWeek &&
+        parseInt(row["MONTH NUMBER"], 10) === currentMonth &&
+        parseInt(row.YEAR, 10) === currentYear
+    );
+
+    if (todayPasswordRow && todayPasswordRow.PASSWORD) {
+      const password = todayPasswordRow.PASSWORD;
+      passwordEl.textContent = password;
+      passwordEl.addEventListener("click", () => {
+        navigator.clipboard.writeText(password).then(() => {
+          showInfoToast(`Password "${password}" disalin!`);
+        });
+      });
+    } else {
+      passwordEl.textContent = "Tidak Tersedia";
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data password:", error);
+    passwordEl.textContent = "Gagal Memuat";
+  }
+}
+
+/**
  * Memeriksa kondisi filter untuk satu baris data.
  * @param {Object} dataRow - Baris data yang akan diperiksa.
  * @param {Object} filters - Objek berisi nilai filter saat ini.
@@ -1462,6 +1540,7 @@ async function init() {
     updateDailyInductionKpi(sheetDataCache.hasil_induksi || []);
     updateDailyVisitorKpi(sheetDataCache.visitor || []);
     updateDailyScoreKpi(sheetDataCache.hasil_induksi || []);
+    updatePasswordKpi();
 
     // Render semua tabel dan grafik
     relevantKeys.forEach((key) => {
