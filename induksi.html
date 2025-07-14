@@ -56,8 +56,8 @@
         </button>
       </h2>
 
-      <!-- Kontainer untuk Kartu KPI Harian -->
-      <div id="kpi-container-harian" class="kpi-container">
+      <!-- Kontainer Gabungan untuk Semua Kartu KPI -->
+      <div id="kpi-container" class="kpi-container">
         <!-- Card untuk Induksi Hari Ini (Core) dengan ikon dan warna -->
         <div class="kpi-card kpi-core">
           <div class="kpi-icon">
@@ -86,6 +86,27 @@
               <span class="comparison-value">0</span> vs kemarin
             </div>
             <small class="kpi-sublabel">Perusahaan Lainnya</small>
+          </div>
+        </div>
+        <!-- Card untuk Induksi Hari Ini (Visitor) -->
+        <div class="kpi-card kpi-visitor">
+          <div class="kpi-icon">
+            <i class="fas fa-user-friends"></i>
+            <span
+              id="active-visitor-count"
+              class="kpi-active-badge"
+              title="Jumlah visitor aktif saat ini"
+              >0</span
+            >
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value" id="induksi-visitor-today-count">0</div>
+            <div class="kpi-label">Induksi Hari Ini (Visitor)</div>
+            <div class="kpi-comparison" id="visitor-comparison">
+              <span class="comparison-arrow"></span>
+              <span class="comparison-value">0</span> vs kemarin
+            </div>
+            <small class="kpi-sublabel">Tamu Perusahaan</small>
           </div>
         </div>
         <!-- Card untuk Induksi Hari Ini (New Hire & Cuti) -->
@@ -121,12 +142,49 @@
             </div>
           </div>
         </div>
+        <!-- Card untuk Statistik Skor Harian -->
+        <div class="kpi-card kpi-daily kpi-score span-col-2">
+          <div class="kpi-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-title">Statistik Skor Hari Ini</div>
+            <div class="kpi-multi-value">
+              <div class="kpi-sub-item">
+                <span class="kpi-sub-label">Terendah</span>
+                <span class="kpi-sub-value" id="score-lowest-today">0</span>
+                <div class="kpi-comparison" id="lowest-score-comparison">
+                  <span class="comparison-arrow"></span>
+                  <span class="comparison-value">0</span> vs kemarin
+                </div>
+              </div>
+              <div class="kpi-sub-item">
+                <span class="kpi-sub-label">Tertinggi</span>
+                <span class="kpi-sub-value" id="score-highest-today">0</span>
+                <div class="kpi-comparison" id="highest-score-comparison">
+                  <span class="comparison-arrow"></span>
+                  <span class="comparison-value">0</span> vs kemarin
+                </div>
+              </div>
+              <div class="kpi-sub-item">
+                <span class="kpi-sub-label">Rata-rata</span>
+                <span class="kpi-sub-value" id="score-average-today">0</span>
+                <div class="kpi-comparison" id="average-score-comparison">
+                  <span class="comparison-arrow"></span>
+                  <span class="comparison-value">0</span> vs kemarin
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Kontainer untuk Kartu KPI Total (diisi oleh JS) -->
-      <div id="kpi-container-total" class="kpi-container"></div>
-
-      <div class="loader" id="loader"></div>
+      <div class="loader" id="loader">
+        <div class="loader-content">
+          <div class="coffee-cup"></div>
+          <p>Sabar ya, ambil kopi dulu...</p>
+        </div>
+      </div>
 
       <nav aria-label="Navigasi Konten Induksi">
         <div class="tabs">
@@ -149,6 +207,9 @@
               </button>
               <button class="tab-btn" data-tab="hasil_induksi">
                 📘 Induksi
+              </button>
+              <button class="tab-btn" data-tab="visitor">
+                📘 Induksi - Visitor
               </button>
               <button class="tab-btn" data-tab="spdk">📝 SPDK</button>
               <button class="tab-btn" data-tab="remidial">📊 REMIDIAL</button>
@@ -186,6 +247,7 @@
             </tbody>
           </table>
         </div>
+        <div class="pagination-container" id="pagination-newhire"></div>
       </div>
 
       <div id="pendaftaran" class="tab-content">
@@ -228,6 +290,7 @@
             </tbody>
           </table>
         </div>
+        <div class="pagination-container" id="pagination-pendaftaran"></div>
       </div>
 
       <div id="spdk" class="tab-content">
@@ -264,6 +327,7 @@
             </tbody>
           </table>
         </div>
+        <div class="pagination-container" id="pagination-spdk"></div>
       </div>
 
       <div id="checklist_induksi" class="tab-content">
@@ -306,6 +370,10 @@
             </tbody>
           </table>
         </div>
+        <div
+          class="pagination-container"
+          id="pagination-checklist_induksi"
+        ></div>
       </div>
 
       <div id="hasil_induksi" class="tab-content">
@@ -348,6 +416,44 @@
             </tbody>
           </table>
         </div>
+        <div class="pagination-container" id="pagination-hasil_induksi"></div>
+      </div>
+
+      <div id="visitor" class="tab-content">
+        <div class="filter-container">
+          <label for="filter-visitor">🏢</label>
+          <select
+            id="filter-visitor"
+            aria-label="Filter berdasarkan perusahaan"
+          ></select>
+          <label for="startDate-visitor">📅</label>
+          <input
+            type="date"
+            id="startDate-visitor"
+            aria-label="Tanggal mulai induksi visitor"
+          />
+          <span>s.d.</span>
+          <input
+            type="date"
+            id="endDate-visitor"
+            aria-label="Tanggal akhir induksi visitor"
+          />
+          <label for="search-visitor">🔍</label>
+          <input type="text" id="search-visitor" placeholder="Cari nama..." />
+          <button id="export-visitor" class="export-btn">Export Excel</button>
+        </div>
+        <div class="table-wrapper">
+          <table id="table-visitor">
+            <tbody>
+              <tr>
+                <td colspan="9" class="placeholder-cell">
+                  Data masih di progress...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-container" id="pagination-visitor"></div>
       </div>
 
       <div id="remidial" class="tab-content">
@@ -385,6 +491,7 @@
             </tbody>
           </table>
         </div>
+        <div class="pagination-container" id="pagination-remidial"></div>
       </div>
 
       <div id="grafik" class="tab-content">
@@ -451,6 +558,7 @@
             </tbody>
           </table>
         </div>
+        <div class="pagination-container" id="pagination-temporary"></div>
       </div>
     </main>
 

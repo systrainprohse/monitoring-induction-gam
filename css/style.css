@@ -365,22 +365,24 @@ thead {
 
 th {
   background-color: #f9fafb; /* Latar belakang header tabel sangat terang */
-  padding: 12px 14px;
-  font-size: 13px;
+  padding: 10px 10px; /* Padding diperkecil */
+  font-size: 12px; /* Font diperkecil */
   font-weight: 600;
   color: var(--color-text-muted);
   text-transform: uppercase; /* Teks menjadi kapital */
   letter-spacing: 0.05em; /* Jarak antar huruf */
   border-bottom: 1px solid var(--color-border);
   text-align: left;
+  white-space: nowrap; /* Mencegah teks turun baris */
 }
 
 td {
-  padding: 16px 14px; /* Padding lebih besar */
-  font-size: 13.5px;
+  padding: 12px 10px; /* Padding diperkecil */
+  font-size: 12.5px; /* Font diperkecil */
   border-bottom: 1px solid var(--color-border);
   text-align: left;
   vertical-align: middle;
+  white-space: nowrap; /* Mencegah teks turun baris */
 }
 
 tbody tr:nth-child(even) {
@@ -511,14 +513,60 @@ tbody tr:last-child td {
   opacity: 1;
   visibility: visible;
 }
+
+/* Hapus spinner lama dan ganti dengan konten baru */
 .loader::after {
-  content: "";
+  content: none; /* Hapus spinner default */
+}
+
+.loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  color: var(--color-text-dark);
+  font-weight: 600;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.coffee-cup {
   width: 50px;
-  height: 50px;
-  border: 5px solid #e5e7eb;
-  border-top: 5px solid var(--color-primary); /* Warna ungu pada spinner */
+  height: 56px;
+  border: 3px solid #52525b; /* zinc-600 */
+  border-top: 0;
+  position: relative;
+  border-radius: 0 0 25px 25px;
+}
+
+.coffee-cup::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: -13px;
+  width: 10px;
+  height: 25px;
+  border: 3px solid #52525b; /* zinc-600 */
+  border-left: 0;
+  border-radius: 0 20px 20px 0;
+}
+
+.coffee-cup::before {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: transparent;
+  top: -20px;
+  left: 5px;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  box-shadow: 15px 10px 0 0 #a1a1aa, /* zinc-400 */ 12px 30px 0 -2px #a1a1aa,
+    20px 50px 0 2px #a1a1aa;
+  animation: steam 1.5s linear infinite alternate;
 }
 
 /* --- Menghapus Efek Zoom pada Hover --- */
@@ -781,12 +829,14 @@ th:hover {
   }
 }
 
-@keyframes spin {
+@keyframes steam {
   0% {
-    transform: rotate(0deg);
+    transform: translateY(0) scaleX(1);
+    opacity: 0.5;
   }
   100% {
-    transform: rotate(360deg);
+    transform: translateY(-50px) scaleX(1.5);
+    opacity: 0;
   }
 }
 @keyframes fadein {
@@ -1777,10 +1827,21 @@ th:hover {
 /* --- KPI Cards (Modern & Responsive Design) --- */
 .kpi-container {
   display: grid;
-  /* Increased min-width for better spacing on larger screens */
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: 1fr; /* Default: 1 column for mobile */
   gap: 1.5rem;
   margin-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+  .kpi-container {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for small screens */
+  }
+}
+
+@media (min-width: 1024px) {
+  .kpi-container {
+    grid-template-columns: repeat(4, 1fr); /* 4 columns for large screens */
+  }
 }
 
 .kpi-card {
@@ -1797,6 +1858,13 @@ th:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+/* Span 2 columns on larger screens */
+@media (min-width: 640px) {
+  .kpi-card.span-col-2 {
+    grid-column: span 2;
+  }
+}
+
 /* Styles for standard KPI cards (title + value) */
 .kpi-card .kpi-title {
   font-size: 0.9rem;
@@ -1810,15 +1878,15 @@ th:hover {
   font-weight: 700;
   color: var(--color-text-dark); /* Better contrast on light bg */
   line-height: 1.1;
+  margin-bottom: 0.5rem; /* Beri ruang untuk slider perusahaan */
 }
 
 .kpi-card.clickable {
   cursor: pointer;
 }
 
-/* --- Specific styles for Icon-based KPI cards (Induksi Page) --- */
-.kpi-card.kpi-core,
-.kpi-card.kpi-mitra {
+/* Gaya untuk kartu KPI harian (berbasis ikon) */
+.kpi-card.kpi-daily {
   display: flex;
   align-items: center;
   gap: 1.25rem; /* 20px */
@@ -1829,6 +1897,40 @@ th:hover {
 .kpi-icon {
   flex-shrink: 0;
   font-size: 2.5rem; /* 40px */
+  position: relative; /* Diperlukan untuk positioning badge */
+}
+
+.kpi-active-badge {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background-color: #ef4444; /* Merah kontras */
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
+/* Animasi berkedip untuk badge visitor aktif */
+.kpi-active-badge.blinking {
+  animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
 }
 .kpi-content {
   flex-grow: 1;
@@ -1859,6 +1961,22 @@ th:hover {
 }
 .kpi-card.kpi-mitra .kpi-icon {
   color: #10b981;
+}
+
+/* Visitor Card (Blue Accent) */
+.kpi-card.kpi-visitor {
+  border-left-color: #3b82f6; /* Modern Blue */
+}
+.kpi-card.kpi-visitor .kpi-icon {
+  color: #3b82f6;
+}
+
+/* Score Card (Teal Accent) */
+.kpi-card.kpi-score {
+  border-left-color: #14b8a6; /* Modern Teal */
+}
+.kpi-card.kpi-score .kpi-icon {
+  color: #14b8a6;
 }
 
 /* Summary Card (Orange Accent) */
@@ -2166,4 +2284,114 @@ th:hover {
 }
 .btn-add-new:hover {
   background-color: #4338ca; /* indigo-700 */
+}
+
+/* --- Pagination Styles --- */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  margin-top: -1rem; /* Pull it closer to the table */
+  -webkit-user-select: none; /* Safari */
+  user-select: none; /* Standard */
+}
+
+.pagination-info {
+  font-size: 0.9em;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-card);
+  border-radius: 8px;
+  cursor: pointer;
+  /* Transisi yang lebih menarik */
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  font-weight: 600;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: var(--color-hover);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-2px); /* Efek mengangkat tombol */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); /* Bayangan halus */
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- KPI Company Slider --- */
+.kpi-company-slider {
+  height: 20px; /* Tinggi tetap untuk area slider */
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  margin-top: 0.5rem;
+  /* Efek fade di tepi kiri dan kanan */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+}
+
+.kpi-company-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  position: absolute;
+  white-space: nowrap;
+  animation: slide-company-list 20s linear infinite;
+  /* Durasi animasi dinamis berdasarkan jumlah item */
+  animation-duration: calc(var(--item-count, 5) * 4s);
+}
+
+.kpi-company-list li {
+  padding: 0 1rem;
+  font-size: 0.8rem; /* Ukuran font lebih kecil */
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.kpi-company-count {
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+@keyframes slide-company-list {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%); /* Geser sejauh setengah lebar (daftar asli) */
+  }
+}
+
+/* Jeda animasi saat di-hover */
+.kpi-company-slider:hover .kpi-company-list {
+  animation-play-state: paused;
+}
+
+/* Jeda animasi saat di-hover */
+.kpi-company-slider:hover .kpi-company-list {
+  animation-play-state: paused;
 }

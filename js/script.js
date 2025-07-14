@@ -35,6 +35,10 @@ const SHEET_SOURCES = {
     id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
     sheet: "setting",
   },
+  visitor: {
+    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
+    sheet: "visitor_result",
+  },
 
   temporary: {
     id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
@@ -79,6 +83,16 @@ const kolomTampilkan = {
     "S. JABATAN",
     "S.RATA-RATA",
   ],
+  visitor: [
+    "MULAI",
+    "SELESAI",
+    "NAMA",
+    "PERUSAHAAN",
+    "TUJUAN",
+    "PENDAMPING",
+    "STATUS",
+    "CEK",
+  ],
   remidial: [
     "tanggal",
     "perusahaan",
@@ -110,8 +124,10 @@ const kolomTampilkan = {
   ],
 };
 
+const ROWS_PER_PAGE = 25;
 let perusahaanList = [];
 let currentFilteredData = {}; // Stores the currently filtered data for each table
+let currentPageState = {}; // Objek untuk menyimpan halaman saat ini untuk setiap tabel
 let sortState = {}; // Objek untuk menyimpan status sorting setiap tabel { key: { column, direction } }
 let audioUnlocked = false; // Flag untuk melacak apakah audio sudah diizinkan
 
@@ -214,6 +230,7 @@ function getCellStyle(header, value) {
  * @param {string} column - Nama kolom yang akan diurutkan.
  */
 function setSortAndRefilter(key, column) {
+  currentPageState[key] = 1; // Selalu kembali ke halaman pertama saat sorting
   const currentSort = sortState[key];
   let direction = "asc";
   if (currentSort && currentSort.column === column) {
@@ -281,6 +298,11 @@ function renderTable(data, tableId, key) {
 
   const fragment = document.createDocumentFragment();
 
+  // Ambil halaman saat ini atau default ke 1
+  const currentPage = currentPageState[key] || 1;
+  const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
+  const endIndex = startIndex + ROWS_PER_PAGE;
+
   // 1. Filter out invalid data rows (null, undefined, or empty objects)
   const validData = data
     ? data.filter((row) => row && Object.keys(row).length > 0)
@@ -288,6 +310,9 @@ function renderTable(data, tableId, key) {
 
   // 2. Determine columns to display
   let allowed = kolomTampilkan[key];
+
+  const totalRows = validData.length;
+  const paginatedData = validData.slice(startIndex, endIndex);
   if (!allowed && validData.length > 0) {
     // Fallback to keys of the first valid row if not defined in kolomTampilkan
     allowed = Object.keys(validData[0]);
@@ -334,13 +359,28 @@ function renderTable(data, tableId, key) {
 
   // Create table body
   const tbody = document.createElement("tbody");
-  validData.forEach((row) => {
+  paginatedData.forEach((row) => {
     const tr = document.createElement("tr");
+
+    // Pewarnaan baris berdasarkan status untuk tabel visitor
+    if (key === "visitor") {
+      const status = (row["STATUS"] || "").toLowerCase();
+      if (status === "non aktif") {
+        tr.classList.add("status-non-aktif");
+      } else if (status === "aktif") {
+        tr.classList.add("status-aktif");
+      }
+    }
+
     allowed.forEach((h) => {
       const td = document.createElement("td");
       const nilai = row[h] || "";
       const { warna, emoji } = getCellStyle(h, nilai);
-      if (warna) {
+      // Styling khusus untuk kolom 'CEK' di tabel visitor
+      if (key === "visitor" && h === "CEK") {
+        td.className = `cek-${(nilai || "").toLowerCase()}`;
+        td.textContent = nilai;
+      } else if (warna) {
         const badge = document.createElement("span");
         badge.className = `badge ${warna}`;
         badge.textContent = emoji + nilai;
@@ -358,6 +398,8 @@ function renderTable(data, tableId, key) {
   // Clear existing table content before appending new fragment
   table.innerHTML = "";
   table.appendChild(fragment);
+  // Render pagination controls
+  renderPagination(key, totalRows);
 
   // Add click event listener for zoom effect using event delegation
   const tableBody = table.querySelector("tbody");
@@ -395,6 +437,88 @@ function renderTable(data, tableId, key) {
 }
 
 /**
+ * Menghitung dan mengembalikan perusahaan teratas dari kumpulan data.
+ * @param {Array<Object>} data - Kumpulan data.
+ * @param {number} count - Jumlah perusahaan teratas yang diinginkan.
+ * @returns {Array<string>} - Daftar nama perusahaan teratas.
+ */
+function getTopCompanies(data, count = 5) {
+  if (!data || data.length === 0) return [];
+
+  const companyCounts = data.reduce((acc, row) => {
+    const company = row["perusahaan"] || row["PERUSAHAAN"];
+    if (company) {
+      acc[company] = (acc[company] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  return Object.entries(companyCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, count)
+    .map(([name, count]) => ({ name, count }));
+}
+
+/**
+ * Membuat markup HTML untuk slider perusahaan.
+ * @param {Array<string>} companies - Daftar nama perusahaan.
+ * @returns {string} - String HTML untuk slider.
+ */
+function createCompanySliderHTML(companies) {
+  if (companies.length === 0) return "";
+
+  // Duplikasi daftar untuk efek loop yang mulus jika ada lebih dari 1 item
+  const items = companies.length > 1 ? [...companies, ...companies] : companies;
+
+  return `
+    <div class="kpi-company-slider">
+      <ul class="kpi-company-list" style="--item-count: ${companies.length}">
+        ${items
+          .map(
+            (company) =>
+              `<li>${company.name} <span class="kpi-company-count">(${company.count})</span></li>`
+          )
+          .join("")}
+      </ul>
+    </div>
+  `;
+}
+
+/**
+ * Merender kontrol paginasi untuk sebuah tabel.
+ * @param {string} key - Kunci tabel (misal: "newhire").
+ * @param {number} totalRows - Jumlah total baris data (sebelum paginasi).
+ */
+function renderPagination(key, totalRows) {
+  const container = document.getElementById(`pagination-${key}`);
+  if (!container) return;
+
+  const currentPage = currentPageState[key] || 1;
+  const totalPages = Math.ceil(totalRows / ROWS_PER_PAGE);
+
+  if (totalPages <= 1) {
+    container.innerHTML = "";
+    return;
+  }
+
+  const startRow = (currentPage - 1) * ROWS_PER_PAGE + 1;
+  const endRow = Math.min(currentPage * ROWS_PER_PAGE, totalRows);
+
+  container.innerHTML = `
+    <span class="pagination-info">
+      Menampilkan ${startRow} - ${endRow} dari ${totalRows} data
+    </span>
+    <div class="pagination-controls">
+        <button class="pagination-btn" data-key="${key}" data-action="prev" ${
+    currentPage === 1 ? "disabled" : ""
+  }>&laquo; Sebelumnya</button>
+        <button class="pagination-btn" data-key="${key}" data-action="next" ${
+    currentPage === totalPages ? "disabled" : ""
+  }>Selanjutnya &raquo;</button>
+    </div>`;
+}
+
+/**
  * Merender kartu-kartu Key Performance Indicator (KPI) untuk halaman Induksi.
  * @param {Array<Object>} pendaftaranData - Data dari sheet pendaftaran.
  * @param {Array<Object>} hasilInduksiData - Data dari sheet hasil_induksi.
@@ -407,34 +531,25 @@ function renderInduksiKPIs(
   temporaryData,
   newhireData
 ) {
-  const kpiContainer = document.getElementById("kpi-container-total");
+  const kpiContainer = document.getElementById("kpi-container");
   if (!kpiContainer) return;
+
+  // Hitung perusahaan teratas untuk setiap KPI
+  const topPendaftaranCompanies = getTopCompanies(pendaftaranData);
+  const topApprovalCompanies = getTopCompanies(newhireData);
+  const topTemporaryCompanies = getTopCompanies(temporaryData);
+
+  const pendaftaranSlider = createCompanySliderHTML(topPendaftaranCompanies);
+  const approvalSlider = createCompanySliderHTML(topApprovalCompanies);
+  const temporarySlider = createCompanySliderHTML(topTemporaryCompanies);
 
   // 1. Hitung Total Pendaftaran
   const totalPendaftaran = pendaftaranData.length;
 
-  // 2. Hitung statistik skor dari sheet 'hasil_induksi'
-  const scores = hasilInduksiData
-    .map((item) => {
-      // Membuat parsing lebih kuat dengan mengganti koma dan menghapus spasi
-      const scoreStr = String(item["S.RATA-RATA"] || "").replace(",", ".");
-      return parseFloat(scoreStr);
-    })
-    .filter((score) => !isNaN(score)); // Filter hanya nilai yang valid (angka)
-
-  let minScore = 0;
-  let maxScore = 0;
-  let avgScore = 0;
-
-  if (scores.length > 0) {
-    minScore = Math.min(...scores);
-    maxScore = Math.max(...scores);
-    const sumScores = scores.reduce((sum, score) => sum + score, 0);
-    avgScore = (sumScores / scores.length).toFixed(1);
-  }
-
-  // 3. Hitung Total Permit Temporary
-  const totalTemporary = temporaryData.length;
+  // 3. Hitung Total Permit Temporary yang statusnya 'AKTIF'
+  const totalTemporary = temporaryData.filter(
+    (row) => (row.STATUS || "").toLowerCase() === "aktif"
+  ).length;
 
   // 4. Hitung Total Approval (menggunakan data 'newhire' yang sudah di-cache)
   const totalApproval = newhireData.length;
@@ -444,62 +559,40 @@ function renderInduksiKPIs(
       title: "Total Pendaftaran",
       value: totalPendaftaran.toLocaleString("id-ID"),
       tab: "pendaftaran",
+      slider: pendaftaranSlider,
+      span: 2,
     },
     {
       title: "Total Approval Permit",
       value: totalApproval.toLocaleString("id-ID"),
       tab: "newhire",
+      slider: approvalSlider,
+      span: 2,
     },
     {
       title: "Permit Temporary Aktif",
       value: totalTemporary.toLocaleString("id-ID"),
       tab: "temporary",
-    },
-    {
-      title: "Statistik Skor Induksi",
-      values: [
-        { label: "Terendah", value: minScore },
-        { label: "Tertinggi", value: maxScore },
-        { label: "Rata-rata", value: avgScore },
-      ],
-      tab: "hasil_induksi",
+      slider: temporarySlider,
+      span: 2,
     },
   ];
 
-  kpiContainer.innerHTML = kpis
+  // Menggunakan += untuk menambahkan kartu baru ke kontainer yang sudah ada
+  kpiContainer.innerHTML += kpis
     .map((kpi) => {
-      if (kpi.values) {
-        // Render kartu multi-nilai
-        return `
-                <div class="kpi-card clickable" data-tab="${
-                  kpi.tab
-                }" role="button" tabindex="0" aria-label="Lihat detail ${
-          kpi.title
-        }">
-                    <div class="kpi-title">${kpi.title}</div>
-                    <div class="kpi-multi-value">
-                        ${kpi.values
-                          .map(
-                            (item) => `
-                            <div class="kpi-sub-item">
-                                <span class="kpi-sub-label">${item.label}</span>
-                                <span class="kpi-sub-value">${item.value}</span>
-                            </div>
-                        `
-                          )
-                          .join("")}
-                    </div>
-                </div>
-            `;
-      } else {
-        // Render kartu nilai tunggal standar
-        return `
-                <div class="kpi-card clickable" data-tab="${kpi.tab}" role="button" tabindex="0" aria-label="Lihat detail ${kpi.title}">
+      // Render kartu nilai tunggal standar
+      return `
+                <div class="kpi-card clickable span-col-${
+                  kpi.span
+                }" data-tab="${
+        kpi.tab
+      }" role="button" tabindex="0" aria-label="Lihat detail ${kpi.title}">
                     <div class="kpi-title">${kpi.title}</div>
                     <div class="kpi-value">${kpi.value}</div>
+                    ${kpi.slider || ""}
                 </div>
             `;
-      }
     })
     .join("");
 }
@@ -623,16 +716,26 @@ function updateComparisonUI(elementId, todayCount, yesterdayCount) {
 
   if (!arrowEl || !valueEl) return;
 
-  valueEl.textContent = yesterdayCount.toLocaleString("id-ID");
+  // Check if the number is a float to decide on formatting
+  const isFloat = yesterdayCount % 1 !== 0;
+  const formatOptions = isFloat
+    ? { minimumFractionDigits: 1, maximumFractionDigits: 1 }
+    : {};
+  const formattedYesterday = yesterdayCount.toLocaleString(
+    "id-ID",
+    formatOptions
+  );
+
+  valueEl.textContent = formattedYesterday;
 
   if (todayCount > yesterdayCount) {
     arrowEl.textContent = "▲";
     arrowEl.className = "comparison-arrow arrow-up";
-    container.title = `Naik dari ${yesterdayCount} kemarin`;
+    container.title = `Naik dari ${formattedYesterday} kemarin`;
   } else if (todayCount < yesterdayCount) {
     arrowEl.textContent = "▼";
     arrowEl.className = "comparison-arrow arrow-down";
-    container.title = `Turun dari ${yesterdayCount} kemarin`;
+    container.title = `Turun dari ${formattedYesterday} kemarin`;
   } else {
     arrowEl.textContent = "–";
     arrowEl.className = "comparison-arrow arrow-neutral";
@@ -736,6 +839,173 @@ function updateDailyInductionKpi(inductionResultData) {
 }
 
 /**
+ * Menghitung statistik skor (terendah, tertinggi, rata-rata) dari sekumpulan data.
+ * @param {Array<Object>} data - Data induksi yang akan dihitung.
+ * @returns {{lowest: number, highest: number, average: number}} - Objek berisi statistik skor.
+ */
+function calculateScoreStats(data) {
+  if (!data || data.length === 0) {
+    return { lowest: 0, highest: 0, average: 0 };
+  }
+
+  const scores = data
+    .map((item) => {
+      const scoreStr = String(item["S.RATA-RATA"] || "").replace(",", ".");
+      return parseFloat(scoreStr);
+    })
+    .filter((score) => !isNaN(score));
+
+  if (scores.length === 0) {
+    return { lowest: 0, highest: 0, average: 0 };
+  }
+
+  const lowest = Math.min(...scores);
+  const highest = Math.max(...scores);
+  const sum = scores.reduce((acc, score) => acc + score, 0);
+  const average = parseFloat((sum / scores.length).toFixed(1));
+
+  return { lowest, highest, average };
+}
+
+/**
+ * Memperbarui kartu KPI statistik skor harian (terendah, tertinggi, rata-rata).
+ * @param {Array<Object>} inductionResultData - Data dari sheet 'hasil_induksi'.
+ */
+function updateDailyScoreKpi(inductionResultData) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  const todayData = inductionResultData.filter((row) => {
+    if (!row || !row["tanggal"]) return false;
+    const inductionDate = parseTanggal(row["tanggal"]);
+    return (
+      !isNaN(inductionDate.getTime()) &&
+      inductionDate.setHours(0, 0, 0, 0) === today.getTime()
+    );
+  });
+
+  const yesterdayData = inductionResultData.filter((row) => {
+    if (!row || !row["tanggal"]) return false;
+    const inductionDate = parseTanggal(row["tanggal"]);
+    return (
+      !isNaN(inductionDate.getTime()) &&
+      inductionDate.setHours(0, 0, 0, 0) === yesterday.getTime()
+    );
+  });
+
+  const todayStats = calculateScoreStats(todayData);
+  const yesterdayStats = calculateScoreStats(yesterdayData);
+
+  document.getElementById("score-lowest-today").textContent =
+    todayStats.lowest.toLocaleString("id-ID");
+  document.getElementById("score-highest-today").textContent =
+    todayStats.highest.toLocaleString("id-ID");
+  document.getElementById("score-average-today").textContent =
+    todayStats.average.toLocaleString("id-ID", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+
+  updateComparisonUI(
+    "lowest-score-comparison",
+    todayStats.lowest,
+    yesterdayStats.lowest
+  );
+  updateComparisonUI(
+    "highest-score-comparison",
+    todayStats.highest,
+    yesterdayStats.highest
+  );
+  updateComparisonUI(
+    "average-score-comparison",
+    todayStats.average,
+    yesterdayStats.average
+  );
+}
+/**
+ * Memperbarui kartu KPI harian untuk Induksi Visitor.
+ * @param {Array<Object>} visitorData - Data dari sheet 'visitor_result'.
+ */
+function updateDailyVisitorKpi(visitorData) {
+  const visitorCountEl = document.getElementById("induksi-visitor-today-count");
+  if (!visitorCountEl) {
+    console.error("Elemen KPI visitor tidak ditemukan.");
+    return;
+  }
+
+  if (!visitorData) {
+    visitorCountEl.textContent = "N/A";
+    return;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  let todayCount = 0;
+  let yesterdayCount = 0;
+  let activeCount = 0;
+
+  visitorData.forEach((row) => {
+    if (!row) return;
+
+    // Hitung induksi harian berdasarkan tanggal 'MULAI'
+    if (row["MULAI"]) {
+      const visitDate = parseTanggal(row["MULAI"]);
+      if (!isNaN(visitDate.getTime())) {
+        visitDate.setHours(0, 0, 0, 0);
+        if (visitDate.getTime() === today.getTime()) todayCount++;
+        else if (visitDate.getTime() === yesterday.getTime()) yesterdayCount++;
+      }
+    }
+
+    // Hitung visitor aktif berdasarkan rentang tanggal 'MULAI' dan 'SELESAI'
+    const startDate = parseTanggal(row["MULAI"]);
+    const endDate = parseTanggal(row["SELESAI"]);
+
+    if (!isNaN(startDate.getTime())) {
+      startDate.setHours(0, 0, 0, 0);
+
+      if (isNaN(endDate.getTime())) {
+        // Jika tidak ada tanggal selesai, anggap aktif jika hari ini >= tanggal mulai
+        if (today.getTime() >= startDate.getTime()) {
+          activeCount++;
+        }
+      } else {
+        // Jika ada tanggal selesai, anggap aktif jika hari ini berada di antara rentang
+        endDate.setHours(0, 0, 0, 0);
+        if (
+          today.getTime() >= startDate.getTime() &&
+          today.getTime() <= endDate.getTime()
+        ) {
+          activeCount++;
+        }
+      }
+    }
+  });
+
+  const oldVisitorCount =
+    parseInt(visitorCountEl.textContent.replace(/\./g, "")) || 0;
+  animateValue(visitorCountEl, oldVisitorCount, todayCount, 1500);
+  updateComparisonUI("visitor-comparison", todayCount, yesterdayCount);
+
+  // Perbarui badge visitor aktif
+  const activeVisitorCountEl = document.getElementById("active-visitor-count");
+  if (activeVisitorCountEl) {
+    activeVisitorCountEl.textContent = activeCount;
+    // Tambahkan atau hapus kelas 'blinking' berdasarkan jumlah visitor aktif
+    if (activeCount > 0) {
+      activeVisitorCountEl.classList.add("blinking");
+    } else {
+      activeVisitorCountEl.classList.remove("blinking");
+    }
+  }
+}
+
+/**
  * Memeriksa kondisi filter untuk satu baris data.
  * @param {Object} dataRow - Baris data yang akan diperiksa.
  * @param {Object} filters - Objek berisi nilai filter saat ini.
@@ -754,15 +1024,18 @@ function checkFilterMatch(dataRow, filters) {
     dataRow["Tanggal"] ||
     dataRow["TANGGAL"] ||
     dataRow["DATE"] ||
-    dataRow["TANGGAL INDUKSI"];
+    dataRow["TANGGAL INDUKSI"] ||
+    dataRow["TANGGAL KUNJUNGAN"] ||
+    dataRow["MULAI"];
   const rowDate = parseTanggal(tanggalStr);
   const isDateValid = !isNaN(rowDate.getTime());
   const startTime = start ? new Date(start).setHours(0, 0, 0, 0) : -Infinity;
   const endTime = end ? new Date(end).setHours(23, 59, 59, 999) : Infinity;
   const matchDate =
-    !isDateValid && (start || end)
-      ? false
-      : rowDate.getTime() >= startTime && rowDate.getTime() <= endTime;
+    (!start && !end) ||
+    (isDateValid &&
+      rowDate.getTime() >= startTime &&
+      rowDate.getTime() <= endTime);
 
   const nama = (dataRow["NAMA"] || dataRow["Nama"] || "").toLowerCase();
   const matchSearch = !search || nama.includes(search);
@@ -1141,6 +1414,7 @@ function renderCompanyTypeDetails(companyName) {
  * Initializes all data and renders tables/charts.
  */
 async function init() {
+  showLoader();
   try {
     await loadPerusahaanList();
 
@@ -1153,7 +1427,22 @@ async function init() {
       "remidial",
       "grafik",
       "temporary",
+      "visitor",
     ];
+
+    // Inisialisasi state untuk setiap tabel
+    relevantKeys.forEach((key) => {
+      currentPageState[key] = 1;
+      // Atur pengurutan default ke tanggal terbaru
+      if (key === "visitor") {
+        sortState[key] = { column: "MULAI", direction: "desc" };
+      } else if (key === "temporary") {
+        sortState[key] = { column: "DATE", direction: "desc" };
+      } else if (kolomTampilkan[key]?.includes("tanggal")) {
+        sortState[key] = { column: "tanggal", direction: "desc" };
+      }
+      applyFilter(key); // Terapkan sorting awal
+    });
 
     // Ambil semua data secara paralel dan isi cache global
     const dataPromises = relevantKeys.map((key) => {
@@ -1171,6 +1460,8 @@ async function init() {
     );
     // Panggil fungsi baru untuk KPI harian
     updateDailyInductionKpi(sheetDataCache.hasil_induksi || []);
+    updateDailyVisitorKpi(sheetDataCache.visitor || []);
+    updateDailyScoreKpi(sheetDataCache.hasil_induksi || []);
 
     // Render semua tabel dan grafik
     relevantKeys.forEach((key) => {
@@ -1183,6 +1474,8 @@ async function init() {
     });
   } catch (error) {
     handleError(error, "Gagal memuat data aplikasi. Coba muat ulang halaman.");
+  } finally {
+    hideLoader();
   }
 }
 
@@ -1383,8 +1676,14 @@ function setupEventListeners() {
     .forEach((element) => {
       // Extract the key from the ID (e.g., "filter-newhire" -> "newhire")
       const key = element.id.split("-").slice(1).join("-");
-      element.addEventListener("input", () => debouncedApplyFilter(key));
-      element.addEventListener("change", () => debouncedApplyFilter(key)); // For date inputs
+
+      const filterChangeHandler = () => {
+        currentPageState[key] = 1; // Kembali ke halaman 1 saat filter diubah
+        debouncedApplyFilter(key);
+      };
+
+      element.addEventListener("input", filterChangeHandler);
+      element.addEventListener("change", filterChangeHandler); // For date inputs
     });
 
   // Event listener for tab buttons
@@ -1423,6 +1722,24 @@ function setupEventListeners() {
       }
     });
   }
+
+  // Event listener untuk tombol paginasi (menggunakan event delegation)
+  document.body.addEventListener("click", (event) => {
+    if (event.target.matches(".pagination-btn")) {
+      const key = event.target.dataset.key;
+      const action = event.target.dataset.action;
+      const currentPage = currentPageState[key] || 1;
+      const totalRows = currentFilteredData[key]?.length || 0;
+      const totalPages = Math.ceil(totalRows / ROWS_PER_PAGE);
+
+      if (action === "next" && currentPage < totalPages) {
+        currentPageState[key]++;
+      } else if (action === "prev" && currentPage > 1) {
+        currentPageState[key]--;
+      }
+      applyFilter(key); // Render ulang tabel untuk halaman baru
+    }
+  });
 
   /**
    * Menangani klik pada tombol ekspor.

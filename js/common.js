@@ -105,7 +105,6 @@ async function fetchAndCacheSheet(id, sheet, key) {
   // Jika tidak ada key, gunakan nama sheet sebagai fallback untuk kompatibilitas
   const cacheKey = key || sheet;
 
-  showLoader();
   try {
     // 1. Selalu coba ambil data dari jaringan terlebih dahulu (Online-First)
     const data = await fetchSheet(id, sheet); // Uses the generic fetcher
@@ -169,8 +168,6 @@ async function fetchAndCacheSheet(id, sheet, key) {
     // Jika semua gagal, kembalikan array kosong
     console.error(`Gagal total mendapatkan data untuk sheet ${cacheKey}.`);
     return [];
-  } finally {
-    hideLoader();
   }
 }
 
