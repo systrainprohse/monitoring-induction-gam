@@ -889,15 +889,24 @@ window.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch(`https://opensheet.elk.sh/${id}/${sheet}`);
       if (!res.ok) throw new Error(`Gagal mengambil data dari sheet: ${sheet}`);
+
       const data = await res.json();
-      sheetDataCache[sheet] = data; // Simpan data ke cache
+      // PENTING: Validasi bahwa respons adalah array. Jika tidak, opensheet mungkin mengembalikan error.
+      if (!Array.isArray(data)) {
+        throw new Error(
+          `Format respons tidak valid atau sheet '${sheet}' tidak dapat diakses/kosong.`
+        );
+      }
+
+      sheetDataCache[sheet] = data;
       console.log(
         `Data berhasil diambil dan di-cache untuk sheet: ${sheet}`,
         data
       );
       return data;
     } catch (err) {
-      console.error(`Error fetching sheet ${sheet}:`, err);
+      // Menyertakan pesan error asli untuk debugging yang lebih baik
+      console.error(`Error fetching sheet ${sheet}:`, err.message);
       return []; // Kembalikan array kosong jika ada error
     } finally {
       hideLoader(); // Sembunyikan loader setelah fetching selesai (berhasil/gagal)
@@ -1154,15 +1163,25 @@ window.addEventListener("DOMContentLoaded", () => {
     const kpiContainer = document.getElementById("kpi-container");
     if (!kpiContainer) return;
 
-    const totalDone = monitoringData.reduce(
-      (sum, item) => sum + (parseInt(item.DONE, 10) || 0),
-      0
+    // Hitung jumlah manpower unik yang sudah terlatih dari data kompetensi
+    // Menggunakan (kompetensiData || []) untuk mencegah error jika data tidak tersedia
+    const trainedManpowerNiks = new Set(
+      (kompetensiData || [])
+        .filter((item) => {
+          const status = (item.STATUS || "").toLowerCase();
+          // Asumsikan 'lulus' atau 'approved' menandakan sudah terlatih
+          return status === "lulus" || status === "approved";
+        })
+        .map((item) => item.NIK)
+        .filter(Boolean) // Hapus NIK yang null atau undefined
     );
-    const totalNeedTraining = monitoringData.reduce(
+    const totalDone = trainedManpowerNiks.size;
+
+    const totalNeedTraining = (monitoringData || []).reduce(
       (sum, item) => sum + (parseInt(item["NEED TRAINING"], 10) || 0),
       0
     );
-    const totalKompetensi = kompetensiData.length;
+    const totalKompetensi = (kompetensiData || []).length;
 
     const kpis = [
       { title: "Total Kompetensi Tercatat", value: totalKompetensi },
@@ -1184,20 +1203,32 @@ window.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
-  function createOverallProgressChart(monitoringData) {
+  function createOverallProgressChart(monitoringData, kompetensiData) {
     const canvas = document.getElementById("overallProgressChart");
     if (!canvas) return;
 
-    const totalDone = monitoringData.reduce(
-      (sum, item) => sum + (parseInt(item.DONE, 10) || 0),
-      0
+    // Hitung jumlah manpower unik yang sudah terlatih dari data kompetensi
+    const trainedManpowerNiks = new Set(
+      (kompetensiData || [])
+        .filter((item) => {
+          const status = (item.STATUS || "").toLowerCase();
+          // Asumsikan 'lulus' atau 'approved' menandakan sudah terlatih
+          return status === "lulus" || status === "approved";
+        })
+        .map((item) => item.NIK)
+        .filter(Boolean) // Hapus NIK yang null atau undefined
     );
-    const totalNeedTraining = monitoringData.reduce(
+    const totalDone = trainedManpowerNiks.size;
+
+    const totalNeedTraining = (monitoringData || []).reduce(
       (sum, item) => sum + (parseInt(item["NEED TRAINING"], 10) || 0),
       0
     );
 
-    if (window.myOverallProgressChart) window.myOverallProgressChart.destroy();
+    // Hancurkan chart lama jika ada untuk mencegah duplikasi dan error
+    if (window.myOverallProgressChart instanceof Chart) {
+      window.myOverallProgressChart.destroy();
+    }
 
     window.myOverallProgressChart = new Chart(canvas, {
       type: "doughnut",
@@ -1241,7 +1272,8 @@ window.addEventListener("DOMContentLoaded", () => {
     const canvas = document.getElementById("topNeedTrainingChart");
     if (!canvas) return;
 
-    const sortedData = [...monitoringData]
+    // Menggunakan (monitoringData || []) untuk mencegah error jika data tidak tersedia
+    const sortedData = [...(monitoringData || [])]
       .sort(
         (a, b) =>
           (parseInt(b["NEED TRAINING"], 10) || 0) -
@@ -1252,7 +1284,10 @@ window.addEventListener("DOMContentLoaded", () => {
     const labels = sortedData.map((d) => d["INTERNAL TRAINING"]);
     const data = sortedData.map((d) => parseInt(d["NEED TRAINING"], 10) || 0);
 
-    if (window.myTopNeedTrainingChart) window.myTopNeedTrainingChart.destroy();
+    // Hancurkan chart lama jika ada
+    if (window.myTopNeedTrainingChart instanceof Chart) {
+      window.myTopNeedTrainingChart.destroy();
+    }
 
     window.myTopNeedTrainingChart = new Chart(canvas, {
       type: "bar",
@@ -1299,7 +1334,8 @@ window.addEventListener("DOMContentLoaded", () => {
     const poCounts = { POP: 0, POM: 0, POU: 0 };
 
     // Logika penghitungan yang lebih akurat: menghitung setiap sertifikasi yang dimiliki.
-    kompetensiData.forEach((item) => {
+    // Menggunakan (kompetensiData || []) untuk mencegah error
+    (kompetensiData || []).forEach((item) => {
       const kompetensi = item.KOMPETENSI ? item.KOMPETENSI.toUpperCase() : "";
       if (kompetensi.includes("POP")) poCounts["POP"]++;
       if (kompetensi.includes("POM")) poCounts["POM"]++;
@@ -1446,7 +1482,7 @@ window.addEventListener("DOMContentLoaded", () => {
         // 3. Panggil semua fungsi rendering untuk dashboard
         if (data && kompetensiData) {
           renderDashboardKPIs(data, kompetensiData);
-          createOverallProgressChart(data);
+          createOverallProgressChart(data, kompetensiData);
           createTopNeedTrainingChart(data);
           createPOChart(kompetensiData);
         }

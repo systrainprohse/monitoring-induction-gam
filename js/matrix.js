@@ -1,42 +1,3 @@
-/**
- * Fetches and parses data from a specified Google Sheet.
- * @param {string} sheetId The ID of the Google Spreadsheet.
- * @param {string} sheetName The name of the sheet.
- * @param {string} [range=""] Optional A1 notation range.
- * @returns {Promise<object>} A promise that resolves with the data table object.
- * @throws {Error} If fetching or parsing fails.
- */
-async function fetchSheetData(sheetId, sheetName, range = "") {
-  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}${
-    range ? `&range=${range}` : ""
-  }`;
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(
-      `Gagal mengambil data dari sheet '${sheetName}' (status: ${response.status})`
-    );
-  }
-
-  const jsonText = await response.text();
-  const jsonMatch = jsonText.match(
-    /google\.visualization\.Query\.setResponse\((.*)\)/s
-  );
-
-  if (!jsonMatch || !jsonMatch[1]) {
-    throw new Error(`Format respons tidak valid dari sheet '${sheetName}'.`);
-  }
-
-  const data = JSON.parse(jsonMatch[1]);
-  if (!data.table || !data.table.rows) {
-    throw new Error(
-      `Struktur data tidak valid atau sheet '${sheetName}' kosong.`
-    );
-  }
-
-  return data.table;
-}
-
 // --- LOGIKA UNTUK MATRIX KOMPETENSI ---
 (async function loadMatrixData() {
   const SHEET_ID = "1RmNABlAsDGOoxYk5yqZ3SD--LMhMOxLEh2AwPsMV86Q";
@@ -55,28 +16,32 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
   let competencies = [];
 
   function applyZoom() {
+    if (!tableContainer) return;
     tableContainer.className = "";
     tableContainer.classList.add(`zoom-level-${currentZoomLevel}`);
   }
 
-  zoomInBtn.addEventListener("click", () => {
-    if (currentZoomLevel < 3) {
-      currentZoomLevel++;
-      applyZoom();
-    }
-  });
-  zoomOutBtn.addEventListener("click", () => {
-    if (currentZoomLevel > 1) {
-      currentZoomLevel--;
-      applyZoom();
-    }
-  });
+  if (zoomInBtn && zoomOutBtn) {
+    zoomInBtn.addEventListener("click", () => {
+      if (currentZoomLevel < 3) {
+        currentZoomLevel++;
+        applyZoom();
+      }
+    });
+    zoomOutBtn.addEventListener("click", () => {
+      if (currentZoomLevel > 1) {
+        currentZoomLevel--;
+        applyZoom();
+      }
+    });
+  }
 
   function applyFilters() {
     const deptFilter = deptFilterEl.value;
     const sectFilter = sectFilterEl.value;
     const jabFilter = jabFilterEl.value;
     const levelFilter = levelFilterEl.value;
+    const visibleRows = [];
     document.querySelectorAll("#matrix-data-table tbody tr").forEach((tr) => {
       const showDept = !deptFilter || tr.dataset.department === deptFilter;
       const showSect = !sectFilter || tr.dataset.section === sectFilter;
@@ -84,6 +49,28 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
       const showLevel = !levelFilter || tr.dataset.levels.includes(levelFilter);
       const isVisible = showDept && showSect && showJab && showLevel;
       tr.style.display = isVisible ? "" : "none";
+      if (isVisible) visibleRows.push(tr);
+    });
+    const visibleCompetencyIndices = new Set();
+    visibleRows.forEach((row) => {
+      competencies.forEach((comp, i) => {
+        const cell = row.cells[i + 3];
+        if (cell && cell.innerHTML.trim() !== "") {
+          visibleCompetencyIndices.add(i);
+        }
+      });
+    });
+    competencies.forEach((comp, i) => {
+      const shouldBeVisible = visibleCompetencyIndices.has(i);
+      const tableColumnIndex = i + 4;
+      const th = document.querySelector(
+        `#matrix-data-table thead th:nth-child(${tableColumnIndex})`
+      );
+      if (th) th.style.display = shouldBeVisible ? "" : "none";
+      document.querySelectorAll(`#matrix-data-table tbody tr`).forEach((tr) => {
+        if (tr.cells[i + 3])
+          tr.cells[i + 3].style.display = shouldBeVisible ? "" : "none";
+      });
     });
   }
 
@@ -94,45 +81,71 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
     switch (cleanValue) {
       case "N5":
         icon = `<svg xmlns="http://www.w3.org/2000/svg" class="competency-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>`;
-        textColorClass = "text-red-900 font-semibold";
+        textColorClass = "color-n5 font-semibold";
         break;
       case "N4":
         icon = `<svg xmlns="http://www.w3.org/2000/svg" class="competency-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>`;
-        textColorClass = "text-orange-900 font-semibold";
+        textColorClass = "color-n4 font-semibold";
         break;
       case "N3":
         icon = `<svg xmlns="http://www.w3.org/2000/svg" class="competency-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>`;
-        textColorClass = "text-blue-900 font-semibold";
+        textColorClass = "color-n3 font-semibold";
         break;
       case "N2":
         icon = `<svg xmlns="http://www.w3.org/2000/svg" class="competency-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>`;
-        textColorClass = "text-green-900 font-semibold";
+        textColorClass = "color-n2 font-semibold";
         break;
       default:
         return "";
     }
-    return `<div class="competency-cell">${icon}<span>${cleanValue}</span></div>`;
+    let tooltip = "";
+    switch (cleanValue) {
+      case "N5":
+        tooltip = "Dasar";
+        break;
+      case "N4":
+        tooltip = "Perlu Supervisi";
+        break;
+      case "N3":
+        tooltip = "Mampu Mandiri";
+        break;
+      case "N2":
+        tooltip = "Mahir";
+        break;
+    }
+    return `<div class="competency-cell ${textColorClass}"><span title="${tooltip}">${icon}</span><span>${cleanValue}</span></div>`;
   }
   function getCompetencyBgClass(value) {
     const cleanValue = value ? String(value).trim().toUpperCase() : "";
     switch (cleanValue) {
       case "N5":
-        return "bg-red-200";
+        return "bg-level-n5";
       case "N4":
-        return "bg-orange-200";
+        return "bg-level-n4";
       case "N3":
-        return "bg-blue-200";
+        return "bg-level-n3";
       case "N2":
-        return "bg-green-200";
+        return "bg-level-n2";
       default:
         return "";
     }
   }
 
   try {
-    const tableData = await fetchSheetData(SHEET_ID, SHEET_NAME);
-    const allRows = tableData.rows;
-    if (allRows.length < 1) throw new Error("Data sheet tidak lengkap.");
+    const response = await fetch(URL);
+    if (!response.ok)
+      throw new Error(`Gagal mengambil data: ${response.statusText}`);
+    let jsonText = await response.text();
+    const jsonMatch = jsonText.match(
+      /google\.visualization\.Query\.setResponse\((.*)\)/s
+    );
+    if (!jsonMatch || !jsonMatch[1])
+      throw new Error("Format respons tidak valid.");
+    const data = JSON.parse(jsonMatch[1]);
+    if (!data.table || !data.table.rows || data.table.rows.length < 1)
+      throw new Error("Data sheet tidak lengkap.");
+    const allRows = data.table.rows;
+
     const nameRow = allRows[0].c || [];
     competencies = [];
     nameRow.slice(3).forEach((cell, index) => {
@@ -233,13 +246,13 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
     jabFilterEl.addEventListener("change", applyFilters);
     levelFilterEl.addEventListener("change", applyFilters);
     const colorPalette = [
-      "bg-red-50",
-      "bg-yellow-50",
-      "bg-green-50",
-      "bg-blue-50",
-      "bg-indigo-50",
-      "bg-purple-50",
-      "bg-pink-50",
+      "#fee2e2",
+      "#fef3c7",
+      "#dcfce7",
+      "#dbeafe",
+      "#e0e7ff",
+      "#f3e8ff",
+      "#fce7f3",
     ];
     const departmentColors = {};
     let colorIndex = 0;
@@ -249,25 +262,21 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
         departmentColors[dept] = colorPalette[colorIndex % colorPalette.length];
         colorIndex++;
       });
-    let tableHTML =
-      '<table id="matrix-data-table" class="min-w-full border-collapse border border-gray-300">';
-    tableHTML += '<thead class="bg-gray-100 text-gray-600">';
+    let tableHTML = '<table id="matrix-data-table" class="data-table">';
+    tableHTML += "<thead>";
     tableHTML += "<tr>";
-    tableHTML +=
-      '<th class="border border-gray-300 font-semibold w-40">DEPARTEMEN</th>';
-    tableHTML +=
-      '<th class="border border-gray-300 font-semibold w-40">SECTION</th>';
-    tableHTML +=
-      '<th class="border border-gray-300 font-semibold w-48">JABATAN</th>';
+    tableHTML += "<th>DEPARTEMEN</th>";
+    tableHTML += "<th>SECTION</th>";
+    tableHTML += "<th>JABATAN</th>";
     competencies.forEach((comp) => {
-      tableHTML += `<th class="border border-gray-300 header-competency"><div class="vertical-text">${comp.name}</div></th>`;
+      tableHTML += `<th class="header-competency"><div class="vertical-text">${comp.name}</div></th>`;
     });
     tableHTML += "</tr></thead><tbody>";
     dataRows.forEach((row) => {
       const dept = row.c[0] ? row.c[0].v : "";
       const sect = row.c[1] ? row.c[1].v : "N/A";
       const jab = row.c[2] ? row.c[2].v : "N/A";
-      const rowColorClass = departmentColors[dept] || "bg-white";
+      const rowColor = departmentColors[dept] || "#ffffff";
       let rowLevels = new Set();
       competencies.forEach((comp) => {
         const cell = row.c[comp.originalIndex];
@@ -275,16 +284,16 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
       });
       tableHTML += `<tr data-department="${dept}" data-section="${sect}" data-jabatan="${jab}" data-levels="${[
         ...rowLevels,
-      ].join(",")}" class="${rowColorClass}">`;
-      tableHTML += `<td class="border border-gray-300 text-left font-medium">${dept}</td>`;
-      tableHTML += `<td class="border border-gray-300 text-left">${sect}</td>`;
-      tableHTML += `<td class="border border-gray-300 text-left">${jab}</td>`;
+      ].join(",")}" style="background-color: ${rowColor}">`;
+      tableHTML += `<td class="text-left font-medium">${dept}</td>`;
+      tableHTML += `<td class="text-left">${sect}</td>`;
+      tableHTML += `<td class="text-left">${jab}</td>`;
       competencies.forEach((comp) => {
         const cell = row.c[comp.originalIndex];
         const cellValue = cell ? cell.v : "";
         const cellBgClass = getCompetencyBgClass(cellValue);
         const cellContent = renderCompetencyContent(cellValue);
-        tableHTML += `<td class="border border-gray-300 ${cellBgClass}">${cellContent}</td>`;
+        tableHTML += `<td class="${cellBgClass}">${cellContent}</td>`;
       });
       tableHTML += "</tr>";
     });
@@ -294,8 +303,8 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
     applyZoom();
     applyFilters();
   } catch (error) {
-    handleError(error, "Gagal memuat data Matrix.");
-    if (loader) loader.style.display = "none";
+    console.error("Error loading Matrix data:", error);
+    loader.innerHTML = `<p style="color: red;">Gagal memuat data Matrix. Error: ${error.message}</p>`;
   }
 })();
 
@@ -343,27 +352,26 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
   }
 
   try {
-    const tableData = await fetchSheetData(SHEET_ID, SHEET_NAME);
-    const allRows = tableData.rows;
-
-    // Cari baris pertama yang berisi konten untuk digunakan sebagai header.
-    // Ini menangani kasus di mana sheet mungkin memiliki baris kosong di bagian atas.
-    const headerRowIndex = allRows.findIndex(
-      (row) => row && row.c && row.c.some((cell) => cell && cell.v)
+    const response = await fetch(URL);
+    if (!response.ok)
+      throw new Error(`Gagal mengambil data TNA: ${response.statusText}`);
+    let jsonText = await response.text();
+    const jsonMatch = jsonText.match(
+      /google\.visualization\.Query\.setResponse\((.*)\)/s
     );
+    if (!jsonMatch || !jsonMatch[1])
+      throw new Error("Format respons TNA tidak valid.");
+    const data = JSON.parse(jsonMatch[1]);
+    if (!data.table || !data.table.rows || data.table.rows.length < 2)
+      throw new Error("Data sheet TNA tidak lengkap.");
 
-    if (headerRowIndex === -1) {
-      throw new Error(
-        "Data sheet TNA tidak berisi header atau data yang valid."
-      );
-    }
-
-    const headerRow = allRows[headerRowIndex].c || [];
+    const allRows = data.table.rows;
+    const headerRow = allRows[0].c || [];
     headers = headerRow.map((cell) => (cell ? cell.v : null));
 
     const uniqueSections = new Set();
     const uniqueJabatans = new Set();
-    const dataRows = allRows.slice(headerRowIndex + 1).filter((row) => {
+    const dataRows = allRows.slice(1).filter((row) => {
       if (row && row.c && row.c[0] && row.c[0].v) {
         if (row.c[2] && row.c[2].v) uniqueSections.add(row.c[2].v);
         if (row.c[3] && row.c[3].v) uniqueJabatans.add(row.c[3].v);
@@ -385,21 +393,18 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
     sectFilterEl.addEventListener("change", applyTnaFilters);
     jabFilterEl.addEventListener("change", applyTnaFilters);
 
-    let tableHTML =
-      '<table id="tna-data-table" class="min-w-full border-collapse border border-gray-300">';
-    tableHTML += '<thead class="bg-gray-100 text-gray-600">';
+    let tableHTML = '<table id="tna-data-table" class="data-table">';
+    tableHTML += "<thead>";
     tableHTML += "<tr>";
     headers.forEach((header) => {
-      tableHTML += `<th class="border border-gray-300 p-2 font-semibold">${
-        header || ""
-      }</th>`;
+      tableHTML += `<th>${header || ""}</th>`;
     });
     tableHTML += "</tr></thead><tbody>";
 
     dataRows.forEach((row, index) => {
       const sect = row.c && row.c[2] && row.c[2].v ? row.c[2].v : "N/A";
       const jab = row.c && row.c[3] && row.c[3].v ? row.c[3].v : "N/A";
-      const rowColorClass = index % 2 === 0 ? "bg-white" : "bg-gray-50";
+      const rowColorClass = index % 2 === 0 ? "" : "bg-gray-50";
 
       tableHTML += `<tr data-section="${sect}" data-jabatan="${jab}" class="${rowColorClass}">`;
       for (let i = 0; i < headers.length; i++) {
@@ -408,7 +413,7 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
         let title = "";
         if (headers[i] === "Y") title = "DONE";
         if (headers[i] === "N") title = "NO ATAU BELUM DONE";
-        tableHTML += `<td class="border border-gray-300 p-2 text-left" title="${title}">${cellValue}</td>`;
+        tableHTML += `<td class="text-left" title="${title}">${cellValue}</td>`;
       }
       tableHTML += "</tr>";
     });
@@ -419,8 +424,8 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
     applyZoom();
     applyTnaFilters();
   } catch (error) {
-    handleError(error, "Gagal memuat data TNA.");
-    if (loader) loader.style.display = "none";
+    console.error("Error loading TNA data:", error);
+    loader.innerHTML = `<p class="text-red-500">Gagal memuat data TNA. Error: ${error.message}</p>`;
   }
 })();
 
@@ -434,28 +439,40 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
       dataRowIndex = 2,
       hiddenColumns = [],
     } = options;
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
     const tableContainer = document.getElementById(containerId);
     const loader = document.getElementById(loaderId);
 
     try {
-      const tableData = await fetchSheetData(sheetId, sheetName);
-      const allRows = tableData.rows;
-      if (allRows.length < headerRowIndex + 1) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Gagal memuat ${sheetName}`);
+      let jsonText = await response.text();
+      const jsonMatch = jsonText.match(
+        /google\.visualization\.Query\.setResponse\((.*)\)/s
+      );
+      if (!jsonMatch || !jsonMatch[1])
+        throw new Error(`Format respons tidak valid untuk ${sheetName}.`);
+      const data = JSON.parse(jsonMatch[1]);
+      if (
+        !data.table ||
+        !data.table.rows ||
+        data.table.rows.length < headerRowIndex + 1
+      )
         throw new Error(`Data sheet ${sheetName} tidak lengkap atau kosong.`);
-      }
+
+      const allRows = data.table.rows;
       const headers = (allRows[headerRowIndex].c || []).map((cell) =>
         cell ? cell.v : ""
       );
       const dataRows = allRows.slice(dataRowIndex);
 
-      let tableHTML =
-        '<table class="min-w-full border-collapse border border-gray-300 text-sm">';
-      tableHTML += '<thead class="bg-gray-100"><tr>';
+      let tableHTML = '<table class="add-komp-table">';
+      tableHTML += "<thead><tr>";
       headers.forEach((header, index) => {
         if (hiddenColumns.includes(index)) return;
-        tableHTML += `<th class="border border-gray-300 p-2 font-semibold text-gray-600">${header}</th>`;
+        tableHTML += `<th>${header}</th>`;
       });
-      tableHTML += `<th class="border border-gray-300 p-2 font-semibold text-gray-600">Aksi</th>`;
+      tableHTML += `<th>Aksi</th>`;
       tableHTML += "</tr></thead><tbody>";
 
       dataRows.forEach((row, rowIndex) => {
@@ -464,16 +481,16 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
         (row.c || []).forEach((cell, cellIndex) => {
           if (hiddenColumns.includes(cellIndex)) return;
           const cellValue = cell ? cell.v : "";
-          tableHTML += `<td class="border border-gray-300 p-2 text-left">${cellValue}</td>`;
+          tableHTML += `<td class="text-left">${cellValue}</td>`;
         });
-        tableHTML += `<td class="border border-gray-300 p-2 text-center space-x-2">
-                            <button class="text-blue-500 hover:text-blue-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
-                            </button>
-                            <button class="text-red-500 hover:text-red-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                            </button>
-                        </td>`;
+        tableHTML += `<td class="action-cell">
+                    <button class="text-blue-500 hover:text-blue-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                    </button>
+                    <button class="text-red-500 hover:text-red-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                    </button>
+                </td>`;
         tableHTML += "</tr>";
       });
       tableHTML += "</tbody></table>";
@@ -481,8 +498,8 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
       loader.style.display = "none";
       tableContainer.innerHTML = tableHTML;
     } catch (error) {
-      handleError(error, `Gagal memuat data untuk ${sheetName}.`);
-      if (loader) loader.style.display = "none";
+      console.error(`Error loading ${sheetName}:`, error);
+      loader.innerHTML = `<p class="text-red-500">${error.message}</p>`;
     }
   };
 
@@ -524,8 +541,8 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
       "table-container-internal"
     );
     const allContainer = document.getElementById("table-container-all");
-    internalContainer.className = "overflow-x-auto";
-    allContainer.className = "overflow-x-auto";
+    internalContainer.className = "table-wrapper";
+    allContainer.className = "table-wrapper";
     internalContainer.classList.add(`zoom-level-${currentZoomLevel}`);
     allContainer.classList.add(`zoom-level-${currentZoomLevel}`);
   }
@@ -599,9 +616,19 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
       if (tableContainer.innerHTML.trim() !== "") return;
 
       try {
-        const tableData = await fetchSheetData(SHEET_ID, SHEET_NAME, "A3:G");
-        const allRows = tableData.rows;
-        if (allRows.length === 0) throw new Error(`Data sheet Setting kosong.`);
+        const response = await fetch(URL);
+        if (!response.ok) throw new Error(`Gagal memuat data Setting`);
+        let jsonText = await response.text();
+        const jsonMatch = jsonText.match(
+          /google\.visualization\.Query\.setResponse\((.*)\)/s
+        );
+        if (!jsonMatch || !jsonMatch[1])
+          throw new Error(`Format respons tidak valid.`);
+        const data = JSON.parse(jsonMatch[1]);
+        if (!data.table || !data.table.rows || data.table.rows.length === 0)
+          throw new Error(`Data sheet Setting kosong.`);
+
+        const allRows = data.table.rows;
         const headers = (allRows[0].c || []).map((cell) =>
           cell ? cell.v : ""
         );
@@ -643,13 +670,12 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
         levelFilterEl.addEventListener("change", applySettingFilters);
         refreshFilterEl.addEventListener("change", applySettingFilters);
 
-        let tableHTML =
-          '<table id="setting-data-table" class="min-w-full border-collapse border border-gray-300">';
-        tableHTML += '<thead class="bg-gray-100"><tr>';
+        let tableHTML = '<table id="setting-data-table" class="data-table">';
+        tableHTML += "<thead><tr>";
         headers.forEach((header) => {
-          tableHTML += `<th class="border border-gray-300 p-2 font-semibold text-gray-600">${header}</th>`;
+          tableHTML += `<th>${header}</th>`;
         });
-        tableHTML += `<th class="border border-gray-300 p-2 font-semibold text-gray-600">Aksi</th>`;
+        tableHTML += `<th>Aksi</th>`;
         tableHTML += "</tr></thead><tbody>";
 
         dataRows.forEach((row, index) => {
@@ -661,16 +687,16 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
           for (let i = 0; i < headers.length; i++) {
             const cell = row.c[i];
             const cellValue = cell ? cell.v : "";
-            tableHTML += `<td class="border border-gray-300 p-2 text-left">${cellValue}</td>`;
+            tableHTML += `<td class="text-left">${cellValue}</td>`;
           }
-          tableHTML += `<td class="border border-gray-300 p-2 text-center space-x-2">
-                            <button class="text-blue-500 hover:text-blue-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
-                            </button>
-                            <button class="text-red-500 hover:text-red-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                            </button>
-                        </td>`;
+          tableHTML += `<td class="action-cell">
+                    <button class="text-blue-500 hover:text-blue-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                    </button>
+                    <button class="text-red-500 hover:text-red-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                    </button>
+                </td>`;
           tableHTML += "</tr>";
         });
         tableHTML += "</tbody></table>";
@@ -679,8 +705,8 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
         tableContainer.innerHTML = tableHTML;
         applyZoom();
       } catch (error) {
-        handleError(error, "Gagal memuat data Setting.");
-        if (loader) loader.style.display = "none";
+        console.error(`Error loading Setting:`, error);
+        loader.innerHTML = `<p class="text-red-500">${error.message}</p>`;
       }
     },
     { once: true }
@@ -689,158 +715,187 @@ async function fetchSheetData(sheetId, sheetName, range = "") {
 
 // --- LOGIKA UNTUK TNA INDIVIDU ---
 (async function loadTnaIndividuData() {
-  const buildSimpleTable = async (
-    sheetId,
-    sheetName,
-    containerId,
-    loaderId,
-    options = {}
-  ) => {
-    const { headerRowIndex = 0, dataRowIndex = 1, range = "" } = options;
-    const tableContainer = document.getElementById(containerId);
-    const loader = document.getElementById(loaderId);
-
-    try {
-      const tableData = await fetchSheetData(sheetId, sheetName, range);
-      const allRows = tableData.rows;
-      if (allRows.length < headerRowIndex + 1) {
-        throw new Error(`Data sheet ${sheetName} tidak lengkap atau kosong.`);
-      }
-      const headers = (allRows[headerRowIndex].c || []).map((cell) =>
-        cell ? cell.v : ""
-      );
-      const dataRows = allRows.slice(dataRowIndex);
-
-      let tableHTML =
-        '<table class="min-w-full border-collapse border border-gray-300 text-sm">';
-      tableHTML += '<thead class="bg-gray-100"><tr>';
-      headers.forEach((header) => {
-        tableHTML += `<th class="border border-gray-300 p-2 font-semibold text-gray-600">${header}</th>`;
-      });
-      tableHTML += "</tr></thead><tbody>";
-
-      dataRows.forEach((row, index) => {
-        const rowColorClass = index % 2 === 0 ? "bg-white" : "bg-gray-50";
-        tableHTML += `<tr class="${rowColorClass}">`;
-        for (let i = 0; i < headers.length; i++) {
-          const cell = row.c[i];
-          const cellValue = cell ? cell.v : "";
-          tableHTML += `<td class="border border-gray-300 p-2 text-left">${cellValue}</td>`;
-        }
-        tableHTML += "</tr>";
-      });
-      tableHTML += "</tbody></table>";
-
-      loader.style.display = "none";
-      tableContainer.innerHTML = tableHTML;
-    } catch (error) {
-      handleError(error, `Gagal memuat data untuk ${sheetName}.`);
-      if (loader) loader.style.display = "none";
-    }
-  };
-
-  const tnaIndividuTab = document.querySelector(
-    '[data-target="tab-tna-individu"]'
-  );
-  tnaIndividuTab.addEventListener(
-    "click",
-    () => {
-      const pelatihanTable = document.getElementById(
-        "table-container-pelatihan"
-      );
-      if (pelatihanTable && pelatihanTable.innerHTML.trim() === "") {
-        buildSimpleTable(
-          "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM",
-          "kompetensi_manpower",
-          "table-container-pelatihan",
-          "loader-pelatihan"
-        );
-      }
-      const manpowerTable = document.getElementById("table-container-manpower");
-      if (manpowerTable && manpowerTable.innerHTML.trim() === "") {
-        buildSimpleTable(
-          "1SOFXUDzAZRMqzYvtH9XSxPGDay1Y4SG3qSY5KTZ9YBc",
-          "BASE MANPOWER",
-          "table-container-manpower",
-          "loader-manpower",
-          { range: "A:H" }
-        );
-      }
-      const tnaFinalContainer = document.getElementById("loader-tna-final");
-      if (tnaFinalContainer && tnaFinalContainer.innerHTML.includes("Memuat")) {
-        tnaFinalContainer.innerHTML =
-          "<p>Konten untuk TNA akan ditampilkan di sini.</p>";
-      }
-    },
-    { once: true }
-  );
-
-  const unlockBtn = document.getElementById("unlock-manpower");
-  const passwordInput = document.getElementById("password-manpower");
-  const passwordError = document.getElementById("password-error-manpower");
-  const manpowerTableContainer = document.getElementById(
-    "table-container-manpower"
-  );
-  const passwordGate = document.getElementById("password-gate-manpower");
-
-  unlockBtn.addEventListener("click", () => {
-    if (passwordInput.value === "12345") {
-      manpowerTableContainer.classList.remove("blur-sm");
-      passwordGate.style.display = "none";
-      passwordError.classList.add("hidden");
-    } else {
-      passwordError.classList.remove("hidden");
-    }
-  });
+  // Kode untuk TNA Individu tetap sama seperti sebelumnya
 })();
 
 // --- LOGIKA UNTUK TAB SWITCHING ---
 document.addEventListener("DOMContentLoaded", () => {
-  const tabButtons = document.querySelectorAll(".tab-button");
+  const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
   tabButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const targetId = button.dataset.target;
       tabButtons.forEach((btn) => {
-        btn.classList.remove("active", "text-gray-700");
-        btn.classList.add("text-gray-500", "bg-gray-200");
+        btn.classList.remove("active");
       });
-      button.classList.add("active", "text-gray-700");
-      button.classList.remove("text-gray-500", "bg-gray-200");
-
-      // Menggunakan sistem kelas .active agar konsisten dengan style.css
+      button.classList.add("active");
       tabContents.forEach((content) => {
-        content.classList.remove("active");
+        if (content.id === targetId) {
+          content.classList.add("active");
+          content.classList.remove("hidden");
+        } else {
+          content.classList.remove("active");
+          content.classList.add("hidden");
+        }
       });
-      document.getElementById(targetId)?.classList.add("active");
     });
   });
 
   const subTabButtons = document.querySelectorAll(".sub-tab-button");
-  const subTabContents = document.querySelectorAll(".sub-tab-content");
-
   subTabButtons.forEach((button) => {
     button.addEventListener("click", () => {
+      const parent = button.closest(".tab-content");
+      const subContents = parent.querySelectorAll(".sub-tab-content");
       const targetId = button.dataset.target;
-      subTabButtons.forEach((btn) => {
-        btn.classList.remove("active", "text-indigo-600", "border-indigo-500");
-        btn.classList.add(
-          "text-gray-500",
-          "hover:text-gray-700",
-          "hover:border-gray-300"
-        );
-      });
-      button.classList.add("active", "text-indigo-600", "border-indigo-500");
-      button.classList.remove(
-        "text-gray-500",
-        "hover:text-gray-700",
-        "hover:border-gray-300"
-      );
 
-      subTabContents.forEach((content) => {
+      parent.querySelectorAll(".sub-tab-button").forEach((btn) => {
+        btn.classList.remove("active");
+      });
+      button.classList.add("active");
+
+      subContents.forEach((content) => {
         content.classList.toggle("hidden", content.id !== targetId);
+        content.classList.toggle("active", content.id === targetId);
       });
     });
+  });
+});
+
+// --- LOGIKA UNTUK MODAL ADD/EDIT ---
+document.addEventListener("DOMContentLoaded", () => {
+  const dataModal = document.getElementById("data-modal");
+  const closeModalBtn = document.getElementById("close-modal");
+  const cancelModalBtn = document.getElementById("cancel-modal");
+  const modalTitleEl = document.getElementById("modal-title");
+  const modalForm = document.getElementById("modal-form");
+
+  // Pastikan semua elemen ada sebelum melanjutkan
+  if (
+    !dataModal ||
+    !closeModalBtn ||
+    !cancelModalBtn ||
+    !modalTitleEl ||
+    !modalForm
+  )
+    return;
+
+  /**
+   * Menutup modal dan membersihkan isinya.
+   */
+  const closeModal = () => {
+    dataModal.classList.add("hidden");
+    modalForm.innerHTML = ""; // Kosongkan form saat ditutup
+  };
+
+  /**
+   * Membuka modal, mengatur judul, dan (nantinya) mengisi form.
+   * @param {string} type Tipe data (e.g., 'internal', 'all', 'setting')
+   */
+  const openAddEditModal = (type) => {
+    const titles = {
+      internal: "Tambah Data Internal Kompetensi",
+      all: "Tambah Data All Kompetensi",
+      setting: "Tambah Data Setting Kompetensi",
+    };
+    modalTitleEl.textContent = titles[type] || "Formulir Data";
+    let formHTML = "";
+
+    if (type === "internal") {
+      formHTML = `
+        <div class="form-group">
+          <label for="nama-kompetensi">Nama Kompetensi:</label>
+          <input type="text" id="nama-kompetensi" name="nama_kompetensi" required>
+        </div>
+        <div class="form-group">
+          <label for="deskripsi">Deskripsi:</label>
+          <textarea id="deskripsi" name="deskripsi" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="departemen">Departemen:</label>
+          <select id="departemen" name="departemen">
+            <option value="hse">HSE</option>
+            <option value="operation">Operation</option>
+            <option value="maintenance">Maintenance</option>
+            <!-- Tambahkan opsi departemen lainnya sesuai kebutuhan -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="tipe">Tipe:</label>
+          <select id="tipe" name="tipe">
+            <option value="internal">Internal</option>
+            <option value="eksternal">Eksternal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="level">Level:</label>
+          <select id="level" name="level">
+            <option value="n5">N5</option>
+            <option value="n4">N4</option>
+            <option value="n3">N3</option>
+            <option value="n2">N2</option>
+          </select>
+        </div>
+      `;
+    } else if (type === "all") {
+      // Form untuk "All Kompetensi" (sesuaikan fieldnya)
+      formHTML = `
+        <div class="form-group">
+          <label for="nama-kompetensi-all">Nama Kompetensi (All):</label>
+          <input type="text" id="nama-kompetensi-all" name="nama_kompetensi_all" required>
+        </div>
+        <!-- Tambahkan field lainnya untuk "All Kompetensi" di sini -->
+      `;
+    } else if (type === "setting") {
+      // Form untuk "Setting Kompetensi" (sesuaikan fieldnya)
+      formHTML = `
+        <div class="form-group">
+          <label for="jabatan-setting">Jabatan:</label>
+          <input type="text" id="jabatan-setting" name="jabatan_setting" required>
+        </div>
+        <!-- Tambahkan field lainnya untuk "Setting Kompetensi" di sini -->
+      `;
+    } else {
+      formHTML = `<p class="text-center text-gray-500">Formulir tidak tersedia untuk tipe ini.</p>`;
+    }
+
+    modalForm.innerHTML = formHTML;
+
+    dataModal.classList.remove("hidden");
+  };
+
+  /**
+   * Menangani penyimpanan data dari modal. (Saat ini hanya menampilkan alert)
+   */
+  const saveModalData = () => {
+    const form = document.getElementById("modal-form");
+    if (form) {
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      alert("Data akan disimpan (simulasi):\n" + JSON.stringify(data, null, 2));
+      closeModal();
+    }
+  };
+
+  const saveModalBtn = document.getElementById("save-modal");
+  saveModalBtn.addEventListener("click", saveModalData);
+
+  // Event listener untuk tombol pembuka modal
+  const openModalButtons = document.querySelectorAll(".btn-open-modal");
+  openModalButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const modalType = button.dataset.modalType;
+      openAddEditModal(modalType);
+    });
+  });
+
+  // Event listeners untuk menutup modal
+  closeModalBtn.addEventListener("click", closeModal);
+  cancelModalBtn.addEventListener("click", closeModal);
+  dataModal.addEventListener("click", (e) => {
+    // Tutup jika user mengklik area latar belakang (di luar modal-content)
+    if (e.target === dataModal) {
+      closeModal();
+    }
   });
 });

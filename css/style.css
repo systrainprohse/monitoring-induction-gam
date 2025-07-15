@@ -386,16 +386,63 @@ td {
 }
 
 tbody tr:nth-child(even) {
-  background-color: transparent; /* Hapus warna baris belang-belang */
+  background-color: var(
+    --color-hover
+  ); /* Mengembalikan warna baris belang-belang */
 }
 
 tbody tr:hover {
-  background-color: var(--color-hover); /* Efek hover baru */
+  background-color: var(--color-hover);
   cursor: pointer;
+}
+
+/* Department-based Row Coloring for Matrix Table */
+.data-table tr.dept-color-1 {
+  background-color: #fef2f2;
+} /* red-50 */
+.data-table tr.dept-color-2 {
+  background-color: #fffbeb;
+} /* amber-50 */
+.data-table tr.dept-color-3 {
+  background-color: #f0fdf4;
+} /* green-50 */
+.data-table tr.dept-color-4 {
+  background-color: #eff6ff;
+} /* blue-50 */
+.data-table tr.dept-color-5 {
+  background-color: #eef2ff;
+} /* indigo-50 */
+.data-table tr.dept-color-6 {
+  background-color: #f5f3ff;
+} /* violet-50 */
+.data-table tr.dept-color-7 {
+  background-color: #fdf2f8;
+} /* fuchsia-50 */
+
+/* Override the default hover for department-colored rows */
+.data-table tr[class*="dept-color-"]:hover {
+  background-color: #e7e5e4; /* A neutral, slightly darker hover color (zinc-200) */
 }
 
 tbody tr:last-child td {
   border-bottom: none; /* Hapus border di baris terakhir */
+}
+
+/* Memperbaiki filter bar tetap menutupi tabel saat scroll */
+.filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* --- Status Badge Disesuaikan (Menargetkan SPAN, bukan TD) --- */
@@ -2465,4 +2512,716 @@ th:hover {
   padding: 2px 10px;
   border-radius: 6px;
   font-family: "ui-monospace", monospace; /* Font yang lebih cocok untuk jam */
+}
+
+/* General Styling */
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f7fafc;
+  margin: 0;
+  padding: 1.5rem;
+}
+.app-container {
+  max-width: 100%;
+  margin: auto;
+}
+.card {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+.content-padding {
+  padding: 2rem;
+}
+.hidden {
+  display: none;
+}
+
+/* Header */
+.main-header {
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.logo-group img {
+  height: 3rem;
+}
+#dynamic-header-content {
+  margin-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem 0.5rem;
+  font-size: 0.875rem;
+}
+#dynamic-header-content > div {
+  display: flex;
+  gap: 0.5rem;
+}
+.header-key {
+  font-weight: 600;
+  color: #4a5568;
+}
+.header-value {
+  color: #1a202c;
+}
+
+/* Tabs */
+#tab-nav {
+  display: flex;
+  margin-bottom: -1px;
+}
+.tab-button {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  background-color: #e2e8f0;
+  border: 1px solid #d2d6dc;
+  border-bottom: 0;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  cursor: pointer;
+  color: #4a5568;
+}
+.tab-button.active {
+  background-color: white;
+  border-bottom-color: white;
+  color: #1a202c;
+}
+.sub-tab-button {
+  white-space: nowrap;
+  padding: 1rem 0.25rem;
+  border-bottom-width: 2px;
+  border-color: transparent;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: #6b7280;
+}
+.sub-tab-button:hover {
+  color: #374151;
+  border-color: #d1d5db;
+}
+.sub-tab-button.active {
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
+/* Filter Bar */
+.filter-bar {
+  position: relative; /* MENGHAPUS STICKY: Ini adalah perbaikan utama agar filter tidak menutupi header tabel saat menggulir. */
+  top: auto; /* Reset properti top */
+  z-index: 20;
+  background-color: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.filter-grid {
+  display: grid;
+  gap: 1rem;
+  flex-grow: 1;
+}
+.filter-grid label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+.filter-grid select {
+  margin-top: 0.25rem;
+  display: block;
+  width: 100%;
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+}
+.zoom-controls {
+  padding-left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.zoom-controls button {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  background-color: #e5e7eb;
+  border: none;
+  cursor: pointer;
+}
+.zoom-controls button:hover {
+  background-color: #d1d5db;
+}
+
+/* Table Styling */
+.table-wrapper {
+  overflow-x: auto;
+}
+.data-table {
+  min-width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #d2d6dc;
+}
+.data-table th,
+.data-table td {
+  border: 1px solid #d2d6dc;
+}
+.data-table thead {
+  background-color: #f9fafb;
+  color: #374151;
+}
+.data-table th {
+  font-weight: 600;
+}
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+  z-index: 50;
+}
+.modal-content {
+  position: relative;
+  top: 5rem;
+  margin: auto;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  width: 100%;
+  max-width: 42rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 0.375rem;
+  background-color: white;
+}
+
+/* Responsive Grid for Filters */
+@media (min-width: 768px) {
+  .filter-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .filter-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .filter-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Warna Latar Belakang untuk Baris Departemen di Matrix Kompetensi
+   ========================================================================== */
+
+/* Palet warna yang lebih modern dan profesional */
+.dept-color-1 {
+  background-color: #4a90e2;
+  color: white;
+} /* Biru Cerah */
+.dept-color-2 {
+  background-color: #50e3c2;
+  color: #1a202c;
+} /* Mint */
+.dept-color-3 {
+  background-color: #f5a623;
+  color: white;
+} /* Oranye */
+.dept-color-4 {
+  background-color: #bd10e0;
+  color: white;
+} /* Ungu */
+.dept-color-5 {
+  background-color: #9013fe;
+  color: white;
+} /* Violet */
+.dept-color-6 {
+  background-color: #7ed321;
+  color: #1a202c;
+} /* Hijau Limau */
+.dept-color-7 {
+  background-color: #417505;
+  color: white;
+} /* Hijau Tua */
+
+/* Mengatur warna teks default untuk sel di dalam baris berwarna */
+tr[class*="dept-color-"] td {
+  color: inherit; /* Mewarisi warna teks dari elemen <tr> */
+  font-weight: 500; /* Sedikit menebalkan teks agar lebih mudah dibaca */
+}
+
+/* Memastikan warna latar belakang tidak pudar saat di-hover */
+#matrix-data-table tbody tr[class*="dept-color-"]:hover td {
+  background-color: inherit !important; /* Mewarisi warna dari <tr> */
+}
+
+/* Memberi sedikit highlight pada baris yang di-hover tanpa mengubah warna utama */
+#matrix-data-table tbody tr[class*="dept-color-"]:hover {
+  filter: brightness(1.1);
+  transform: scale(1.01);
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  position: relative;
+}
+
+/* General Styling */
+:root {
+  --color-primary: #7c3aed; /* Ungu */
+  --color-bg-main: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-text-dark: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-hover: #f9fafb;
+  --border-radius: 12px;
+  --transition: 0.2s ease;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: "Inter", sans-serif;
+  background-color: var(--color-bg-main);
+  margin: 0;
+  padding: 1.5rem;
+  color: var(--color-text-dark);
+}
+.app-container {
+  max-width: 100%;
+  margin: auto;
+}
+.card {
+  background-color: var(--color-bg-card);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-border);
+}
+.content-padding {
+  padding: 2rem;
+}
+.hidden {
+  display: none;
+}
+.main-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.sub-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.text-center {
+  text-align: center;
+}
+.text-left {
+  text-align: left;
+}
+.font-medium {
+  font-weight: 500;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.mt-6 {
+  margin-top: 1.5rem;
+}
+.flex {
+  display: flex;
+}
+.items-center {
+  align-items: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-end {
+  justify-content: flex-end;
+}
+.gap-4 {
+  gap: 1rem;
+}
+
+/* Tabs */
+.tab-nav-container {
+  display: flex;
+  margin-bottom: -1px;
+}
+.tab-button {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  background-color: #e2e8f0;
+  border: 1px solid #d2d6dc;
+  border-bottom: 0;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: var(--transition);
+}
+.tab-button:hover {
+  background-color: #edf2f7;
+}
+.tab-button.active {
+  background-color: white;
+  border-bottom-color: white;
+  color: var(--color-text-dark);
+}
+.rounded-t-none {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* Sub-Tabs */
+.sub-tab-nav-container {
+  border-bottom: 1px solid var(--color-border);
+  flex-grow: 1;
+}
+.sub-tab-nav {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: -1px;
+}
+.sub-tab-button {
+  white-space: nowrap;
+  padding: 1rem 0.25rem;
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+.sub-tab-button:hover {
+  color: var(--color-text-dark);
+  border-color: var(--color-border);
+}
+.sub-tab-button.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Filter Bar */
+.filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Modifier untuk filter bar vertikal */
+.filter-bar-vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+.filter-grid {
+  display: grid;
+  gap: 1rem;
+  flex-grow: 1;
+}
+.filter-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.filter-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.filter-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.filter-grid label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+.filter-grid select,
+.password-input,
+.search-input {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+.zoom-controls {
+  padding-left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.zoom-controls button,
+.button-add,
+.button-primary,
+.button-secondary,
+.search-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.button-add {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-primary);
+  color: white;
+}
+.button-add:hover {
+  background-color: #6d28d9;
+}
+.button-primary {
+  background-color: #2563eb;
+  color: white;
+}
+.button-primary:hover {
+  background-color: #1d4ed8;
+}
+.button-secondary {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+.button-secondary:hover {
+  background-color: #d1d5db;
+}
+.search-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-left: 0;
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+  background-color: #f9fafb;
+  color: #374151;
+}
+.search-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.search-button:hover {
+  background-color: #f3f4f6;
+}
+
+/* Table Styling */
+.table-wrapper {
+  overflow-x: auto;
+}
+table {
+  min-width: 100%;
+  border-collapse: collapse;
+}
+table th,
+table td {
+  border: 1px solid var(--color-border);
+}
+table thead {
+  background-color: #f9fafb;
+}
+table th {
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.vertical-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+.header-competency {
+  height: 140px;
+}
+
+/* Zoom Levels */
+.zoom-level-1 th,
+.zoom-level-1 td {
+  font-size: 8px;
+  padding: 1px 2px;
+}
+.zoom-level-1 .vertical-text {
+  font-size: 8px;
+}
+.zoom-level-1 .header-competency {
+  height: 100px;
+}
+.zoom-level-1 .competency-icon {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.zoom-level-2 th,
+.zoom-level-2 td {
+  font-size: 10px;
+  padding: 2px 4px;
+}
+.zoom-level-2 .vertical-text {
+  font-size: 10px;
+}
+.zoom-level-2 .header-competency {
+  height: 120px;
+}
+.zoom-level-2 .competency-icon {
+  width: 0.65rem;
+  height: 0.65rem;
+}
+
+.zoom-level-3 th,
+.zoom-level-3 td {
+  font-size: 12px;
+  padding: 3px 5px;
+}
+.zoom-level-3 .vertical-text {
+  font-size: 12px;
+}
+.zoom-level-3 .header-competency {
+  height: 140px;
+}
+.zoom-level-3 .competency-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* TNA Individu */
+.tna-results-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+@media (min-width: 1024px) {
+  .tna-results-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.card-tna {
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+}
+.card-tna h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.card-tna ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.card-tna li {
+  background-color: white;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  position: relative;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  width: 100%;
+  max-width: 42rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 0.375rem;
+  background-color: white;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.75rem;
+}
+.modal-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+.modal-close-button {
+  color: #9ca3af;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.modal-body {
+  margin-top: 1.25rem;
+}
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.modal-footer {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
 }
