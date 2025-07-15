@@ -269,12 +269,9 @@
           <!-- Tab 4: Setting Kompetensi -->
           <div id="tab-setting" class="tab-content hidden">
             <h2 class="sub-title">Setting Kompetensi x Jabatan</h2>
-            <div
-              class="filter-bar"
-              style="flex-direction: column; align-items: stretch"
-            >
+            <div class="filter-bar filter-bar-column">
               <!-- Added comment to suppress error -->
-              <div class="flex justify-end mb-4" style="width: 100%">
+              <div class="flex justify-end mb-4 w-full">
                 <button
                   data-modal-type="setting"
                   class="button-add btn-open-modal"
@@ -396,7 +393,11 @@
                       class="search-input"
                       placeholder="Masukkan nama..."
                     />
-                    <button id="search-tna-btn" class="search-button">
+                    <button
+                      id="search-tna-btn"
+                      class="search-button"
+                      title="Cari Karyawan"
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-5 w-5"

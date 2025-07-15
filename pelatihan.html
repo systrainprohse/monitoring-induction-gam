@@ -25,11 +25,24 @@
   </head>
   <body>
     <script>
-      const userRole = localStorage.getItem("userRole");
-      // If no role or role is 'mitra', redirect away
-      if (!userRole || userRole === "mitra") {
-        alert("Akses ditolak. Silakan login dengan akses yang sesuai.");
-        window.location.href = "index.html"; // Back to login
+      try {
+        const userRole = localStorage.getItem("userRole");
+        // Jika tidak ada peran atau perannya 'mitra', akses ditolak.
+        if (!userRole || userRole === "mitra") {
+          // Mengganti alert dengan pesan yang lebih ramah di dalam halaman
+          document.body.innerHTML = `
+            <div style="padding: 40px; text-align: center; font-family: sans-serif; color: #333;">
+                <h1 style="color: #d9534f;">🔒 Akses Ditolak</h1>
+                <p>Anda tidak memiliki izin untuk mengakses halaman ini. Silakan login dengan akun yang sesuai.</p>
+                <a href="index.html" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Kembali ke Halaman Login</a>
+            </div>`;
+          // Menghentikan eksekusi skrip lebih lanjut untuk mencegah error
+          throw new Error("Akses ditolak untuk peran pengguna: " + userRole);
+        }
+      } catch (e) {
+        console.error(e.message);
+        // Jika ada error (misal: localStorage tidak tersedia), lempar error lagi untuk menghentikan skrip utama.
+        throw e;
       }
     </script>
 
@@ -67,7 +80,7 @@
                
           <!-- Mengubah data-tab menjadi lebih deskriptif dan menjadikannya aktif -->
                
-          <button class="tab-btn active" data-tab="monitoring_pelatihan">
+          <button class="tab-btn" data-tab="monitoring_pelatihan">
             📈 Monitoring Pelatihan
           </button>
                
@@ -79,105 +92,17 @@
       </nav>
 
       <!-- Konten Tab: Kalender -->
-      <div id="calendar" class="tab-content">
-        <div class="filter-bar">
-          <label for="filterPIC">Filter PIC:</label>
-          <select id="filterPIC">
-            <option value="">Semua</option>
-          </select>
-          <label for="filterRoom">Filter Ruangan:</label>
-          <select id="filterRoom">
-            <option value="">Semua</option>
-          </select>
-        </div>
 
-        <div class="calendar-wrapper">
-          <h1>📅 Kalender Kegiatan</h1>
-
-          <div id="currentDateTime" class="current-datetime"></div>
-          <div class="calendar-header">
-            <button id="prevMonth">&lt;</button>
-            <h2 id="monthYear"></h2>
-            <button id="nextMonth">&gt;</button>
-          </div>
-          <div class="calendar-grid">
-            <div class="day-name">Min</div>
-            <div class="day-name">Sen</div>
-            <div class="day-name">Sel</div>
-            <div class="day-name">Rab</div>
-            <div class="day-name">Kam</div>
-            <div class="day-name">Jum</div>
-            <div class="day-name">Sab</div>
-          </div>
-          <!-- Pindahkan #calendarDays ke luar dari .calendar-grid agar sejajar -->
-          <div id="calendarDays" class="calendar-days"></div>
-        </div>
-
-        <!-- Legend -->
-        <div class="legend">
-          <div class="legend-item">
-            <span class="legend-color today"></span> Hari ini
-          </div>
-          <div class="legend-item">
-            <span class="legend-color has-event"></span> Ada event
-          </div>
-          <div class="legend-item">
-            <span class="legend-color event-label"></span> Label event
-          </div>
-        </div>
-      </div>
-
-      <!-- Konten Tab: Pendaftaran -->
-      <div id="pendaftaran_training" class="tab-content">
-        <div class="table-wrapper">
-          <!-- Menggunakan class "filter-bar" dan struktur yang sama dengan filter kompetensi -->
-          <div class="filter-bar">
-            <label for="filterTrainingPendaftaran">Training:</label>
-            <select id="filterTrainingPendaftaran">
-              <option value="all">Semua</option>
-            </select>
-            <label for="filterNamaPendaftaran">Nama:</label>
-            <input
-              type="text"
-              id="filterNamaPendaftaran"
-              placeholder="Cari nama peserta..."
-            />
-            <label for="startDatePendaftaran">Tanggal:</label>
-            <input type="date" id="startDatePendaftaran" />
-            <span>s.d.</span>
-            <input
-              type="date"
-              id="endDatePendaftaran"
-              aria-label="Tanggal akhir pendaftaran"
-            />
-            <button id="export-pendaftaran_training" class="export-btn">
-              Export Excel
-            </button>
-            <button id="resetFilterPendaftaran">Reset Filter</button>
-          </div>
-
-          <!-- Menambahkan teks default dan kelas yang sama dengan filter kompetensi -->
-          <p id="resultCountPendaftaran" class="result-count">
-            Menampilkan 0 entri.
-          </p>
-          <table id="table-pendaftaran_training" class="data-table"></table>
-        </div>
-      </div>
-
-      <!-- Konten Tab: Grafik -->
-         
-      <!-- PERBAIKAN DI SINI: Tambahkan kelas 'active' ke div ini -->
-      <div id="monitoring_pelatihan" class="tab-content active">
+      <!-- Konten Tab: Monitoring Pelatihan (Dashboard) -->
+      <div id="monitoring_pelatihan" class="tab-content">
         <div class="dashboard-header">
           <h3>Dashboard Pelatihan & Kompetensi</h3>
           <p>Ringkasan visual dari data pelatihan dan kompetensi manpower.</p>
         </div>
-
         <!-- KPI Cards -->
         <div id="kpi-container" class="kpi-container">
           <!-- KPI akan diisi oleh JavaScript -->
         </div>
-
         <!-- Dashboard Grid -->
         <div class="dashboard-grid">
           <div class="dashboard-card span-col-2">
@@ -199,48 +124,118 @@
         </div>
       </div>
 
-      <!--Kompetensi -->
-      <div id="kompetensi" class="tab-content">
-        <h2>Data Kompetensi Manpower</h2>
-
+      <!-- Konten Tab: Kalender -->
+      <div id="calendar" class="tab-content">
         <div class="filter-bar">
-          <label for="filterDeptKompetensi">Departemen:</label>
-          <select id="filterDeptKompetensi">
-            <option value="all">Semua</option>
+          <label for="filterPIC">Filter PIC:</label>
+          <select id="filterPIC">
+            <option value="">Semua</option>
           </select>
-
-          <label for="filterJabatanKompetensi">Jabatan:</label>
-          <select id="filterJabatanKompetensi">
-            <option value="all">Semua</option>
+          <label for="filterRoom">Filter Ruangan:</label>
+          <select id="filterRoom">
+            <option value="">Semua</option>
           </select>
-
-          <label for="filterKompetensiDropdown">Kompetensi:</label>
-          <select id="filterKompetensiDropdown">
-            <option value="all">Semua</option>
-          </select>
-
-          <label for="filterNamaKompetensi">Nama:</label>
-          <input
-            type="text"
-            id="filterNamaKompetensi"
-            placeholder="Cari nama..."
-          />
-
-          <button id="export-kompetensi" class="export-btn">
-            Export Excel
-          </button>
-          <button id="resetFilterKompetensi">Reset Filter</button>
         </div>
-
-        <!-- Menambahkan kelas untuk konsistensi gaya -->
-        <p id="resultCountKompetensi" class="result-count">
-          Menampilkan 0 entri.
-        </p>
-        <table id="table-kompetensi" class="data-table"></table>
+        <div class="calendar-wrapper">
+          <h1>📅 Kalender Kegiatan</h1>
+          <div id="currentDateTime" class="current-datetime"></div>
+          <div class="calendar-header">
+            <button id="prevMonth" aria-label="Bulan Sebelumnya">&lt;</button>
+            <h2 id="monthYear"></h2>
+            <button id="nextMonth" aria-label="Bulan Berikutnya">&gt;</button>
+          </div>
+          <div class="calendar-grid">
+            <div class="day-name">Min</div>
+            <div class="day-name">Sen</div>
+            <div class="day-name">Sel</div>
+            <div class="day-name">Rab</div>
+            <div class="day-name">Kam</div>
+            <div class="day-name">Jum</div>
+            <div class="day-name">Sab</div>
+          </div>
+          <div id="calendarDays" class="calendar-days"></div>
+        </div>
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-color today"></span> Hari ini
+          </div>
+          <div class="legend-item">
+            <span class="legend-color has-event"></span> Ada event
+          </div>
+        </div>
       </div>
 
-      <!-- MODAL POP-UP (Diperbarui dengan struktur baru) -->
-      <div id="modal" class="modal">
+      <!-- Konten Tab: Pendaftaran -->
+      <div id="pendaftaran_training" class="tab-content">
+        <div class="table-wrapper">
+          <div class="filter-bar">
+            <label for="filterTrainingPendaftaran">Training:</label>
+            <select id="filterTrainingPendaftaran">
+              <option value="all">Semua</option>
+            </select>
+            <label for="filterNamaPendaftaran">Nama:</label>
+            <input
+              type="text"
+              id="filterNamaPendaftaran"
+              placeholder="Cari nama peserta..."
+            />
+            <label for="startDatePendaftaran">Tanggal:</label>
+            <input type="date" id="startDatePendaftaran" />
+            <span>s.d.</span>
+            <input
+              type="date"
+              id="endDatePendaftaran"
+              aria-label="Tanggal akhir pendaftaran"
+            />
+            <button data-key="pendaftaran_training" class="export-btn">
+              Export Excel
+            </button>
+            <button id="resetFilterPendaftaran">Reset Filter</button>
+          </div>
+          <p id="resultCountPendaftaran" class="result-count">
+            Menampilkan 0 entri.
+          </p>
+          <table id="table-pendaftaran_training" class="data-table"></table>
+        </div>
+      </div>
+
+      <!-- Konten Tab: Kompetensi -->
+      <div id="kompetensi" class="tab-content">
+        <div class="table-wrapper">
+          <h2>Data Kompetensi Manpower</h2>
+          <div class="filter-bar">
+            <label for="filterDeptKompetensi">Departemen:</label>
+            <select id="filterDeptKompetensi">
+              <option value="all">Semua</option>
+            </select>
+            <label for="filterJabatanKompetensi">Jabatan:</label>
+            <select id="filterJabatanKompetensi">
+              <option value="all">Semua</option>
+            </select>
+            <label for="filterKompetensiDropdown">Kompetensi:</label>
+            <select id="filterKompetensiDropdown">
+              <option value="all">Semua</option>
+            </select>
+            <label for="filterNamaKompetensi">Nama:</label>
+            <input
+              type="text"
+              id="filterNamaKompetensi"
+              placeholder="Cari nama..."
+            />
+            <button data-key="kompetensi" class="export-btn">
+              Export Excel
+            </button>
+            <button id="resetFilterKompetensi">Reset Filter</button>
+          </div>
+          <p id="resultCountKompetensi" class="result-count">
+            Menampilkan 0 entri.
+          </p>
+          <table id="table-kompetensi" class="data-table"></table>
+        </div>
+      </div>
+
+      <div id="modal" class="modal hidden">
+        <!-- MODAL POP-UP UMUM -->
         <div class="modal-content">
           <div class="modal-header">
             <h3 id="modalTitle"></h3>
@@ -252,15 +247,14 @@
               &times;
             </button>
           </div>
-
           <!-- Bagian untuk detail Kompetensi -->
-          <div id="kompetensiModalContent">
+
+          <div id="kompetensiModalContent" class="hidden">
             <div class="profile-header">
               <div class="profile-avatar" aria-hidden="true">😊</div>
               <h3 id="modalProfileName"></h3>
               <p id="modalProfileTitle"></p>
             </div>
-
             <div class="detail-section">
               <h4 class="section-title">Detail Pribadi</h4>
               <div class="detail-item">
@@ -279,16 +273,14 @@
                 <span class="detail-icon">💼</span>
               </div>
             </div>
-
             <div class="detail-section">
               <h4 class="section-title">Daftar Kompetensi</h4>
-              <ul id="kompetensiList" class="competency-list">
-                <!-- Kompetensi akan dimuat di sini oleh JavaScript -->
-              </ul>
+              <ul id="kompetensiList" class="competency-list"></ul>
             </div>
           </div>
 
           <!-- Bagian untuk detail Kalender -->
+
           <div id="calendarModalContent" class="hidden">
             <h4 class="section-title">Detail Kegiatan</h4>
             <div class="detail-item">
@@ -308,12 +300,11 @@
               <div id="modalPIC"></div>
             </div>
             <div class="extra-calendar-events"></div>
-            <!-- Untuk multiple events -->
           </div>
         </div>
       </div>
 
-      <!-- Modal baru untuk menampilkan daftar nama dari grafik -->
+      <!-- MODAL DRILLDOWN DARI GRAFIK -->
       <div id="chart-drilldown-modal" class="modal hidden">
         <div class="modal-content modal-lg">
           <div class="modal-header">
@@ -326,7 +317,6 @@
               &times;
             </button>
           </div>
-          <!-- Konten daftar nama akan dimuat di sini -->
           <div id="drilldown-modal-content" class="mt-4"></div>
         </div>
       </div>

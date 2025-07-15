@@ -634,7 +634,7 @@ th:hover {
 
 /* --- Menyesuaikan Modal --- */
 .modal {
-  display: none; /* 1. Sembunyikan modal secara default */
+  display: flex; /* 1. Sembunyikan modal secara default */
   position: fixed; /* 2. Posisikan modal relatif terhadap viewport */
   z-index: 5000; /* Di bawah elemen mengambang tapi di atas konten */
   left: 0;
@@ -1512,10 +1512,6 @@ th:hover {
   margin-top: 0;
 }
 
-/* Utility class for hiding elements */
-.hidden {
-  display: none;
-}
 
 /* Gaya untuk notifikasi data offline (digunakan di induksi.html & pelatihan.html) */
 .offline-notice {
@@ -2536,7 +2532,7 @@ body {
   padding: 2rem;
 }
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 /* Header */
@@ -2830,9 +2826,7 @@ body {
 .content-padding {
   padding: 2rem;
 }
-.hidden {
-  display: none;
-}
+
 .main-title {
   font-size: 1.5rem;
   font-weight: 700;

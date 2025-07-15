@@ -169,10 +169,21 @@ window.addEventListener("DOMContentLoaded", () => {
    */
   function showModal(items, type = "calendar") {
     console.log("Showing modal with items:", items, "type:", type);
-    const modalContent = modal?.querySelector(".modal-content");
-    if (!modalContent) {
+
+    // Correctly target both calendar and kompetensi modal content areas
+    const calendarModalContent = document.getElementById(
+      "calendarModalContent"
+    );
+    const kompetensiModalContent = document.getElementById(
+      "kompetensiModalContent"
+    );
+
+    // Validate that the modal content area exists
+    if (!calendarModalContent && !kompetensiModalContent) {
       console.error("Elemen konten modal tidak ditemukan.");
       return;
+    } else {
+      console.log("modal succesfull");
     }
 
     // Sembunyikan semua bagian modal terlebih dahulu untuk memastikan tampilan bersih
@@ -185,15 +196,16 @@ window.addEventListener("DOMContentLoaded", () => {
     if (modalProfileNIK) modalProfileNIK.textContent = "";
     if (modalProfileDept) modalProfileDept.textContent = "";
     if (modalProfileJabatan) modalProfileJabatan.textContent = "";
-    if (kompetensiList) kompetensiList.innerHTML = "";
+
     if (modalDate) modalDate.textContent = "";
     if (modalRoom) modalRoom.textContent = "";
     if (modalParticipants) modalParticipants.textContent = "";
     if (modalPIC) modalPIC.textContent = "";
+    if (kompetensiList) kompetensiList.innerHTML = "";
     if (modalTitle) modalTitle.textContent = ""; // Kosongkan judul utama modal
 
     // Hapus elemen 'extra' dari modal kalender jika ada
-    const existingExtraCalendarEvents = modalContent.querySelector(
+    const existingExtraCalendarEvents = calendarModalContent.querySelector(
       ".extra-calendar-events"
     );
     if (existingExtraCalendarEvents) existingExtraCalendarEvents.innerHTML = ""; // Kosongkan kontennya
@@ -221,7 +233,9 @@ window.addEventListener("DOMContentLoaded", () => {
         if (modalParticipants) modalParticipants.textContent = "";
         if (modalPIC) modalPIC.textContent = "";
 
-        const container = modalContent.querySelector(".extra-calendar-events"); // Gunakan container yang sudah ada
+        const container = calendarModalContent.querySelector(
+          ".extra-calendar-events"
+        ); // Gunakan container yang sudah ada
         if (container) {
           items.forEach((ev) => {
             const p = document.createElement("p");
@@ -889,24 +903,15 @@ window.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch(`https://opensheet.elk.sh/${id}/${sheet}`);
       if (!res.ok) throw new Error(`Gagal mengambil data dari sheet: ${sheet}`);
-
       const data = await res.json();
-      // PENTING: Validasi bahwa respons adalah array. Jika tidak, opensheet mungkin mengembalikan error.
-      if (!Array.isArray(data)) {
-        throw new Error(
-          `Format respons tidak valid atau sheet '${sheet}' tidak dapat diakses/kosong.`
-        );
-      }
-
-      sheetDataCache[sheet] = data;
+      sheetDataCache[sheet] = data; // Simpan data ke cache
       console.log(
         `Data berhasil diambil dan di-cache untuk sheet: ${sheet}`,
         data
       );
       return data;
     } catch (err) {
-      // Menyertakan pesan error asli untuk debugging yang lebih baik
-      console.error(`Error fetching sheet ${sheet}:`, err.message);
+      console.error(`Error fetching sheet ${sheet}:`, err);
       return []; // Kembalikan array kosong jika ada error
     } finally {
       hideLoader(); // Sembunyikan loader setelah fetching selesai (berhasil/gagal)
@@ -1163,25 +1168,15 @@ window.addEventListener("DOMContentLoaded", () => {
     const kpiContainer = document.getElementById("kpi-container");
     if (!kpiContainer) return;
 
-    // Hitung jumlah manpower unik yang sudah terlatih dari data kompetensi
-    // Menggunakan (kompetensiData || []) untuk mencegah error jika data tidak tersedia
-    const trainedManpowerNiks = new Set(
-      (kompetensiData || [])
-        .filter((item) => {
-          const status = (item.STATUS || "").toLowerCase();
-          // Asumsikan 'lulus' atau 'approved' menandakan sudah terlatih
-          return status === "lulus" || status === "approved";
-        })
-        .map((item) => item.NIK)
-        .filter(Boolean) // Hapus NIK yang null atau undefined
+    const totalDone = monitoringData.reduce(
+      (sum, item) => sum + (parseInt(item.DONE, 10) || 0),
+      0
     );
-    const totalDone = trainedManpowerNiks.size;
-
-    const totalNeedTraining = (monitoringData || []).reduce(
+    const totalNeedTraining = monitoringData.reduce(
       (sum, item) => sum + (parseInt(item["NEED TRAINING"], 10) || 0),
       0
     );
-    const totalKompetensi = (kompetensiData || []).length;
+    const totalKompetensi = kompetensiData.length;
 
     const kpis = [
       { title: "Total Kompetensi Tercatat", value: totalKompetensi },
@@ -1203,32 +1198,20 @@ window.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
-  function createOverallProgressChart(monitoringData, kompetensiData) {
+  function createOverallProgressChart(monitoringData) {
     const canvas = document.getElementById("overallProgressChart");
     if (!canvas) return;
 
-    // Hitung jumlah manpower unik yang sudah terlatih dari data kompetensi
-    const trainedManpowerNiks = new Set(
-      (kompetensiData || [])
-        .filter((item) => {
-          const status = (item.STATUS || "").toLowerCase();
-          // Asumsikan 'lulus' atau 'approved' menandakan sudah terlatih
-          return status === "lulus" || status === "approved";
-        })
-        .map((item) => item.NIK)
-        .filter(Boolean) // Hapus NIK yang null atau undefined
+    const totalDone = monitoringData.reduce(
+      (sum, item) => sum + (parseInt(item.DONE, 10) || 0),
+      0
     );
-    const totalDone = trainedManpowerNiks.size;
-
-    const totalNeedTraining = (monitoringData || []).reduce(
+    const totalNeedTraining = monitoringData.reduce(
       (sum, item) => sum + (parseInt(item["NEED TRAINING"], 10) || 0),
       0
     );
 
-    // Hancurkan chart lama jika ada untuk mencegah duplikasi dan error
-    if (window.myOverallProgressChart instanceof Chart) {
-      window.myOverallProgressChart.destroy();
-    }
+    if (window.myOverallProgressChart) window.myOverallProgressChart.destroy();
 
     window.myOverallProgressChart = new Chart(canvas, {
       type: "doughnut",
@@ -1272,8 +1255,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const canvas = document.getElementById("topNeedTrainingChart");
     if (!canvas) return;
 
-    // Menggunakan (monitoringData || []) untuk mencegah error jika data tidak tersedia
-    const sortedData = [...(monitoringData || [])]
+    const sortedData = [...monitoringData]
       .sort(
         (a, b) =>
           (parseInt(b["NEED TRAINING"], 10) || 0) -
@@ -1284,10 +1266,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const labels = sortedData.map((d) => d["INTERNAL TRAINING"]);
     const data = sortedData.map((d) => parseInt(d["NEED TRAINING"], 10) || 0);
 
-    // Hancurkan chart lama jika ada
-    if (window.myTopNeedTrainingChart instanceof Chart) {
-      window.myTopNeedTrainingChart.destroy();
-    }
+    if (window.myTopNeedTrainingChart) window.myTopNeedTrainingChart.destroy();
 
     window.myTopNeedTrainingChart = new Chart(canvas, {
       type: "bar",
@@ -1334,8 +1313,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const poCounts = { POP: 0, POM: 0, POU: 0 };
 
     // Logika penghitungan yang lebih akurat: menghitung setiap sertifikasi yang dimiliki.
-    // Menggunakan (kompetensiData || []) untuk mencegah error
-    (kompetensiData || []).forEach((item) => {
+    kompetensiData.forEach((item) => {
       const kompetensi = item.KOMPETENSI ? item.KOMPETENSI.toUpperCase() : "";
       if (kompetensi.includes("POP")) poCounts["POP"]++;
       if (kompetensi.includes("POM")) poCounts["POM"]++;
@@ -1482,7 +1460,7 @@ window.addEventListener("DOMContentLoaded", () => {
         // 3. Panggil semua fungsi rendering untuk dashboard
         if (data && kompetensiData) {
           renderDashboardKPIs(data, kompetensiData);
-          createOverallProgressChart(data, kompetensiData);
+          createOverallProgressChart(data);
           createTopNeedTrainingChart(data);
           createPOChart(kompetensiData);
         }
