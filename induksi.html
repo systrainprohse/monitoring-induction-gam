@@ -223,16 +223,12 @@
               📘 Proses Induksi ▾
             </button>
             <div id="induksi-group" class="tab-subgroup">
-              <button class="tab-btn" data-tab="checklist_induksi">
-                ✅ Checklist
-              </button>
               <button class="tab-btn" data-tab="hasil_induksi">
                 📘 Induksi
               </button>
               <button class="tab-btn" data-tab="visitor">
                 📘 Induksi - Visitor
               </button>
-              <button class="tab-btn" data-tab="spdk">📝 SPDK</button>
               <button class="tab-btn" data-tab="remidial">📊 REMIDIAL</button>
             </div>
           </div>
@@ -312,89 +308,6 @@
           </table>
         </div>
         <div class="pagination-container" id="pagination-pendaftaran"></div>
-      </div>
-
-      <div id="spdk" class="tab-content">
-        <div class="filter-container">
-          <label for="filter-spdk">🏢</label>
-          <select
-            id="filter-spdk"
-            aria-label="Filter berdasarkan perusahaan"
-          ></select>
-          <label for="startDate-spdk">📅</label>
-          <input
-            type="date"
-            id="startDate-spdk"
-            aria-label="Tanggal mulai SPDK"
-          />
-          <span>s.d.</span>
-          <input
-            type="date"
-            id="endDate-spdk"
-            aria-label="Tanggal akhir SPDK"
-          />
-          <label for="search-spdk">🔍</label>
-          <input type="text" id="search-spdk" placeholder="Cari nama..." />
-          <button id="export-spdk" class="export-btn">Export Excel</button>
-        </div>
-        <div class="table-wrapper">
-          <table id="table-spdk">
-            <tbody>
-              <tr>
-                <td colspan="4" class="placeholder-cell">
-                  Data masih di progress...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="pagination-container" id="pagination-spdk"></div>
-      </div>
-
-      <div id="checklist_induksi" class="tab-content">
-        <div class="filter-container">
-          <label for="filter-checklist_induksi">🏢</label>
-          <select
-            id="filter-checklist_induksi"
-            aria-label="Filter berdasarkan perusahaan"
-          ></select>
-          <label for="startDate-checklist_induksi">📅</label>
-          <input
-            type="date"
-            id="startDate-checklist_induksi"
-            aria-label="Tanggal mulai checklist induksi"
-          />
-          <span>s.d.</span>
-          <input
-            type="date"
-            id="endDate-checklist_induksi"
-            aria-label="Tanggal akhir checklist induksi"
-          />
-          <label for="search-checklist_induksi">🔍</label>
-          <input
-            type="text"
-            id="search-checklist_induksi"
-            placeholder="Cari nama..."
-          />
-          <button id="export-checklist_induksi" class="export-btn">
-            Export Excel
-          </button>
-        </div>
-        <div class="table-wrapper">
-          <table id="table-checklist_induksi">
-            <tbody>
-              <tr>
-                <td colspan="4" class="placeholder-cell">
-                  Data masih di progress...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div
-          class="pagination-container"
-          id="pagination-checklist_induksi"
-        ></div>
       </div>
 
       <div id="hasil_induksi" class="tab-content">

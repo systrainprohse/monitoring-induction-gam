@@ -245,19 +245,25 @@ h2.page-title-container {
 }
 
 /* Filter Bar Disesuaikan */
+/* Filter Bar Disesuaikan (sebelumnya tidak ada @media query spesifik) */
 .filter-bar,
 .filter-container {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 14px;
-  padding: 0 0 24px 0; /* Hanya padding bawah */
+  padding: 0 0 24px 0;
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--color-border); /* Garis pemisah */
+  border-bottom: 1px solid var(--color-border);
   border-radius: 0;
   box-shadow: none;
   margin-bottom: 22px;
+}
+
+/* Hover pada baris tabel dibuat lebih jelas */
+tbody tr:hover {
+  background-color: #f1f5f9; /* Warna hover lebih jelas */
 }
 
 .filter-bar select,
@@ -1511,7 +1517,6 @@ th:hover {
 .details-container h3 {
   margin-top: 0;
 }
-
 
 /* Gaya untuk notifikasi data offline (digunakan di induksi.html & pelatihan.html) */
 .offline-notice {
@@ -3218,4 +3223,104 @@ table th {
   gap: 0.75rem;
   border-top: 1px solid var(--color-border);
   padding-top: 1rem;
+}
+
+/* --- Modal (Pop-up) --- */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 5000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background-color: var(--color-bg-card);
+  padding: 24px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+  color: var(--color-text-dark);
+  animation: slideIn 0.3s ease;
+}
+
+.close-button {
+  color: #888;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: #333;
+}
+
+/* Tata letak grid untuk detail di dalam modal */
+.modal-grid {
+  display: grid;
+  grid-template-columns: 150px 1fr; /* Kolom label dan kolom nilai */
+  gap: 12px 20px; /* Jarak antar baris dan kolom */
+  align-items: center;
+}
+
+.modal-grid-item strong {
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* --- Grafik --- */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 kolom di mobile */
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .chart-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 kolom di desktop */
+  }
+  .chart-container.full-width {
+    grid-column: span 2; /* Grafik perusahaan mengambil lebar penuh */
+  }
+}
+
+.chart-container {
+  background-color: var(--color-bg-card);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Animasi --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

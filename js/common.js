@@ -278,7 +278,7 @@ async function loadNavbar() {
   if (!header) return;
 
   try {
-    const response = await fetch("nav.html");
+    const response = await fetch("components/nav.html");
     if (!response.ok) throw new Error("Gagal memuat navigasi.");
     const navbarHtml = await response.text();
     header.insertAdjacentHTML("beforeend", navbarHtml);
@@ -309,7 +309,7 @@ async function loadFooter() {
   const anchorElement = mainContent || appContainer || matrixContainer;
 
   try {
-    const response = await fetch("footer.html");
+    const response = await fetch("components/footer.html");
     if (!response.ok) throw new Error("Gagal memuat footer.");
     const footerHtml = await response.text();
 

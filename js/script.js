@@ -6,47 +6,42 @@ updateBannerText(
 // Konfigurasi sumber data Google Sheet untuk halaman Induksi
 const SHEET_SOURCES = {
   pendaftaran: {
-    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
+    id: "19SWnTTs34iX-fnrqovnCwwLcS2oAMt4Yu0apIdB5wV8",
     sheet: "pendaftaran_induksi",
   },
-  spdk: { id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk", sheet: "spdk" },
-  checklist_induksi: {
-    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
-    sheet: "induction_checklist",
-  },
   hasil_induksi: {
-    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
-    sheet: "induction_result",
+    id: "19SWnTTs34iX-fnrqovnCwwLcS2oAMt4Yu0apIdB5wV8",
+    sheet: "PASCA_CUTI",
   },
   // MEMPERBAIKI ID UNTUK REMIDIAL (ID sebelumnya salah)
   remidial: {
-    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
-    sheet: "remidial",
+    id: "19SWnTTs34iX-fnrqovnCwwLcS2oAMt4Yu0apIdB5wV8",
+    sheet: "REMIDI",
   },
   grafik: {
-    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
-    sheet: "DashboardGrafik",
+    id: "19SWnTTs34iX-fnrqovnCwwLcS2oAMt4Yu0apIdB5wV8",
+    sheet: "DashboardGrafik", // Menggunakan nama tanpa spasi, jika masih error, ganti ke "Dashboard Grafik"
   },
   newhire: {
-    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
-    sheet: "new_hire",
+    id: "19SWnTTs34iX-fnrqovnCwwLcS2oAMt4Yu0apIdB5wV8",
+    sheet: "NEW_HIRE",
   },
   setting: {
-    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
+    id: "19SWnTTs34iX-fnrqovnCwwLcS2oAMt4Yu0apIdB5wV8",
     sheet: "setting",
   },
   visitor: {
-    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
-    sheet: "visitor_result",
+    id: "19SWnTTs34iX-fnrqovnCwwLcS2oAMt4Yu0apIdB5wV8",
+    sheet: "VISITOR",
   },
 
   temporary: {
-    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
-    sheet: "temporary_data",
+    id: "19SWnTTs34iX-fnrqovnCwwLcS2oAMt4Yu0apIdB5wV8",
+    sheet: "TEMPORARY",
   }, // Data untuk tab Temporary
   password: {
-    id: "1pusJcOz_MR2yZDgz_ABkErAR8p2T63lTWFelONwDQmk",
-    sheet: "PASSWORD",
+    id: "19SWnTTs34iX-fnrqovnCwwLcS2oAMt4Yu0apIdB5wV8",
+    sheet: "KODE_AKSES",
   },
 };
 
@@ -62,30 +57,25 @@ const kolomTampilkan = {
     "SPDK",
     "SCORE",
     "APV SYS",
-    "APV HSE",
     "STATUS",
   ],
   pendaftaran: [
-    "tanggal",
-    "perusahaan",
+    "Timestamp",
+    "PERUSAHAAN",
     "NAMA",
     "JABATAN",
     "JENIS INDUKSI",
-    "HARI",
-    "DATE",
+    "RENCANA HARI INDUKSI",
+    "RENCANA INDUKSI",
   ],
-  spdk: ["tanggal", "perusahaan", "NAMA", "SPDK"],
-  checklist_induksi: ["tanggal", "perusahaan", "NAMA", "CHECKLIST"],
   hasil_induksi: [
-    "tanggal",
-    "perusahaan",
+    "DATE",
+    "NIK",
     "NAMA",
     "JABATAN",
-    "KATEGORI",
-    "S. SIMPER",
-    "SCORE K3",
-    "S. JABATAN",
-    "S.RATA-RATA",
+    "PERUSAHAAN",
+    "STATUS INDUKSI",
+    "SCORE",
   ],
   visitor: [
     "MULAI",
@@ -98,15 +88,13 @@ const kolomTampilkan = {
     "CEK",
   ],
   remidial: [
-    "tanggal",
-    "perusahaan",
+    "DATE",
+    "NIK",
     "NAMA",
     "JABATAN",
-    "KATEGORI",
-    "S. SIMPER",
-    "SCORE K3",
-    "S. JABATAN",
-    "S.RATA-RATA",
+    "PERUSAHAAN",
+    "STATUS INDUKSI",
+    "SCORE",
   ],
   temporary: [
     "DATE",
@@ -119,12 +107,19 @@ const kolomTampilkan = {
     "STATUS",
   ], // Kolom untuk tab Temporary
   grafik: [
-    "TANGGAL INDUKSI",
-    "CUTI",
+    "TANGGAL",
     "NEW HIRE",
+    "PASCA CUTI",
+    "VISITOR",
+    "TEMPORARY",
     "NAMA JABATAN",
     "SCORE_TERENDAH",
     "SCORE_TERTINGGI",
+    "PERUSAHAAN",
+    "NEW HIRE_1", // Asumsi opensheet akan menamai ulang kolom duplikat
+    "PASCA CUTI_1",
+    "VISITOR_1",
+    "TEMPORARY_1",
   ],
 };
 
@@ -165,14 +160,18 @@ async function loadPerusahaanList() {
  */
 function parseTanggal(str) {
   if (!str) return new Date("Invalid Date");
-  // Try YYYY-MM-DD first (standard ISO format)
+  // Try to parse standard formats first
   const date = new Date(str);
   if (!isNaN(date.getTime())) return date;
 
   // Try DD/MM/YYYY
-  if (str.includes("/")) {
-    const [d, m, y] = str.split("/");
-    return new Date(`${y}-${m}-${d}`);
+  if (String(str).includes("/")) {
+    const parts = str.split(" ")[0].split("/");
+    if (parts.length === 3) {
+      const [d, m, y] = parts;
+      // Handle cases with time, e.g., "25/07/2024 10:00:00"
+      return new Date(`${y}-${m}-${d} ${str.split(" ")[1] || ""}`);
+    }
   }
   return new Date("Invalid Date");
 }
@@ -277,14 +276,6 @@ function renderOfflineNotice(key, tableElement) {
       tabContent.prepend(notice);
     }
   }
-}
-
-/**
- * Menambahkan efek zoom interaktif pada baris tabel.
- * @param {HTMLElement} tableBody - Elemen tbody dari tabel.
- */
-function addZoomEffectListener(tableBody) {
-  // Implementasi logika zoom yang sudah ada...
 }
 
 /**
@@ -663,8 +654,8 @@ function updateDailyInductionKpi(inductionResultData) {
 
   // Iterasi data sekali untuk menghitung semua nilai
   inductionResultData.forEach((row) => {
-    if (!row || !row["tanggal"]) return;
-    const inductionDate = parseTanggal(row["tanggal"]);
+    if (!row || !row["DATE"]) return;
+    const inductionDate = parseTanggal(row["DATE"]);
     if (isNaN(inductionDate.getTime())) return;
 
     inductionDate.setHours(0, 0, 0, 0);
@@ -672,13 +663,13 @@ function updateDailyInductionKpi(inductionResultData) {
     // Hanya proses baris yang tanggalnya hari ini
     if (inductionDate.getTime() === today.getTime()) {
       // Hitung Core vs Mitra
-      const companyName = (row["perusahaan"] || "").toUpperCase();
+      const companyName = (row["PERUSAHAAN"] || "").toUpperCase();
       const isCore = coreCompanyKeywords.some((keyword) =>
         companyName.includes(keyword)
       );
       isCore ? coreTodayCount++ : mitraTodayCount++;
 
-      // Hitung New Hire vs Cuti berdasarkan kolom KATEGORI
+      // Hitung New Hire vs Cuti berdasarkan kolom KATEGORI (jika ada)
       const category = (row["KATEGORI"] || "").toLowerCase();
       if (category.includes("new hire")) {
         newHireTodayCount++;
@@ -791,17 +782,17 @@ function updateDailyInductionKpi(inductionResultData) {
 
   // Iterasi data sekali untuk menghitung semua nilai
   inductionResultData.forEach((row) => {
-    if (!row || !row["tanggal"]) return;
-    const inductionDate = parseTanggal(row["tanggal"]);
+    if (!row || !row["DATE"]) return;
+    const inductionDate = parseTanggal(row["DATE"]);
     if (isNaN(inductionDate.getTime())) return;
 
     inductionDate.setHours(0, 0, 0, 0);
 
-    const companyName = (row["perusahaan"] || "").toUpperCase();
+    const companyName = (row["PERUSAHAAN"] || "").toUpperCase();
     const isCore = coreCompanyKeywords.some((keyword) =>
       companyName.includes(keyword)
     );
-    const category = (row["KATEGORI"] || "").toLowerCase();
+    const category = (row["KATEGORI"] || "").toLowerCase(); // Tetap coba baca KATEGORI jika ada di sheet
 
     // Cek apakah tanggalnya hari ini atau kemarin
     if (inductionDate.getTime() === today.getTime()) {
@@ -854,7 +845,9 @@ function calculateScoreStats(data) {
 
   const scores = data
     .map((item) => {
-      const scoreStr = String(item["S.RATA-RATA"] || "").replace(",", ".");
+      const scoreStr = String(
+        item["SCORE"] || item["S.RATA-RATA"] || ""
+      ).replace(",", ".");
       return parseFloat(scoreStr);
     })
     .filter((score) => !isNaN(score));
@@ -882,8 +875,8 @@ function updateDailyScoreKpi(inductionResultData) {
   yesterday.setDate(today.getDate() - 1);
 
   const todayData = inductionResultData.filter((row) => {
-    if (!row || !row["tanggal"]) return false;
-    const inductionDate = parseTanggal(row["tanggal"]);
+    if (!row || !row["DATE"]) return false;
+    const inductionDate = parseTanggal(row["DATE"]);
     return (
       !isNaN(inductionDate.getTime()) &&
       inductionDate.setHours(0, 0, 0, 0) === today.getTime()
@@ -891,8 +884,8 @@ function updateDailyScoreKpi(inductionResultData) {
   });
 
   const yesterdayData = inductionResultData.filter((row) => {
-    if (!row || !row["tanggal"]) return false;
-    const inductionDate = parseTanggal(row["tanggal"]);
+    if (!row || !row["DATE"]) return false;
+    const inductionDate = parseTanggal(row["DATE"]);
     return (
       !isNaN(inductionDate.getTime()) &&
       inductionDate.setHours(0, 0, 0, 0) === yesterday.getTime()
@@ -1010,25 +1003,8 @@ function updateDailyVisitorKpi(visitorData) {
 }
 
 /**
- * Menghitung nomor minggu dalam setahun (ISO 8601).
- * @param {Date} d - Objek tanggal.
- * @returns {number} - Nomor minggu.
- */
-function getWeekNumber(d) {
-  // Salin tanggal agar tidak mengubah objek aslinya
-  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  // Atur ke hari Kamis terdekat: tanggal saat ini + 4 - hari saat ini
-  // Jadikan Minggu sebagai hari ke-7
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  // Dapatkan hari pertama dalam setahun
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  // Hitung jumlah minggu penuh ke hari Kamis terdekat
-  const weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-  return weekNo;
-}
-
-/**
  * Mengambil dan menampilkan kata sandi untuk hari ini.
+ * PERBAIKAN: Fungsi ini sekarang mencari berdasarkan kolom 'tanggal' dan 'kode_akses'.
  */
 async function updatePasswordKpi() {
   const passwordEl = document.getElementById("password-today");
@@ -1039,7 +1015,6 @@ async function updatePasswordKpi() {
 
   try {
     const { id, sheet } = SHEET_SOURCES.password;
-    // Ambil data langsung, tidak perlu cache jangka panjang untuk ini
     const passwordData = await fetchSheet(id, sheet);
 
     if (!passwordData || passwordData.length === 0) {
@@ -1047,27 +1022,24 @@ async function updatePasswordKpi() {
       return;
     }
 
-    const now = new Date();
-    const currentWeek = getWeekNumber(now);
-    const currentMonth = now.getMonth() + 1; // getMonth() adalah 0-indexed
-    const currentYear = now.getFullYear();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalisasi ke awal hari untuk perbandingan yang akurat
 
-    // -- DEBUGGING --
-    // Baris ini akan menampilkan di konsol browser (F12) nilai apa yang sedang dicari.
-    // Anda bisa membandingkan ini dengan data di Google Sheet Anda.
     console.log(
-      `Mencari password untuk: Minggu=${currentWeek}, Bulan=${currentMonth}, Tahun=${currentYear}`
+      `Mencari password untuk tanggal: ${today.toLocaleDateString("id-ID")}`
     );
 
-    const todayPasswordRow = passwordData.find(
-      (row) =>
-        parseInt(row.WEEK, 10) === currentWeek &&
-        parseInt(row["MONTH NUMBER"], 10) === currentMonth &&
-        parseInt(row.YEAR, 10) === currentYear
-    );
+    const todayPasswordRow = passwordData.find((row) => {
+      if (!row.tanggal) return false;
+      const rowDate = parseTanggal(row.tanggal);
+      rowDate.setHours(0, 0, 0, 0); // Normalisasi tanggal dari sheet juga
+      // Log untuk debugging
+      // console.log(`Membandingkan: ${today.getTime()} vs ${rowDate.getTime()} (dari: ${row.tanggal})`);
+      return rowDate.getTime() === today.getTime();
+    });
 
-    if (todayPasswordRow && todayPasswordRow.PASSWORD) {
-      const password = todayPasswordRow.PASSWORD;
+    if (todayPasswordRow && todayPasswordRow.kode_akses) {
+      const password = todayPasswordRow.kode_akses;
       passwordEl.textContent = password;
       passwordEl.addEventListener("click", () => {
         navigator.clipboard.writeText(password).then(() => {
@@ -1132,18 +1104,16 @@ function updateDigitalClock() {
 function checkFilterMatch(dataRow, filters) {
   const { key, perusahaan, start, end, search } = filters;
 
-  const perusahaanData = dataRow["perusahaan"] || dataRow["Perusahaan"] || "";
+  const perusahaanData = dataRow["perusahaan"] || dataRow["PERUSAHAAN"] || "";
   const matchPerusahaan =
     perusahaan === "all" ||
     perusahaanData.trim().toLowerCase() === perusahaan.trim().toLowerCase();
 
   const tanggalStr =
     dataRow["tanggal"] ||
-    dataRow["Tanggal"] ||
-    dataRow["TANGGAL"] ||
+    dataRow["Timestamp"] ||
     dataRow["DATE"] ||
-    dataRow["TANGGAL INDUKSI"] ||
-    dataRow["TANGGAL KUNJUNGAN"] ||
+    dataRow["TANGGAL"] ||
     dataRow["MULAI"];
   const rowDate = parseTanggal(tanggalStr);
   const isDateValid = !isNaN(rowDate.getTime());
@@ -1155,7 +1125,12 @@ function checkFilterMatch(dataRow, filters) {
       rowDate.getTime() >= startTime &&
       rowDate.getTime() <= endTime);
 
-  const nama = (dataRow["NAMA"] || dataRow["Nama"] || "").toLowerCase();
+  const nama = (
+    dataRow["NAMA"] ||
+    dataRow["NAMA JABATAN"] ||
+    dataRow["PERUSAHAAN"] ||
+    ""
+  ).toLowerCase();
   const matchSearch = !search || nama.includes(search);
 
   return matchPerusahaan && matchDate && matchSearch;
@@ -1176,33 +1151,47 @@ function applyFilter(key) {
   // Selalu filter dari data asli yang ada di cache global
   const dataToFilter = sheetDataCache[key] || [];
 
-  const filtered = dataToFilter.filter((row) => {
+  let filtered = dataToFilter.filter((row) => {
     const filters = { key, perusahaan, start, end, search };
-    if (key === "grafik") {
-      const jabatan = (row["NAMA JABATAN"] || "").toLowerCase();
-      const matchJabatan = !search || jabatan.includes(search);
-      return checkFilterMatch(row, { ...filters, search: "" }) && matchJabatan; // Cek filter lain tanpa search nama
-    }
     return checkFilterMatch(row, filters);
   });
 
-  // Lakukan sorting pada data yang sudah difilter (kecuali untuk grafik)
-  if (key !== "grafik" && sortState[key]) {
+  // Lakukan sorting pada data yang sudah difilter
+  if (sortState[key]) {
     const { column, direction } = sortState[key];
+
+    const isDateColumn = [
+      "tanggal",
+      "date",
+      "mulai",
+      "selesai",
+      "timestamp",
+      "tanggal induksi",
+    ].includes(column.toLowerCase());
+
     filtered.sort((a, b) => {
       let valA = a[column] || "";
       let valB = b[column] || "";
 
-      // Coba parse sebagai angka
-      const numA = parseFloat(valA);
-      const numB = parseFloat(valB);
+      // Jika ini kolom tanggal, gunakan perbandingan tanggal
+      if (isDateColumn) {
+        const dateA = parseTanggal(valA);
+        const dateB = parseTanggal(valB);
+        // Handle invalid dates by pushing them to the end
+        if (isNaN(dateA.getTime())) return 1;
+        if (isNaN(dateB.getTime())) return -1;
+        return direction === "asc" ? dateA - dateB : dateB - dateA;
+      }
+
+      // Coba parse sebagai angka untuk kolom skor, dll.
+      const numA = parseFloat(String(valA).replace(",", "."));
+      const numB = parseFloat(String(valB).replace(",", "."));
 
       if (!isNaN(numA) && !isNaN(numB)) {
-        // Jika keduanya angka, bandingkan sebagai angka
         return direction === "asc" ? numA - numB : numB - numA;
       }
 
-      // Jika bukan angka, bandingkan sebagai string (case-insensitive)
+      // Jika bukan, bandingkan sebagai string (case-insensitive)
       valA = String(valA).toLowerCase();
       valB = String(valB).toLowerCase();
 
@@ -1214,17 +1203,10 @@ function applyFilter(key) {
 
   // Render ulang tabel atau grafik berdasarkan `key`
   if (key === "grafik") {
-    // Urutkan data berdasarkan tanggal secara menaik (ascending) sebelum merender grafik
-    // Ini memastikan sumbu-x pada grafik garis (line chart) berurutan secara kronologis.
-    filtered.sort((a, b) => {
-      const dateA = parseTanggal(a["TANGGAL INDUKSI"]);
-      const dateB = parseTanggal(b["TANGGAL INDUKSI"]);
-      return dateA - dateB;
-    });
-    currentFilteredData[key] = filtered; // Store filtered & sorted data for export
+    currentFilteredData[key] = filtered;
     initializeCharts(filtered);
   } else {
-    currentFilteredData[key] = filtered; // Store filtered data for export
+    currentFilteredData[key] = filtered;
     renderTable(filtered, `table-${key}`, key);
   }
 }
@@ -1232,300 +1214,166 @@ function applyFilter(key) {
 const debouncedApplyFilter = debounce(applyFilter, 300); // 300ms delay
 
 /**
- * Initializes charts based on "grafik" data.
+ * Initializes all charts based on "grafik" data.
  * @param {Array} data - The data for charts.
  */
 function initializeCharts(data) {
-  // data di sini bisa berupa array atau objek offline
-  // Clear previous charts if they exist to prevent memory leaks/re-rendering issues
-  Chart.getChart("chartScore")?.destroy();
-  Chart.getChart("chartScore1")?.destroy();
-  Chart.getChart("chartScore2")?.destroy();
-  Chart.getChart("companyTypeChart")?.destroy();
-
-  // Buat dan sisipkan notifikasi offline jika ada
-  const chartTab = document.getElementById("grafik");
-  // Hapus notifikasi lama
-  const existingNotice = chartTab?.querySelector(".offline-notice");
-  if (existingNotice) {
-    existingNotice.remove();
-  }
-  const lastUpdateTimestamp = offlineTimestamps["grafik"];
-  if (lastUpdateTimestamp && chartTab) {
-    const notice = document.createElement("div");
-    notice.className = "offline-notice";
-    notice.innerHTML = `Anda melihat data offline. Terakhir diperbarui: <strong>${new Date(
-      lastUpdateTimestamp
-    ).toLocaleString("id-ID", {
-      dateStyle: "full",
-      timeStyle: "short",
-    })}</strong>`;
-    const filterBar = chartTab.querySelector(".filter-bar");
-    chartTab.insertBefore(notice, filterBar);
-  }
-
-  // Grafik 1 (chartScore) dinonaktifkan karena sumber data 'DashboardGrafik'
-  // tidak memiliki kolom 'Kategori' dan 'Nilai'.
-  // Jika ingin diaktifkan, pastikan kolom tersebut ada di Google Sheet.
-
-  // Grafik 2 & 3: Cuti/New Hire & Skor Tertinggi/Terendah
-  const canvas1 = document.getElementById("chartScore1");
-  const canvas2 = document.getElementById("chartScore2");
-  if (!canvas1 || !canvas2) return;
-
-  const ctx1 = canvas1.getContext("2d");
-  const ctx2 = canvas2.getContext("2d");
-
-  const labels = data.map((d) => d["TANGGAL INDUKSI"] || "");
-  const cutiData = data.map((d) => parseFloat(d["CUTI"]) || 0);
-  const newHireData = data.map((d) => parseFloat(d["NEW HIRE"]) || 0);
-  const scoreTertinggi = data.map((d) => parseFloat(d["SCORE_TERTINGGI"]) || 0);
-  const scoreTerendah = data.map((d) => parseFloat(d["SCORE_TERENDAH"]) || 0);
-  const jabatanLabels = data.map((d) => d["NAMA JABATAN"] || "");
-
-  new Chart(ctx1, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Cuti",
-          data: cutiData,
-          backgroundColor: "rgba(255, 99, 132, 0.2)",
-          borderColor: "rgba(255, 99, 132, 1)",
-          fill: true,
-          pointRadius: 5,
-        },
-        {
-          label: "New Hire",
-          data: newHireData,
-          backgroundColor: "rgba(54, 162, 235, 0.2)",
-          borderColor: "rgba(54, 162, 235, 1)",
-          fill: true,
-          pointRadius: 5,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: true },
-        tooltip: { mode: "index" },
-        // datalabels for Chart.js v3+ requires plugin registration, removed for brevity
-        // If you need datalabels, ensure you've included and registered the ChartDataLabels plugin
-      },
-      scales: {
-        x: {
-          type: "category",
-          title: { display: true, text: "Tanggal Induksi" },
-        },
-        y: { beginAtZero: true, title: { display: true, text: "Jumlah" } },
-      },
-    },
-  });
-
-  new Chart(ctx2, {
-    type: "bar",
-    data: {
-      labels: jabatanLabels,
-      datasets: [
-        {
-          label: "SCORE_TERTINGGI",
-          data: scoreTertinggi,
-          backgroundColor: "rgba(75, 192, 192, 0.2)",
-          borderColor: "rgba(75, 192, 192, 1)",
-        },
-        {
-          label: "SCORE_TERENDAH",
-          data: scoreTerendah,
-          backgroundColor: "rgba(153, 102, 255, 0.2)",
-          borderColor: "rgba(153, 102, 255, 1)",
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: true },
-        // datalabels requires plugin registration
-      },
-      scales: {
-        x: { title: { display: true, text: "Jabatan" } },
-        y: { beginAtZero: true, title: { display: true, text: "SCORE" } },
-      },
-    },
-  });
-
-  // Panggil fungsi untuk membuat grafik perusahaan berdasarkan jenis
-  const induksiData = sheetDataCache.hasil_induksi || [];
-  createCompanyTypeChart(induksiData);
-}
-
-/**
- * Membuat grafik batang bertumpuk untuk menampilkan jumlah induksi per perusahaan,
- * dikelompokkan berdasarkan jenis/kategori induksi.
- * @param {Array<Object>} data - Data dari sheet 'hasil_induksi'.
- */
-function createCompanyTypeChart(data) {
-  const canvas = document.getElementById("companyTypeChart");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-
-  if (!data || data.length === 0) {
-    return; // Tidak melakukan apa-apa jika tidak ada data
-  }
-
-  // 1. Proses data untuk mengelompokkan berdasarkan perusahaan dan kategori
-  const companyData = {};
-  const allCategories = new Set();
-
-  data.forEach((item) => {
-    const company = item.perusahaan;
-    const category = item.KATEGORI;
-    if (!company || !category) return;
-
-    allCategories.add(category);
-
-    if (!companyData[company]) {
-      companyData[company] = {};
+  // Hancurkan chart lama untuk mencegah memory leak
+  ["induksiTrendChart", "skorJabatanChart", "induksiPerusahaanChart"].forEach(
+    (id) => {
+      const chartInstance = Chart.getChart(id);
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
     }
-    companyData[company][category] = (companyData[company][category] || 0) + 1;
-  });
-
-  const companies = Object.keys(companyData).sort();
-  const categories = Array.from(allCategories).sort();
-
-  // 2. Siapkan dataset untuk Chart.js
-  const chartColors = [
-    "rgba(54, 162, 235, 0.7)", // Biru
-    "rgba(255, 99, 132, 0.7)", // Merah
-    "rgba(75, 192, 192, 0.7)", // Hijau
-    "rgba(255, 206, 86, 0.7)", // Kuning
-    "rgba(153, 102, 255, 0.7)", // Ungu
-    "rgba(255, 159, 64, 0.7)", // Oranye
-  ];
-
-  const datasets = categories.map((category, index) => ({
-    label: category,
-    data: companies.map((company) => companyData[company][category] || 0),
-    backgroundColor: chartColors[index % chartColors.length],
-  }));
-
-  // 3. Buat grafik baru
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: companies,
-      datasets: datasets,
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: "Jumlah Induksi per Perusahaan & Jenis",
-          font: { size: 16 },
-        },
-        tooltip: {
-          callbacks: {
-            title: function (tooltipItems) {
-              // Menampilkan nama perusahaan sebagai judul tooltip
-              return tooltipItems[0].label;
-            },
-          },
-        },
-      },
-      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
-      onClick: (event, elements, chart) => {
-        if (elements.length === 0) return; // Tidak ada bar yang diklik
-        const companyIndex = elements[0].index;
-        const companyName = chart.data.labels[companyIndex];
-        renderCompanyTypeDetails(companyName);
-      },
-      onHover: (event, chartElement) => {
-        event.native.target.style.cursor = chartElement[0]
-          ? "pointer"
-          : "default";
-      },
-    },
-  });
-}
-
-/**
- * Merender tabel detail untuk perusahaan yang dipilih dari grafik.
- * @param {string} companyName - Nama perusahaan yang akan ditampilkan detailnya.
- */
-function renderCompanyTypeDetails(companyName) {
-  const wrapper = document.getElementById("company-type-details-wrapper");
-  const titleEl = document.getElementById("company-type-details-title");
-  const tableEl = document.getElementById("company-type-details-table");
-
-  if (!wrapper || !titleEl || !tableEl) return;
-
-  // Filter data dari 'hasil_induksi' berdasarkan nama perusahaan
-  const allData = sheetDataCache.hasil_induksi || [];
-  const filteredData = allData.filter(
-    (item) => item.perusahaan === companyName
   );
 
-  // Update judul dan tampilkan kontainer
-  titleEl.textContent = `Detail Induksi untuk: ${companyName}`;
-  wrapper.classList.remove("hidden");
-
-  // Kosongkan tabel sebelum mengisi data baru
-  tableEl.innerHTML = "";
-
-  // Tentukan kolom yang akan ditampilkan di tabel detail
-  const columns = [
-    "tanggal",
-    "NAMA",
-    "JABATAN",
-    "KATEGORI",
-    "S. SIMPER",
-    "SCORE K3",
-    "S. JABATAN",
-    "S.RATA-RATA",
-  ];
-
-  // Buat header tabel
-  const thead = tableEl.createTHead();
-  const headerRow = thead.insertRow();
-  columns.forEach((col) => {
-    const th = document.createElement("th");
-    th.textContent = col.toUpperCase();
-    headerRow.appendChild(th);
+  // --- 1. Grafik Tren Induksi Harian (Line Chart) ---
+  const dataTren = data.filter((d) => d.TANGGAL);
+  const labelsTren = dataTren.map((d) => d.TANGGAL);
+  new Chart(document.getElementById("induksiTrendChart").getContext("2d"), {
+    type: "line",
+    data: {
+      labels: labelsTren,
+      datasets: [
+        {
+          label: "New Hire",
+          data: dataTren.map((d) => d["NEW HIRE"] || 0),
+          borderColor: "rgba(54, 162, 235, 1)",
+          backgroundColor: "rgba(54, 162, 235, 0.2)",
+          fill: true,
+        },
+        {
+          label: "Pasca Cuti",
+          data: dataTren.map((d) => d["PASCA CUTI"] || 0),
+          borderColor: "rgba(255, 206, 86, 1)",
+          backgroundColor: "rgba(255, 206, 86, 0.2)",
+          fill: true,
+        },
+        {
+          label: "Visitor",
+          data: dataTren.map((d) => d["VISITOR"] || 0),
+          borderColor: "rgba(75, 192, 192, 1)",
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          fill: true,
+        },
+        {
+          label: "Temporary",
+          data: dataTren.map((d) => d["TEMPORARY"] || 0),
+          borderColor: "rgba(153, 102, 255, 1)",
+          backgroundColor: "rgba(153, 102, 255, 0.2)",
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Tren Induksi Harian" } },
+      scales: { y: { beginAtZero: true } },
+    },
   });
 
-  // Buat isi tabel
-  const tbody = tableEl.createTBody();
-  if (filteredData.length === 0) {
-    const row = tbody.insertRow();
-    const cell = row.insertCell();
-    cell.colSpan = columns.length;
-    cell.textContent = "Tidak ada data detail untuk perusahaan ini.";
-    cell.style.textAlign = "center";
-  } else {
-    filteredData.forEach((item) => {
-      const row = tbody.insertRow();
-      columns.forEach((col) => {
-        const cell = row.insertCell();
-        const nilai = item[col] || "";
-        const { warna, emoji } = getCellStyle(col, nilai);
+  // --- 2. Grafik Skor per Jabatan (Bar Chart) ---
+  const dataSkor = data.filter((d) => d["NAMA JABATAN"]);
+  const labelsJabatan = dataSkor.map((d) => d["NAMA JABATAN"]);
+  new Chart(document.getElementById("skorJabatanChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: labelsJabatan,
+      datasets: [
+        {
+          label: "Skor Terendah",
+          data: dataSkor.map((d) => d["SCORE_TERENDAH"] || 0),
+          backgroundColor: "rgba(255, 99, 132, 0.7)",
+        },
+        {
+          label: "Skor Tertinggi",
+          data: dataSkor.map((d) => d["SCORE_TERTINGGI"] || 0),
+          backgroundColor: "rgba(75, 192, 192, 0.7)",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Skor Induksi per Jabatan" } },
+      scales: { y: { beginAtZero: true } },
+    },
+  });
 
-        if (warna) {
-          const badge = document.createElement("span");
-          badge.className = `badge ${warna}`;
-          badge.textContent = emoji + nilai;
-          cell.appendChild(badge);
-        } else {
-          cell.textContent = nilai;
-        }
-      });
-    });
-  }
-
-  // Scroll ke tabel detail agar terlihat oleh pengguna
-  wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+  // --- 3. Grafik Komposisi Induksi per Perusahaan (Stacked Bar Chart) ---
+  const dataPerusahaan = data.filter((d) => d.PERUSAHAAN);
+  const labelsPerusahaan = [
+    ...new Set(dataPerusahaan.map((d) => d.PERUSAHAAN)),
+  ]; // Ambil perusahaan unik
+  new Chart(
+    document.getElementById("induksiPerusahaanChart").getContext("2d"),
+    {
+      type: "bar",
+      data: {
+        labels: labelsPerusahaan,
+        datasets: [
+          {
+            label: "New Hire",
+            data: labelsPerusahaan.map((p) =>
+              dataPerusahaan
+                .filter((d) => d.PERUSAHAAN === p)
+                .reduce(
+                  (sum, item) => sum + (Number(item["NEW HIRE_1"]) || 0),
+                  0
+                )
+            ),
+            backgroundColor: "rgba(54, 162, 235, 0.7)",
+          },
+          {
+            label: "Pasca Cuti",
+            data: labelsPerusahaan.map((p) =>
+              dataPerusahaan
+                .filter((d) => d.PERUSAHAAN === p)
+                .reduce(
+                  (sum, item) => sum + (Number(item["PASCA CUTI_1"]) || 0),
+                  0
+                )
+            ),
+            backgroundColor: "rgba(255, 206, 86, 0.7)",
+          },
+          {
+            label: "Visitor",
+            data: labelsPerusahaan.map((p) =>
+              dataPerusahaan
+                .filter((d) => d.PERUSAHAAN === p)
+                .reduce(
+                  (sum, item) => sum + (Number(item["VISITOR_1"]) || 0),
+                  0
+                )
+            ),
+            backgroundColor: "rgba(75, 192, 192, 0.7)",
+          },
+          {
+            label: "Temporary",
+            data: labelsPerusahaan.map((p) =>
+              dataPerusahaan
+                .filter((d) => d.PERUSAHAAN === p)
+                .reduce(
+                  (sum, item) => sum + (Number(item["TEMPORARY_1"]) || 0),
+                  0
+                )
+            ),
+            backgroundColor: "rgba(153, 102, 255, 0.7)",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: { display: true, text: "Komposisi Induksi per Perusahaan" },
+        },
+        scales: {
+          x: { stacked: true },
+          y: { stacked: true, beginAtZero: true },
+        },
+      },
+    }
+  );
 }
 
 /**
@@ -1536,11 +1384,10 @@ async function init() {
   try {
     await loadPerusahaanList();
 
+    // Kunci yang relevan setelah menghapus spdk dan checklist_induksi
     const relevantKeys = [
       "newhire",
       "pendaftaran",
-      "spdk",
-      "checklist_induksi",
       "hasil_induksi",
       "remidial",
       "grafik",
@@ -1551,15 +1398,29 @@ async function init() {
     // Inisialisasi state untuk setiap tabel
     relevantKeys.forEach((key) => {
       currentPageState[key] = 1;
-      // Atur pengurutan default ke tanggal terbaru
-      if (key === "visitor") {
-        sortState[key] = { column: "MULAI", direction: "desc" };
-      } else if (key === "temporary") {
-        sortState[key] = { column: "DATE", direction: "desc" };
-      } else if (kolomTampilkan[key]?.includes("tanggal")) {
-        sortState[key] = { column: "tanggal", direction: "desc" };
+      // Atur pengurutan default ke tanggal terbaru untuk tabel, dan urutan waktu untuk grafik
+      switch (key) {
+        case "visitor":
+          sortState[key] = { column: "MULAI", direction: "desc" };
+          break;
+        case "temporary":
+        case "hasil_induksi":
+        case "remidial":
+          sortState[key] = { column: "DATE", direction: "desc" };
+          break;
+        case "pendaftaran":
+          sortState[key] = { column: "Timestamp", direction: "desc" };
+          break;
+        case "grafik":
+          sortState[key] = { column: "TANGGAL", direction: "asc" }; // Grafik harus urut waktu
+          break;
+        case "newhire":
+          sortState[key] = { column: "tanggal", direction: "desc" };
+          break;
+        default:
+          // Fallback jika ada key baru
+          break;
       }
-      applyFilter(key); // Terapkan sorting awal
     });
 
     // Ambil semua data secara paralel dan isi cache global
@@ -1569,27 +1430,23 @@ async function init() {
     });
     await Promise.all(dataPromises);
 
-    // Setelah semua data ada di cache global, render KPI
+    // Setelah semua data ada di cache global, render semuanya
+
+    // Render KPI
     renderInduksiKPIs(
       sheetDataCache.pendaftaran || [],
       sheetDataCache.hasil_induksi || [],
       sheetDataCache.temporary || [],
       sheetDataCache.newhire || []
     );
-    // Panggil fungsi baru untuk KPI harian
     updateDailyInductionKpi(sheetDataCache.hasil_induksi || []);
     updateDailyVisitorKpi(sheetDataCache.visitor || []);
     updateDailyScoreKpi(sheetDataCache.hasil_induksi || []);
     updatePasswordKpi();
 
-    // Render semua tabel dan grafik
+    // Terapkan filter dan render semua tabel dan grafik
     relevantKeys.forEach((key) => {
-      const data = sheetDataCache[key] || [];
-      if (key === "grafik") {
-        initializeCharts(data);
-      } else {
-        renderTable(data, `table-${key}`, key);
-      }
+      applyFilter(key); // Sekarang panggil applyFilter setelah data dimuat
     });
   } catch (error) {
     handleError(error, "Gagal memuat data aplikasi. Coba muat ulang halaman.");
@@ -1610,13 +1467,23 @@ function openTab(tabId, event) {
   document
     .querySelectorAll(".tab-btn")
     .forEach((b) => b.classList.remove("active"));
-  document.getElementById(tabId)?.classList.add("active");
-  event?.target?.classList.add("active");
 
-  // If the opened tab has filters, re-apply them to ensure correct display
-  // This is important if data has been fetched but filters weren't applied after tab switch
+  const tabElement = document.getElementById(tabId);
+  if (tabElement) {
+    tabElement.classList.add("active");
+  }
+
+  // Jika event ada, aktifkan tombol yang diklik. Jika tidak, cari tombol berdasarkan tabId.
+  if (event) {
+    event.currentTarget.classList.add("active");
+  } else {
+    const tabButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    if (tabButton) {
+      tabButton.classList.add("active");
+    }
+  }
+
   if (sheetDataCache[tabId]) {
-    // Sekarang filter juga berlaku untuk tab 'grafik'
     applyFilter(tabId);
   }
 }
@@ -1807,10 +1674,10 @@ function setupEventListeners() {
       element.addEventListener("change", filterChangeHandler); // For date inputs
     });
 
-  // Event listener for tab buttons
+  // Event listener untuk tombol tab buttons
   document.querySelectorAll(".tab-btn").forEach((button) => {
     button.addEventListener("click", (event) => {
-      const tabId = event.target.dataset.tab;
+      const tabId = event.currentTarget.dataset.tab;
       if (tabId) {
         openTab(tabId, event);
       }
@@ -1828,9 +1695,9 @@ function setupEventListeners() {
   });
 
   // Event listener untuk KPI cards yang bisa diklik
-  const kpiTotalContainer = document.getElementById("kpi-container-total");
-  if (kpiTotalContainer) {
-    kpiTotalContainer.addEventListener("click", (event) => {
+  const kpiContainer = document.getElementById("kpi-container");
+  if (kpiContainer) {
+    kpiContainer.addEventListener("click", (event) => {
       const card = event.target.closest(".kpi-card.clickable");
       if (card) {
         const tabId = card.dataset.tab;
@@ -1838,7 +1705,7 @@ function setupEventListeners() {
           `.tab-btn[data-tab="${tabId}"]`
         );
         if (tabButton) {
-          tabButton.click(); // Memicu event klik pada tombol tab yang sesuai
+          tabButton.click();
         }
       }
     });

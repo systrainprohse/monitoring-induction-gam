@@ -234,8 +234,10 @@
         </div>
       </div>
 
+      <!-- MODAL POP-UP UMUM -->
+      <!-- CATATAN: Modal ini digunakan untuk beberapa tujuan (Kompetensi & Kalender). -->
+      <!-- Pastikan JavaScript menghapus kelas 'hidden' dari #modal DAN dari div konten yang sesuai (#kompetensiModalContent atau #calendarModalContent). -->
       <div id="modal" class="modal hidden">
-        <!-- MODAL POP-UP UMUM -->
         <div class="modal-content">
           <div class="modal-header">
             <h3 id="modalTitle"></h3>
@@ -249,6 +251,7 @@
           </div>
           <!-- Bagian untuk detail Kompetensi -->
 
+          <!-- Konten ini harus ditampilkan saat item kompetensi di-klik -->
           <div id="kompetensiModalContent" class="hidden">
             <div class="profile-header">
               <div class="profile-avatar" aria-hidden="true">😊</div>
@@ -281,7 +284,8 @@
 
           <!-- Bagian untuk detail Kalender -->
 
-          <div id="calendarModalContent" class="hidden">
+          <!-- Konten ini harus ditampilkan saat tanggal kalender di-klik -->
+          <
             <h4 class="section-title">Detail Kegiatan</h4>
             <div class="detail-item">
               <label>Tanggal:</label>
@@ -325,6 +329,6 @@
     <!-- Floating WhatsApp & Form, Safety Toast -->
     <!-- ... kode Anda tetap di sini ... -->
     <script src="js/common.js" defer></script>
-    <script src="js/pelatihanscript.js" defer></script>
+    <script src="js/pelatihan.js" defer></script>
   </body>
 </html>
