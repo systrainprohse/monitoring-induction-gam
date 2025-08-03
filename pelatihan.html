@@ -19,7 +19,7 @@
     <!-- Audio Notification -->
     <audio
       id="notif-sound"
-      src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3"
+      src="sounds/notification.mp3"
       preload="auto"
     ></audio>
   </head>
@@ -65,25 +65,16 @@
       <!-- Navigasi Tab -->
       <nav aria-label="Navigasi Konten Pelatihan">
         <div class="tabs">
-               
-          <!-- Menghapus onclick dan menggunakan data-tab -->
-               
-          <!-- PERBAIKAN DI SINI: Hapus kelas 'active' dari tombol Jadwal Pelatihan -->
-               
           <button class="tab-btn" data-tab="calendar">
             📄 Jadwal Pelatihan
           </button>
-               
           <button class="tab-btn" data-tab="pendaftaran_training">
             📄 Pendaftaran Pelatihan
           </button>
-               
-          <!-- Mengubah data-tab menjadi lebih deskriptif dan menjadikannya aktif -->
-               
-          <button class="tab-btn" data-tab="monitoring_pelatihan">
+          <!-- PERBAIKAN: Jadikan tab ini aktif secara default untuk pengalaman pengguna yang lebih baik -->
+          <button class="tab-btn active" data-tab="monitoring_pelatihan">
             📈 Monitoring Pelatihan
           </button>
-               
           <button class="tab-btn" data-tab="kompetensi">
             📈 Kompetensi Manpower
           </button>
@@ -94,7 +85,7 @@
       <!-- Konten Tab: Kalender -->
 
       <!-- Konten Tab: Monitoring Pelatihan (Dashboard) -->
-      <div id="monitoring_pelatihan" class="tab-content">
+      <div id="monitoring_pelatihan" class="tab-content active">
         <div class="dashboard-header">
           <h3>Dashboard Pelatihan & Kompetensi</h3>
           <p>Ringkasan visual dari data pelatihan dan kompetensi manpower.</p>
@@ -187,6 +178,7 @@
               id="endDatePendaftaran"
               aria-label="Tanggal akhir pendaftaran"
             />
+            <!-- PERBAIKAN: Menggunakan data-key untuk konsistensi. JS akan diubah untuk menggunakan ini. -->
             <button data-key="pendaftaran_training" class="export-btn">
               Export Excel
             </button>
@@ -222,6 +214,7 @@
               id="filterNamaKompetensi"
               placeholder="Cari nama..."
             />
+            <!-- PERBAIKAN: Menggunakan data-key untuk konsistensi. JS akan diubah untuk menggunakan ini. -->
             <button data-key="kompetensi" class="export-btn">
               Export Excel
             </button>
@@ -285,7 +278,8 @@
           <!-- Bagian untuk detail Kalender -->
 
           <!-- Konten ini harus ditampilkan saat tanggal kalender di-klik -->
-          <
+          <!-- PERBAIKAN: Menghapus tag pembuka yang salah (<) -->
+          <div id="calendarModalContent" class="hidden">
             <h4 class="section-title">Detail Kegiatan</h4>
             <div class="detail-item">
               <label>Tanggal:</label>

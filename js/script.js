@@ -129,6 +129,8 @@ let currentFilteredData = {}; // Stores the currently filtered data for each tab
 let currentPageState = {}; // Objek untuk menyimpan halaman saat ini untuk setiap tabel
 let sortState = {}; // Objek untuk menyimpan status sorting setiap tabel { key: { column, direction } }
 let audioUnlocked = false; // Flag untuk melacak apakah audio sudah diizinkan
+let trendChartPeriod = "daily"; // 'daily', 'weekly', 'monthly', 'yearly'
+let trendChartYear = "all"; // Menyimpan tahun yang dipilih, 'all' secara default
 
 /**
  * Loads and sorts the unique list of companies from the "setting" sheet.
@@ -617,86 +619,6 @@ function animateValue(element, start, end, duration) {
   window.requestAnimationFrame(step);
 }
 /**
- * Memperbarui semua kartu KPI harian dari satu sumber data: 'hasil_induksi'.
- * @param {Array<Object>} inductionResultData - Data dari sheet 'hasil_induksi'.
- */
-function updateDailyInductionKpi(inductionResultData) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalisasi ke awal hari
-
-  // --- BAGIAN 1: KPI INDUKSI CORE & MITRA ---
-  const coreCountEl = document.getElementById("induksi-core-today-count");
-  const mitraCountEl = document.getElementById("induksi-mitra-today-count");
-
-  const newHireCountEl = document.getElementById("induksi-newhire-today-count");
-  const cutiCountEl = document.getElementById("induksi-cuti-today-count");
-  // Periksa apakah semua elemen ada
-  if (!coreCountEl || !mitraCountEl || !newHireCountEl || !cutiCountEl) {
-    console.error("Satu atau lebih elemen KPI harian tidak ditemukan.");
-    return;
-  }
-
-  // Jika tidak ada data, set ke N/A dan keluar
-  if (!inductionResultData) {
-    console.error("Data 'hasil_induksi' tidak tersedia untuk KPI harian.");
-    coreCountEl.textContent = "N/A";
-    mitraCountEl.textContent = "N/A";
-    newHireCountEl.textContent = "N/A";
-    cutiCountEl.textContent = "N/A";
-    return;
-  }
-
-  const coreCompanyKeywords = ["GAM", "UT", "WEM", "TEM", "BMJ"];
-  let coreTodayCount = 0;
-  let mitraTodayCount = 0;
-  let newHireTodayCount = 0;
-  let cutiTodayCount = 0;
-
-  // Iterasi data sekali untuk menghitung semua nilai
-  inductionResultData.forEach((row) => {
-    if (!row || !row["DATE"]) return;
-    const inductionDate = parseTanggal(row["DATE"]);
-    if (isNaN(inductionDate.getTime())) return;
-
-    inductionDate.setHours(0, 0, 0, 0);
-
-    // Hanya proses baris yang tanggalnya hari ini
-    if (inductionDate.getTime() === today.getTime()) {
-      // Hitung Core vs Mitra
-      const companyName = (row["PERUSAHAAN"] || "").toUpperCase();
-      const isCore = coreCompanyKeywords.some((keyword) =>
-        companyName.includes(keyword)
-      );
-      isCore ? coreTodayCount++ : mitraTodayCount++;
-
-      // Hitung New Hire vs Cuti berdasarkan kolom KATEGORI (jika ada)
-      const category = (row["KATEGORI"] || "").toLowerCase();
-      if (category.includes("new hire")) {
-        newHireTodayCount++;
-      } else if (category.includes("cuti")) {
-        cutiTodayCount++;
-      }
-    }
-  });
-
-  // Ambil nilai lama dari elemen untuk animasi
-  const oldCoreCount =
-    parseInt(coreCountEl.textContent.replace(/\./g, "")) || 0;
-  const oldMitraCount =
-    parseInt(mitraCountEl.textContent.replace(/\./g, "")) || 0;
-  const oldNewHireCount =
-    parseInt(newHireCountEl.textContent.replace(/\./g, "")) || 0;
-  const oldCutiCount =
-    parseInt(cutiCountEl.textContent.replace(/\./g, "")) || 0;
-
-  // Animasikan semua nilai
-  animateValue(coreCountEl, oldCoreCount, coreTodayCount, 1500);
-  animateValue(mitraCountEl, oldMitraCount, mitraTodayCount, 1500);
-  animateValue(newHireCountEl, oldNewHireCount, newHireTodayCount, 1500);
-  animateValue(cutiCountEl, oldCutiCount, cutiTodayCount, 1500);
-}
-
-/**
  * Updates the comparison UI element (arrow and value) for a KPI card.
  * @param {string} elementId - The ID of the comparison container div.
  * @param {number} todayCount - The count for today.
@@ -1102,12 +1024,25 @@ function updateDigitalClock() {
  * @returns {boolean} - True jika baris cocok dengan filter.
  */
 function checkFilterMatch(dataRow, filters) {
-  const { key, perusahaan, start, end, search } = filters;
+  const { key, perusahaanDropdown, perusahaanSearch, start, end, search } =
+    filters;
 
-  const perusahaanData = dataRow["perusahaan"] || dataRow["PERUSAHAAN"] || "";
-  const matchPerusahaan =
-    perusahaan === "all" ||
-    perusahaanData.trim().toLowerCase() === perusahaan.trim().toLowerCase();
+  // 1. Filter Perusahaan (Prioritaskan search box)
+  const perusahaanData = (
+    dataRow["perusahaan"] ||
+    dataRow["PERUSAHAAN"] ||
+    ""
+  ).toLowerCase();
+  let matchPerusahaan;
+  if (perusahaanSearch) {
+    // Jika search box diisi, gunakan itu untuk filter
+    matchPerusahaan = perusahaanData.includes(perusahaanSearch);
+  } else {
+    // Jika kosong, gunakan dropdown
+    matchPerusahaan =
+      perusahaanDropdown === "all" ||
+      perusahaanData.trim() === perusahaanDropdown.trim().toLowerCase();
+  }
 
   const tanggalStr =
     dataRow["tanggal"] ||
@@ -1125,15 +1060,145 @@ function checkFilterMatch(dataRow, filters) {
       rowDate.getTime() >= startTime &&
       rowDate.getTime() <= endTime);
 
-  const nama = (
-    dataRow["NAMA"] ||
-    dataRow["NAMA JABATAN"] ||
-    dataRow["PERUSAHAAN"] ||
-    ""
-  ).toLowerCase();
+  const nama = (dataRow["NAMA"] || dataRow["NAMA JABATAN"] || "").toLowerCase();
   const matchSearch = !search || nama.includes(search);
 
   return matchPerusahaan && matchDate && matchSearch;
+}
+
+/**
+ * Mengisi dropdown filter tahun untuk grafik tren.
+ * @param {Array<Object>} data Data dari sheet 'grafik'.
+ */
+function populateYearFilter(data) {
+  const yearFilter = document.getElementById("trend-year-filter");
+  if (!yearFilter || !data) return;
+
+  const years = [
+    ...new Set(data.map((row) => parseTanggal(row.TANGGAL).getFullYear())),
+  ]
+    .filter((year) => !isNaN(year))
+    .sort((a, b) => b - a); // Urutkan dari tahun terbaru
+
+  yearFilter.innerHTML = `<option value="all">Semua Tahun</option>`;
+  years.forEach((year) => {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year;
+    yearFilter.appendChild(option);
+  });
+}
+
+/**
+ * Gets the date of the Monday of the week for a given date.
+ * @param {Date} d The input date.
+ * @returns {string} The date string in YYYY-MM-DD format.
+ */
+function getStartOfWeek(d) {
+  const date = new Date(d);
+  const day = date.getDay(); // 0 (Sun) to 6 (Sat)
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+  const monday = new Date(date.setDate(diff));
+  return monday.toISOString().split("T")[0]; // YYYY-MM-DD
+}
+
+/**
+ * Aggregates chart data by a given time period.
+ * @param {Array<Object>} data The raw data to aggregate, expected to have a 'TANGGAL' property.
+ * @param {'daily'|'weekly'|'monthly'|'yearly'} period The time period for aggregation.
+ * @returns {Array<Object>} The aggregated data.
+ */
+function aggregateDataByPeriod(data, period) {
+  if (period === "daily") {
+    return data; // No aggregation needed for daily view
+  }
+
+  const aggregator = new Map();
+  const metrics = ["NEW HIRE", "PASCA CUTI", "VISITOR", "TEMPORARY"];
+
+  data.forEach((row) => {
+    const date = parseTanggal(row.TANGGAL);
+    if (isNaN(date.getTime())) return;
+
+    let key;
+    if (period === "weekly") {
+      key = getStartOfWeek(date);
+    } else if (period === "monthly") {
+      key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}`;
+    } else if (period === "yearly") {
+      key = `${date.getFullYear()}`;
+    }
+
+    if (!key) return;
+
+    if (!aggregator.has(key)) {
+      const initialData = { TANGGAL: key };
+      metrics.forEach((metric) => (initialData[metric] = 0));
+      aggregator.set(key, initialData);
+    }
+
+    const current = aggregator.get(key);
+    metrics.forEach((metric) => {
+      current[metric] += Number(row[metric] || 0);
+    });
+  });
+
+  // Convert map to array and sort by date
+  return Array.from(aggregator.values()).sort(
+    (a, b) => new Date(a.TANGGAL) - new Date(b.TANGGAL)
+  );
+}
+
+/**
+ * Sorts an array of data based on a specified column and direction.
+ * Handles date, numeric, and string comparisons.
+ * @param {Array<Object>} data The data to sort (will be sorted in-place).
+ * @param {string} column The column to sort by.
+ * @param {'asc'|'desc'} direction The sort direction.
+ */
+function sortData(data, column, direction) {
+  const isDateColumn = [
+    "tanggal",
+    "date",
+    "mulai",
+    "selesai",
+    "timestamp",
+    "tanggal induksi",
+  ].includes(column.toLowerCase());
+
+  data.sort((a, b) => {
+    let valA = a[column] || "";
+    let valB = b[column] || "";
+
+    // Jika ini kolom tanggal, gunakan perbandingan tanggal
+    if (isDateColumn) {
+      const dateA = parseTanggal(valA);
+      const dateB = parseTanggal(valB);
+      // Handle invalid dates by pushing them to the end
+      if (isNaN(dateA.getTime())) return 1;
+      if (isNaN(dateB.getTime())) return -1;
+      return direction === "asc" ? dateA - dateB : dateB - dateA;
+    }
+
+    // Coba parse sebagai angka untuk kolom skor, dll.
+    const numA = parseFloat(String(valA).replace(",", "."));
+    const numB = parseFloat(String(valB).replace(",", "."));
+
+    if (!isNaN(numA) && !isNaN(numB)) {
+      return direction === "asc" ? numA - numB : numB - numA;
+    }
+
+    // Jika bukan, bandingkan sebagai string (case-insensitive)
+    valA = String(valA).toLowerCase();
+    valB = String(valB).toLowerCase();
+
+    if (valA < valB) return direction === "asc" ? -1 : 1;
+    if (valA > valB) return direction === "asc" ? 1 : -1;
+    return 0;
+  });
 }
 
 /**
@@ -1142,7 +1207,11 @@ function checkFilterMatch(dataRow, filters) {
  * @param {string} key - The key identifying the data source.
  */
 function applyFilter(key) {
-  const perusahaan = document.getElementById(`filter-${key}`)?.value || "all";
+  const perusahaanDropdown =
+    document.getElementById(`filter-${key}`)?.value || "all";
+  const perusahaanSearch =
+    document.getElementById(`search-perusahaan-${key}`)?.value?.toLowerCase() ||
+    "";
   const start = document.getElementById(`startDate-${key}`)?.value;
   const end = document.getElementById(`endDate-${key}`)?.value;
   const search =
@@ -1152,59 +1221,47 @@ function applyFilter(key) {
   const dataToFilter = sheetDataCache[key] || [];
 
   let filtered = dataToFilter.filter((row) => {
-    const filters = { key, perusahaan, start, end, search };
+    const filters = {
+      key,
+      perusahaanDropdown,
+      perusahaanSearch,
+      start,
+      end,
+      search,
+    };
     return checkFilterMatch(row, filters);
   });
 
   // Lakukan sorting pada data yang sudah difilter
   if (sortState[key]) {
     const { column, direction } = sortState[key];
-
-    const isDateColumn = [
-      "tanggal",
-      "date",
-      "mulai",
-      "selesai",
-      "timestamp",
-      "tanggal induksi",
-    ].includes(column.toLowerCase());
-
-    filtered.sort((a, b) => {
-      let valA = a[column] || "";
-      let valB = b[column] || "";
-
-      // Jika ini kolom tanggal, gunakan perbandingan tanggal
-      if (isDateColumn) {
-        const dateA = parseTanggal(valA);
-        const dateB = parseTanggal(valB);
-        // Handle invalid dates by pushing them to the end
-        if (isNaN(dateA.getTime())) return 1;
-        if (isNaN(dateB.getTime())) return -1;
-        return direction === "asc" ? dateA - dateB : dateB - dateA;
-      }
-
-      // Coba parse sebagai angka untuk kolom skor, dll.
-      const numA = parseFloat(String(valA).replace(",", "."));
-      const numB = parseFloat(String(valB).replace(",", "."));
-
-      if (!isNaN(numA) && !isNaN(numB)) {
-        return direction === "asc" ? numA - numB : numB - numA;
-      }
-
-      // Jika bukan, bandingkan sebagai string (case-insensitive)
-      valA = String(valA).toLowerCase();
-      valB = String(valB).toLowerCase();
-
-      if (valA < valB) return direction === "asc" ? -1 : 1;
-      if (valA > valB) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
+    sortData(filtered, column, direction);
   }
 
   // Render ulang tabel atau grafik berdasarkan `key`
   if (key === "grafik") {
     currentFilteredData[key] = filtered;
-    initializeCharts(filtered);
+    // Hanya inisialisasi chart jika tab 'grafik' sedang aktif.
+    // Ini mencegah error "getContext of null" saat halaman pertama kali dimuat,
+    // karena canvas chart belum ada di DOM jika tab-nya tidak aktif.
+    const grafikTabElement = document.getElementById("grafik");
+    if (grafikTabElement && grafikTabElement.classList.contains("active")) {
+      // 1. Filter berdasarkan tahun jika tahun spesifik dipilih dan view bukan 'tahunan'
+      let yearFilteredData = filtered;
+      if (trendChartYear !== "all" && trendChartPeriod !== "yearly") {
+        yearFilteredData = filtered.filter((row) => {
+          const rowYear = parseTanggal(row.TANGGAL).getFullYear();
+          return rowYear == trendChartYear;
+        });
+      }
+      // 2. Agregasi data yang (kemungkinan) sudah difilter per tahun
+      const trendData = aggregateDataByPeriod(
+        yearFilteredData,
+        trendChartPeriod
+      );
+      // 3. Inisialisasi chart (chart lain tetap menggunakan data filter penuh)
+      initializeCharts({ trendData: trendData, otherData: filtered });
+    }
   } else {
     currentFilteredData[key] = filtered;
     renderTable(filtered, `table-${key}`, key);
@@ -1215,9 +1272,25 @@ const debouncedApplyFilter = debounce(applyFilter, 300); // 300ms delay
 
 /**
  * Initializes all charts based on "grafik" data.
- * @param {Array} data - The data for charts.
+ * @param {Object} chartData - An object containing data for different charts.
+ * @param {Array} chartData.trendData - Aggregated data for the trend chart.
+ * @param {Array} chartData.otherData - Raw filtered data for other charts.
  */
-function initializeCharts(data) {
+function initializeCharts({ trendData, otherData }) {
+  // Get canvas elements
+  const trendCanvas = document.getElementById("induksiTrendChart");
+  const skorCanvas = document.getElementById("skorJabatanChart");
+  const perusahaanCanvas = document.getElementById("induksiPerusahaanChart");
+
+  // If any canvas is not found, do not proceed.
+  // This can happen if the 'grafik' tab is not active or the elements are missing in the HTML.
+  if (!trendCanvas || !skorCanvas || !perusahaanCanvas) {
+    console.warn(
+      "One or more chart canvas elements not found. Skipping chart initialization."
+    );
+    return;
+  }
+
   // Hancurkan chart lama untuk mencegah memory leak
   ["induksiTrendChart", "skorJabatanChart", "induksiPerusahaanChart"].forEach(
     (id) => {
@@ -1229,9 +1302,9 @@ function initializeCharts(data) {
   );
 
   // --- 1. Grafik Tren Induksi Harian (Line Chart) ---
-  const dataTren = data.filter((d) => d.TANGGAL);
-  const labelsTren = dataTren.map((d) => d.TANGGAL);
-  new Chart(document.getElementById("induksiTrendChart").getContext("2d"), {
+  const dataTren = trendData;
+  const labelsTren = dataTren.map((d) => d.TANGGAL); // Label is now week start or month
+  new Chart(trendCanvas.getContext("2d"), {
     type: "line",
     data: {
       labels: labelsTren,
@@ -1274,9 +1347,9 @@ function initializeCharts(data) {
   });
 
   // --- 2. Grafik Skor per Jabatan (Bar Chart) ---
-  const dataSkor = data.filter((d) => d["NAMA JABATAN"]);
-  const labelsJabatan = dataSkor.map((d) => d["NAMA JABATAN"]);
-  new Chart(document.getElementById("skorJabatanChart").getContext("2d"), {
+  const dataSkor = otherData.filter((d) => d["NAMA JABATAN"]);
+  const labelsJabatan = [...new Set(dataSkor.map((d) => d["NAMA JABATAN"]))];
+  new Chart(skorCanvas.getContext("2d"), {
     type: "bar",
     data: {
       labels: labelsJabatan,
@@ -1301,79 +1374,70 @@ function initializeCharts(data) {
   });
 
   // --- 3. Grafik Komposisi Induksi per Perusahaan (Stacked Bar Chart) ---
-  const dataPerusahaan = data.filter((d) => d.PERUSAHAAN);
+  const dataPerusahaan = otherData.filter((d) => d.PERUSAHAAN);
   const labelsPerusahaan = [
     ...new Set(dataPerusahaan.map((d) => d.PERUSAHAAN)),
   ]; // Ambil perusahaan unik
-  new Chart(
-    document.getElementById("induksiPerusahaanChart").getContext("2d"),
-    {
-      type: "bar",
-      data: {
-        labels: labelsPerusahaan,
-        datasets: [
-          {
-            label: "New Hire",
-            data: labelsPerusahaan.map((p) =>
-              dataPerusahaan
-                .filter((d) => d.PERUSAHAAN === p)
-                .reduce(
-                  (sum, item) => sum + (Number(item["NEW HIRE_1"]) || 0),
-                  0
-                )
-            ),
-            backgroundColor: "rgba(54, 162, 235, 0.7)",
-          },
-          {
-            label: "Pasca Cuti",
-            data: labelsPerusahaan.map((p) =>
-              dataPerusahaan
-                .filter((d) => d.PERUSAHAAN === p)
-                .reduce(
-                  (sum, item) => sum + (Number(item["PASCA CUTI_1"]) || 0),
-                  0
-                )
-            ),
-            backgroundColor: "rgba(255, 206, 86, 0.7)",
-          },
-          {
-            label: "Visitor",
-            data: labelsPerusahaan.map((p) =>
-              dataPerusahaan
-                .filter((d) => d.PERUSAHAAN === p)
-                .reduce(
-                  (sum, item) => sum + (Number(item["VISITOR_1"]) || 0),
-                  0
-                )
-            ),
-            backgroundColor: "rgba(75, 192, 192, 0.7)",
-          },
-          {
-            label: "Temporary",
-            data: labelsPerusahaan.map((p) =>
-              dataPerusahaan
-                .filter((d) => d.PERUSAHAAN === p)
-                .reduce(
-                  (sum, item) => sum + (Number(item["TEMPORARY_1"]) || 0),
-                  0
-                )
-            ),
-            backgroundColor: "rgba(153, 102, 255, 0.7)",
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: { display: true, text: "Komposisi Induksi per Perusahaan" },
+  new Chart(perusahaanCanvas.getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: labelsPerusahaan,
+      datasets: [
+        {
+          label: "New Hire",
+          data: labelsPerusahaan.map((p) =>
+            dataPerusahaan
+              .filter((d) => d.PERUSAHAAN === p)
+              .reduce((sum, item) => sum + (Number(item["NEW HIRE_1"]) || 0), 0)
+          ),
+          backgroundColor: "rgba(54, 162, 235, 0.7)",
         },
-        scales: {
-          x: { stacked: true },
-          y: { stacked: true, beginAtZero: true },
+        {
+          label: "Pasca Cuti",
+          data: labelsPerusahaan.map((p) =>
+            dataPerusahaan
+              .filter((d) => d.PERUSAHAAN === p)
+              .reduce(
+                (sum, item) => sum + (Number(item["PASCA CUTI_1"]) || 0),
+                0
+              )
+          ),
+          backgroundColor: "rgba(255, 206, 86, 0.7)",
         },
+        {
+          label: "Visitor",
+          data: labelsPerusahaan.map((p) =>
+            dataPerusahaan
+              .filter((d) => d.PERUSAHAAN === p)
+              .reduce((sum, item) => sum + (Number(item["VISITOR_1"]) || 0), 0)
+          ),
+          backgroundColor: "rgba(75, 192, 192, 0.7)",
+        },
+        {
+          label: "Temporary",
+          data: labelsPerusahaan.map((p) =>
+            dataPerusahaan
+              .filter((d) => d.PERUSAHAAN === p)
+              .reduce(
+                (sum, item) => sum + (Number(item["TEMPORARY_1"]) || 0),
+                0
+              )
+          ),
+          backgroundColor: "rgba(153, 102, 255, 0.7)",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: { display: true, text: "Komposisi Induksi per Perusahaan" },
       },
-    }
-  );
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, beginAtZero: true },
+      },
+    },
+  });
 }
 
 /**
@@ -1429,6 +1493,9 @@ async function init() {
       return fetchAndCacheSheet(id, sheet, key);
     });
     await Promise.all(dataPromises);
+
+    // Isi filter tahun untuk grafik tren setelah data dimuat
+    populateYearFilter(sheetDataCache.grafik || []);
 
     // Setelah semua data ada di cache global, render semuanya
 
@@ -1656,14 +1723,55 @@ function setupEventListeners() {
     });
   }
 
+  // Event listener untuk filter rentang waktu pada grafik tren
+  const trendChartFilter = document.getElementById("trend-chart-filter");
+  const yearFilterDropdown = document.getElementById("trend-year-filter");
+
+  if (trendChartFilter && yearFilterDropdown) {
+    trendChartFilter.addEventListener("click", (event) => {
+      if (event.target.matches(".time-filter-btn")) {
+        // Hapus kelas aktif dari semua tombol
+        trendChartFilter
+          .querySelectorAll(".time-filter-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        // Tambahkan kelas aktif ke tombol yang diklik
+        event.target.classList.add("active");
+        // Perbarui state rentang waktu global
+        trendChartPeriod = event.target.dataset.period;
+
+        // Tampilkan/sembunyikan dropdown tahun
+        if (trendChartPeriod === "yearly") {
+          yearFilterDropdown.classList.add("hidden");
+          // Reset filter tahun saat beralih ke tampilan tahunan
+          if (trendChartYear !== "all") {
+            yearFilterDropdown.value = "all";
+            trendChartYear = "all";
+          }
+        } else {
+          yearFilterDropdown.classList.remove("hidden");
+        }
+
+        // Terapkan ulang filter untuk merender ulang grafik
+        applyFilter("grafik");
+      }
+    });
+
+    yearFilterDropdown.addEventListener("change", (event) => {
+      trendChartYear = event.target.value;
+      applyFilter("grafik");
+    });
+  }
+
   // Event listeners for filters using debounced function
   document
     .querySelectorAll(
-      '[id^="filter-"], [id^="startDate-"], [id^="endDate-"], [id^="search-"]'
+      '[id^="filter-"], [id^="startDate-"], [id^="endDate-"], [id^="search-"], [id^="search-perusahaan-"]'
     )
     .forEach((element) => {
       // Extract the key from the ID (e.g., "filter-newhire" -> "newhire")
-      const key = element.id.split("-").slice(1).join("-");
+      // This logic robustly gets the last part of the ID, which is always the key.
+      // e.g., "search-perusahaan-newhire" becomes "newhire".
+      const key = element.id.substring(element.id.lastIndexOf("-") + 1);
 
       const filterChangeHandler = () => {
         currentPageState[key] = 1; // Kembali ke halaman 1 saat filter diubah

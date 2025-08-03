@@ -15,10 +15,9 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
-
     <audio
       id="notif-sound"
-      src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-765.mp3"
+      src="sounds/notification.mp3"
       preload="auto"
     ></audio>
   </head>
@@ -244,6 +243,14 @@
           <select id="filter-newhire">
             <option value="all">Semua</option>
           </select>
+          <label for="search-perusahaan-newhire" class="sr-only"
+            >Cari Perusahaan</label
+          >
+          <input
+            type="text"
+            id="search-perusahaan-newhire"
+            placeholder="atau cari perusahaan..."
+          />
           <label for="startDate-newhire">Tanggal:</label>
           <input type="date" id="startDate-newhire" />
           <span>s.d.</span>
@@ -274,6 +281,14 @@
             id="filter-pendaftaran"
             aria-label="Filter berdasarkan perusahaan"
           ></select>
+          <label for="search-perusahaan-pendaftaran" class="sr-only"
+            >Cari Perusahaan</label
+          >
+          <input
+            type="text"
+            id="search-perusahaan-pendaftaran"
+            placeholder="Cari perusahaan..."
+          />
           <label for="startDate-pendaftaran">📅</label>
           <input
             type="date"
@@ -317,6 +332,14 @@
             id="filter-hasil_induksi"
             aria-label="Filter berdasarkan perusahaan"
           ></select>
+          <label for="search-perusahaan-hasil_induksi" class="sr-only"
+            >Cari Perusahaan</label
+          >
+          <input
+            type="text"
+            id="search-perusahaan-hasil_induksi"
+            placeholder="Cari perusahaan..."
+          />
           <label for="startDate-hasil_induksi">📅</label>
           <input
             type="date"
@@ -360,6 +383,14 @@
             id="filter-visitor"
             aria-label="Filter berdasarkan perusahaan"
           ></select>
+          <label for="search-perusahaan-visitor" class="sr-only"
+            >Cari Perusahaan</label
+          >
+          <input
+            type="text"
+            id="search-perusahaan-visitor"
+            placeholder="Cari perusahaan..."
+          />
           <label for="startDate-visitor">📅</label>
           <input
             type="date"
@@ -398,6 +429,14 @@
             id="filter-remidial"
             aria-label="Filter berdasarkan perusahaan"
           ></select>
+          <label for="search-perusahaan-remidial" class="sr-only"
+            >Cari Perusahaan</label
+          >
+          <input
+            type="text"
+            id="search-perusahaan-remidial"
+            placeholder="Cari perusahaan..."
+          />
           <label for="startDate-remidial">📅</label>
           <input
             type="date"
@@ -446,19 +485,51 @@
             placeholder="Cari nama jabatan..."
           />
         </div>
-        <!-- Kanvas untuk Chart -->
-        <canvas id="chartScore1"></canvas>
-        <canvas id="chartScore2"></canvas>
-        <canvas id="chartScore"></canvas>
-        <!-- Kanvas baru untuk grafik perusahaan berdasarkan jenis, style dipindahkan ke CSS -->
-        <canvas id="companyTypeChart"></canvas>
-        <!-- Kontainer untuk tabel detail yang akan muncul saat grafik diklik -->
-        <div id="company-type-details-wrapper" class="details-container hidden">
-          <h3 id="company-type-details-title">Detail Induksi</h3>
-          <div class="table-wrapper">
-            <table id="company-type-details-table">
-              <!-- Konten tabel akan diisi oleh JavaScript -->
-            </table>
+        <!-- Container untuk semua chart -->
+        <div class="dashboard-grid">
+          <!-- Card untuk Grafik Tren Induksi -->
+          <div class="dashboard-card span-col-3">
+            <div class="card-header with-filters">
+              <h3>Tren Induksi</h3>
+              <div id="trend-chart-filter" class="time-filter-buttons">
+                <button class="time-filter-btn active" data-period="daily">
+                  Harian
+                </button>
+                <button class="time-filter-btn" data-period="weekly">
+                  Mingguan
+                </button>
+                <button class="time-filter-btn" data-period="monthly">
+                  Bulanan
+                </button>
+                <button class="time-filter-btn" data-period="yearly">
+                  Tahunan
+                </button>
+              </div>
+              <div class="filter-item">
+                <label for="trend-year-filter" class="sr-only"
+                  >Pilih Tahun</label
+                >
+                <select
+                  id="trend-year-filter"
+                  class="chart-year-select"
+                ></select>
+              </div>
+            </div>
+            <canvas id="induksiTrendChart"></canvas>
+          </div>
+          <!-- Card untuk Grafik Skor Jabatan -->
+          <div class="dashboard-card span-col-2">
+            <div class="card-header">
+              <h3>Skor Induksi per Jabatan</h3>
+            </div>
+            <canvas id="skorJabatanChart"></canvas>
+          </div>
+          <!-- Card untuk Grafik Komposisi Perusahaan -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>Komposisi Induksi</h3>
+            </div>
+            <canvas id="induksiPerusahaanChart"></canvas>
           </div>
         </div>
       </div>
@@ -470,6 +541,14 @@
           <select id="filter-temporary">
             <option value="all">Semua</option>
           </select>
+          <label for="search-perusahaan-temporary" class="sr-only"
+            >Cari Perusahaan</label
+          >
+          <input
+            type="text"
+            id="search-perusahaan-temporary"
+            placeholder="atau cari perusahaan..."
+          />
           <label for="startDate-temporary">Tanggal:</label>
           <input type="date" id="startDate-temporary" />
           <span>s.d.</span>
