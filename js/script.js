@@ -76,6 +76,7 @@ const kolomTampilkan = {
     "PERUSAHAAN",
     "STATUS INDUKSI",
     "SCORE",
+    "SPDK_Checklist",
   ],
   visitor: [
     "MULAI",
