@@ -1,113 +1,1507 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Monitoring System</title>
-    <link rel="stylesheet" href="css/login.css">
+    <title>Dasbor Terpadu GAMITAS</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#9333ea" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="GAMITAS" />
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>G</text></svg>">
+    <link rel="manifest"
+        href="data:application/json;base64,ewogICJuYW1lIjogIkdBTUlUQVMgLSBTYWZldHkgRGFzaGJvYXJkIiwKICAic2hvcnRfbmFtZSI6ICJHQU1JVEFTIiwKICAiZGVzY3JpcHRpb24iOiAiSW50ZWdyYXRlZCBTYWZldHkgU3lzdGVtIERhc2hib2FyZCIsCiAgInN0YXJ0X3VybCI6ICIuLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2Y4ZmFmYyIsCiAgInRoZW1lX2NvbG9yIjogIiM5MzMzZWEiLAogICJpY29ucyI6IFsKICAgIHsic3JjIjogImh0dHBzOi8vcGxhY2Vob2xkLmNvLzE5MngxOTIvOTMzM2VhL2ZmZmZmZj90ZXh0PUciLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3BuZyJ9LAogICAgeyJzcmMiOiAiaHR0cHM6Ly9wbGFjZWhvbGQuY28vNTEyeDUxMi85MzMzZWEvZmZmZmZmP3RleHQ9RyIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2UvcG5nIn0KICBdCn0=" />
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Flatpickr for Date Range Picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-light: #f8fafc;
+            --bg-dark: #1e293b;
+            --text-light: #1f2937;
+            --text-dark: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Dark Theme Styles */
+        .theme-dark {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        .theme-dark .bg-white {
+            background-color: #334155 !important;
+        }
+
+        .theme-dark .bg-gray-50,
+        .theme-dark .bg-gray-100 {
+            background-color: #475569 !important;
+        }
+
+        .theme-dark .text-gray-800,
+        .theme-dark .text-gray-900 {
+            color: #f1f5f9 !important;
+        }
+
+        .theme-dark .text-gray-700 {
+            color: #e2e8f0 !important;
+        }
+
+        .theme-dark .text-gray-600 {
+            color: #cbd5e1 !important;
+        }
+
+        .theme-dark .text-gray-500 {
+            color: #94a3b8 !important;
+        }
+
+        .theme-dark .border-gray-200,
+        .theme-dark .border-b,
+        .theme-dark .border-t {
+            border-color: #475569 !important;
+        }
+
+        .theme-dark .hover\:bg-gray-100:hover {
+            background-color: #475569 !important;
+        }
+
+        .theme-dark .hover\:bg-gray-50:hover {
+            background-color: #4b5a70 !important;
+        }
+
+        .theme-dark .shadow-md,
+        .theme-dark .shadow-lg {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-dark input,
+        .theme-dark select {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #f1f5f9;
+        }
+
+        .theme-dark input::placeholder {
+            color: #94a3b8;
+        }
+
+        .theme-dark .sidebar-link.active {
+            background-color: #5b21b6;
+            color: white;
+        }
+
+        .theme-dark .tab-link.active {
+            color: #a78bfa !important;
+            border-color: #a78bfa !important;
+        }
+
+        .theme-dark .pagination button.active {
+            background-color: #a78bfa;
+            color: #1e293b;
+            border-color: #a78bfa;
+        }
+
+        .theme-dark .flatpickr-calendar {
+            background: #334155;
+            color: var(--text-dark);
+            border-color: #475569;
+        }
+
+        .theme-dark .flatpickr-day:hover {
+            background: #475569;
+        }
+
+        .theme-dark .flatpickr-day.selected {
+            background: #7c3aed;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .theme-dark ::-webkit-scrollbar-track {
+            background: #475569;
+        }
+
+        .theme-dark ::-webkit-scrollbar-thumb {
+            background: #64748b;
+        }
+
+        /* General Styles */
+        .sidebar-link.active {
+            background-color: #f3e8ff;
+            color: #9333ea;
+            font-weight: 600;
+        }
+
+        .sidebar-submenu-link.active {
+            color: #9333ea;
+            font-weight: 600;
+        }
+
+        .page-content,
+        .tab-content {
+            display: none;
+        }
+
+        .page-content.active,
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Component Styles */
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        .theme-dark .card:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+        }
+
+        .table-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pagination button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e2e8f0;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .pagination button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .pagination button.active {
+            background-color: #9333ea;
+            color: white;
+            border-color: #9333ea;
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        th.sortable:hover {
+            background-color: #f9fafb;
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: 0.5rem;
+            opacity: 0.5;
+        }
+
+        th.sortable.sort-asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+
+        th.sortable.sort-desc::after {
+            content: '↓';
+            opacity: 1;
+        }
+
+        .component-loading {
+            position: relative;
+            min-height: 100px;
+        }
+
+        .component-loading::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        .theme-dark .component-loading::after {
+            background: linear-gradient(90deg, transparent, rgba(100, 116, 139, 0.5), transparent);
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* PWA & Banners */
+        .offline-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            z-index: 2000;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .offline-banner.show {
+            transform: translateY(0);
+        }
+
+        .install-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #9333ea, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 25px -5px rgb(147 51 234 / 0.4);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .install-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .error-banner {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .theme-dark .error-banner {
+            background-color: #4a2323;
+            border-color: #993131;
+            color: #fecaca;
+        }
+
+        .retry-btn {
+            background-color: #dc2626;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-hidden {
+                display: none !important;
+            }
+
+            .mobile-stack {
+                flex-direction: column;
+            }
+
+            .mobile-full {
+                width: 100%;
+            }
+
+            main {
+                margin-left: 0 !important;
+            }
+
+            #sidebar {
+                transform: translateX(-100%);
+            }
+
+            #sidebar.show {
+                transform: translateX(0);
+            }
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
-<body>
-    <div class="page-wrapper">
-        <main class="login-container">
-            <form id="login-form" class="login-form">
-                <div class="login-header">
-                    <h2 aria-hidden="true">🚀</h2>
-                    <h3>Login ke Sistem Monitoring</h3>
-                </div>
-                <div class="form-group access-type">
-                    <label>
-                        <input type="radio" name="access" value="gam">
-                        <span>Akses GAM</span>
-                    </label>
-                    <label>
-                        <input type="radio" name="access" value="mitra" checked>
-                        <span>Akses Mitra</span>
-                    </label>
-                </div>
-                <div class="form-group" id="username-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group" id="password-group">
-                    <label for="password">Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" name="password" required>
-                        <button type="button" id="toggle-password" class="toggle-password-icon" aria-label="Tampilkan atau sembunyikan password">
-                            👁️
-                        </button>
+
+<body class="theme-light">
+
+    <!-- Splash Screen -->
+    <div id="splash-screen"
+        class="fixed inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-green-500 flex items-center justify-center z-[9999]">
+        <div class="text-center text-white">
+            <div class="mb-8">
+                <div class="w-24 h-24 mx-auto mb-6 relative">
+                    <div class="absolute inset-0 bg-white rounded-full opacity-20 animate-ping"></div>
+                    <div class="relative w-24 h-24 bg-white rounded-full flex items-center justify-center">
+                        <span id="splash-logo" class="text-4xl font-bold text-purple-600">G</span>
                     </div>
                 </div>
-                <p id="error-message" class="error-message"></p>
-                <div id="success-message" class="success-message">
-                    <span class="icon">✔️</span>
-                    <span class="text">Login berhasil! Mengarahkan...</span>
+                <h1 id="splash-company-name" class="text-4xl font-bold mb-2">GAMITAS</h1>
+                <p class="text-xl opacity-90">Advanced Safety Dashboard</p>
+            </div>
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-3 h-3 bg-white rounded-full animate-bounce"></div>
+                <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+            </div>
+            <div class="w-64 h-2 bg-white bg-opacity-20 rounded-full overflow-hidden mx-auto mb-4">
+                <div id="splash-progress" class="h-full bg-white rounded-full transition-all duration-300 ease-out"
+                    style="width: 0%"></div>
+            </div>
+            <p id="splash-text" class="text-sm opacity-80">Initializing safety systems...</p>
+        </div>
+    </div>
+
+    <!-- Banners -->
+    <div id="offline-banner" class="offline-banner">
+        <i data-lucide="wifi-off" class="w-4 h-4 inline mr-2"></i>
+        Mode Offline - Data mungkin tidak terbaru
+    </div>
+    <button id="install-button" class="install-button">
+        <i data-lucide="download" class="w-5 h-5"></i>
+        Install App
+    </button>
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside id="sidebar"
+        class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-50 transition-transform flex flex-col">
+        <div class="p-6 border-b">
+            <h1 id="company-name-sidebar" class="text-2xl font-bold text-gray-800">
+                <span class="text-purple-600">G</span>AMITAS
+            </h1>
+            <p class="text-xs text-gray-500">Integrated Safety System</p>
+        </div>
+        <nav class="mt-4 flex-1 overflow-y-auto">
+            <ul class="space-y-1 px-4">
+                <li>
+                    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg"
+                        data-page="dashboard">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span data-translate-key="sidebar_dashboard">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./induksi.html" target="_blank"
+                        class="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100">
+                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                        <span data-translate-key="sidebar_induksi">Induksi</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./pelatihan.html" target="_blank"
+                        class="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100">
+                        <i data-lucide="award" class="w-5 h-5"></i>
+                        <span data-translate-key="sidebar_pelatihan">Pelatihan Internal</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./laporan_insiden.html" target="_blank"
+                        class="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100">
+                        <i data-lucide="file-warning" class="w-5 h-5"></i>
+                        <span data-translate-key="sidebar_laporan_insiden">Laporan Insiden</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="observasi">
+                        <i data-lucide="search-check" class="w-5 h-5"></i>
+                        <span data-translate-key="sidebar_laporan_observasi">Laporan Observasi</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t">
+            <div class="flex items-center space-x-3 mb-4">
+                <img src="https://placehold.co/40x40/9333ea/ffffff?text=A" alt="User Avatar"
+                    class="w-10 h-10 rounded-full">
+                <div>
+                    <p class="text-sm font-medium text-gray-800" id="user-name">Admin User</p>
+                    <p class="text-xs text-gray-500" id="user-role">Administrator</p>
                 </div>
-                <button type="submit" class="login-button">Login</button>
-                <div class="login-footer">
-                    <a href="#">Lupa Password?</a>
+            </div>
+            <a href="#" class="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                <span data-translate-key="sidebar_logout">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button id="mobile-menu-toggle" class="fixed top-4 left-4 z-[60] p-2 rounded-lg bg-white shadow-md md:hidden">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="md:ml-64 p-4 sm:p-6 lg:p-8 overflow-y-auto min-h-screen transition-all">
+        <!-- Header -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div id="header-title">
+                <h2 class="text-3xl font-bold text-gray-800">Dashboard</h2>
+                <p class="text-gray-500"></p>
+                <p id="last-updated" class="text-gray-500 text-sm">Memuat data...</p>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
+                <div class="relative flex-1 sm:flex-none">
+                    <input type="text" id="global-search" placeholder="Cari..."
+                        data-translate-key="header_search_placeholder"
+                        class="pl-10 pr-4 py-2 rounded-full border bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 w-full sm:w-auto">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                </div>
+                <button id="refresh-button" class="p-2 rounded-full hover:bg-gray-100" title="Muat Ulang Data">
+                    <i data-lucide="refresh-cw" class="w-5 h-5 text-gray-600"></i>
+                </button>
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100"><i data-lucide="sun"
+                        class="w-5 h-5 text-gray-600"></i></button>
+                <div class="relative" id="language-switcher">
+                    <button id="language-toggle-btn" class="p-2 rounded-full hover:bg-gray-100"><i data-lucide="globe"
+                            class="w-5 h-5 text-gray-600"></i></button>
+                    <div id="language-menu"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl hidden z-20">
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            data-lang="id"><img src="https://flagcdn.com/id.svg" class="w-5 h-auto mr-3"
+                                alt="Indonesia Flag"><span>Bahasa Indonesia</span></a>
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            data-lang="en"><img src="https://flagcdn.com/gb.svg" class="w-5 h-auto mr-3"
+                                alt="English Flag"><span>English</span></a>
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            data-lang="ko"><img src="https://flagcdn.com/kr.svg" class="w-5 h-auto mr-3"
+                                alt="Korean Flag"><span>한국어</span></a>
+                    </div>
+                </div>
+                <div class="relative">
+                    <button id="notification-btn" class="p-2 rounded-full hover:bg-gray-100 relative">
+                        <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+                        <span id="notification-badge"
+                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center hidden"></span>
+                    </button>
+                    <div id="notification-dropdown"
+                        class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl hidden z-20 max-h-96 overflow-y-auto">
+                        <div class="p-4 border-b">
+                            <h3 class="font-semibold text-gray-800">Notifikasi</h3>
+                        </div>
+                        <div id="notification-list" class="divide-y"></div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <button id="export-btn" class="p-2 rounded-full hover:bg-gray-100"><i data-lucide="download"
+                            class="w-5 h-5 text-gray-600"></i></button>
+                    <div id="export-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl hidden z-20">
+                        <button class="export-option w-full text-left px-4 py-2 hover:bg-gray-50" data-type="pdf"><i
+                                data-lucide="file-text" class="w-4 h-4 inline mr-2"></i>PDF Report</button>
+                        <button class="export-option w-full text-left px-4 py-2 hover:bg-gray-50" data-type="excel"><i
+                                data-lucide="file-spreadsheet" class="w-4 h-4 inline mr-2"></i>Excel Data</button>
+                        <button class="export-option w-full text-left px-4 py-2 hover:bg-gray-50" data-type="image"><i
+                                data-lucide="image" class="w-4 h-4 inline mr-2"></i>Dashboard Image</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Error Banner (Hidden by default) -->
+        <div id="error-banner" class="error-banner hidden">
+            <div class="flex justify-between items-center">
+                <span id="error-message"></span>
+                <button id="retry-btn" class="retry-btn">Coba Lagi</button>
+            </div>
+        </div>
+
+        <!-- Date Range Filter -->
+        <div class="mb-6 bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4">
+            <div class="relative flex-1 w-full sm:w-auto">
+                <i data-lucide="calendar" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <input id="date-range-picker"
+                    class="pl-10 pr-4 py-2 w-full rounded-lg border bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Pilih rentang tanggal...">
+            </div>
+            <button id="clear-date-filter"
+                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 w-full sm:w-auto">
+                Reset
+            </button>
+        </div>
+
+
+        <!-- ========== PAGE CONTAINER ========== -->
+        <div id="page-container"></div>
+    </main>
+
+    <!-- Modals -->
+    <div id="password-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[101] p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-bold text-lg">Akses Terbatas</h4>
+                <button class="modal-close-btn text-gray-500 hover:text-gray-800 p-2 rounded-full"><i data-lucide="x"
+                        class="w-5 h-5"></i></button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Silakan masukkan password untuk mengakses halaman ini.</p>
+            <form id="password-form">
+                <div>
+                    <label for="password-input" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password-input"
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        required>
+                    <p id="password-error" class="text-red-500 text-sm mt-1 hidden">Password salah!</p>
+                </div>
+                <div class="flex gap-2 pt-4">
+                    <button type="submit"
+                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">Buka</button>
+                    <button type="button"
+                        class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 modal-close-btn">Batal</button>
                 </div>
             </form>
-        </main>
-        <aside class="calendar-widget-container">
-            <h4 class="calendar-widget-title">kalender pelatihan dan pemakaian ruangan tdc km. 12</h4>
-            <div class="calendar-header">
-                <button id="prev-month" aria-label="Bulan sebelumnya">&lt;</button>
-                <h2 id="month-year"></h2>
-                <button id="next-month" aria-label="Bulan berikutnya">&gt;</button>
-            </div>
-            <div class="calendar-grid">
-                <div class="day-name">Min</div>
-                <div class="day-name">Sen</div>
-                <div class="day-name">Sel</div>
-                <div class="day-name">Rab</div>
-                <div class="day-name">Kam</div>
-                <div class="day-name">Jum</div>
-                <div class="day-name">Sab</div>
-            </div>
-            <div id="calendar-days" class="calendar-days"></div>
-        </aside>
-    </div>
-    <section class="quick-menu-container">
-        <h3>Menu Akses Cepat</h3>
-        <div class="quick-menu-buttons">
-            <a href="https://sikap.ptgam.com/login" target="_blank" rel="noopener noreferrer" class="login-button">
-                <span class="icon">📄</span>
-                <span>Mine Permit &amp; Hazard Report</span>
-            </a>
-            <a href="#" class="login-button">
-                <span class="icon">📊</span>
-                <span>HSE PERFORMANCE</span>
-            </a>
-            <a href="ptw.html" target="_blank" rel="noopener noreferrer" class="login-button">
-                <span class="icon">🗓️</span>
-                <span>PTW / IKK</span>
-            </a>
-        </div>
-    </section>
-    <!-- MODAL POP-UP UNTUK DETAIL KALENDER -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle"></h3>
-                <button class="close-button" id="closeModal" aria-label="Tutup Modal">&times;</button>
-            </div>
-            <div id="calendarModalContent">
-                <div class="detail-item">
-                    <label>Tanggal:</label>
-                    <div id="modalDate"></div>
-                </div>
-                <div class="detail-item">
-                    <label>Ruangan:</label>
-                    <div id="modalRoom"></div>
-                </div>
-                <div class="detail-item">
-                    <label>PIC:</label>
-                    <div id="modalPIC"></div>
-                </div>
-                <div class="extra-calendar-events"></div>
-            </div>
         </div>
     </div>
-    <script src="js/login.js"></script>
+    <div id="detail-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[100] p-4">
+        <div
+            class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h4 id="detail-modal-title" class="font-bold text-lg">Detail Data</h4>
+                <button class="modal-close-btn text-gray-500 hover:text-gray-800 p-2 rounded-full"><i data-lucide="x"
+                        class="w-5 h-5"></i></button>
+            </div>
+            <div id="detail-modal-body" class="space-y-1 text-sm"></div>
+        </div>
+    </div>
+
+    <!-- TEMPLATE KONTEN HALAMAN -->
+    <template id="page-templates">
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md card">
+                    <h3 class="text-lg font-semibold text-gray-800" data-translate-key="employee_summary_title">
+                        Ringkasan Karyawan Hari Ini</h3>
+                    <p class="text-sm text-gray-500 mb-4" data-translate-key="employee_summary_subtitle">Snapshot
+                        Kesejahteraan Karyawan Real-time</p>
+                    <div id="employee-summary-content" class="flex flex-col md:flex-row items-center gap-6">
+                        <div class="w-full md:w-1/2">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p id="emp-cleared" class="text-3xl font-bold text-green-600">-</p>
+                                    <p class="text-sm text-gray-500" data-translate-key="employee_summary_cleared">Siap
+                                        bekerja</p>
+                                </div>
+                                <div>
+                                    <p id="emp-stay-home" class="text-3xl font-bold text-red-600">-</p>
+                                    <p class="text-sm text-gray-500" data-translate-key="employee_summary_stay_home">
+                                        Izin di rumah</p>
+                                </div>
+                                <div>
+                                    <p id="emp-serious" class="text-3xl font-bold text-orange-500">-</p>
+                                    <p class="text-sm text-gray-500" data-translate-key="employee_summary_serious">Kasus
+                                        serius</p>
+                                </div>
+                                <div>
+                                    <p id="emp-not-reported" class="text-3xl font-bold text-gray-400">-</p>
+                                    <p class="text-sm text-gray-500" data-translate-key="employee_summary_not_reported">
+                                        Tidak melapor</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2 h-48"><canvas id="employeeSummaryChart"></canvas></div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md card">
+                    <h3 class="text-lg font-semibold text-gray-800" data-translate-key="visitor_summary_title">Ringkasan
+                        Pengunjung Hari Ini</h3>
+                    <p class="text-sm text-gray-500 mb-4" data-translate-key="visitor_summary_subtitle">Pengunjung Saat
+                        Ini atau yang Diharapkan</p>
+                    <div id="visitor-summary-content" class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-green-100 p-3 rounded-lg"><i data-lucide="check-circle"
+                                    class="w-6 h-6 text-green-600"></i></div>
+                            <div>
+                                <p id="visitor-on-site" class="text-2xl font-bold text-gray-800">-</p>
+                                <p class="text-sm text-gray-500" data-translate-key="visitor_summary_on_site">Saat ini
+                                    di Lokasi</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-orange-100 p-3 rounded-lg"><i data-lucide="hourglass"
+                                    class="w-6 h-6 text-orange-600"></i></div>
+                            <div>
+                                <p id="visitor-expected" class="text-2xl font-bold text-gray-800">-</p>
+                                <p class="text-sm text-gray-500" data-translate-key="visitor_summary_expected">
+                                    Diharapkan Datang Hari Ini</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6 card">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800" data-translate-key="weekly_activity_title">
+                            Aktivitas Minggu Ini</h3>
+                        <div class="flex items-center space-x-6 mt-2">
+                            <div>
+                                <p id="weekly-staff" class="text-3xl font-bold text-blue-600">-</p>
+                                <p class="text-sm text-gray-500" data-translate-key="weekly_activity_staff">Staf</p>
+                            </div>
+                            <div>
+                                <p id="weekly-visitors" class="text-3xl font-bold text-teal-500">-</p>
+                                <p class="text-sm text-gray-500" data-translate-key="weekly_activity_visitors">
+                                    Pengunjung</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="text-sm text-purple-600 font-semibold flex items-center"><i data-lucide="eye"
+                            class="w-4 h-4 mr-2"></i><span data-translate-key="weekly_activity_show_all">Lihat
+                            semua</span></button>
+                </div>
+                <div id="weekly-chart-content" class="h-72"><canvas id="thisWeekActivityChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Laporan Observasi Page -->
+        <div id="observasi-page" class="page-content">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs" id="observasi-tabs">
+                        <a href="#"
+                            class="tab-link shrink-0 border-b-2 border-purple-500 px-1 pb-4 text-sm font-medium text-purple-600"
+                            data-tab="dashboard-observasi" data-translate-key="observasi_tab_dashboard">Dashboard
+                            Observasi</a>
+                        <a href="#"
+                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            data-tab="data-observasi" data-translate-key="observasi_tab_data">Data Observasi</a>
+                        <a href="#"
+                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            data-tab="analisis-observasi" data-translate-key="observasi_tab_analisis">Analisis
+                            Observasi</a>
+                    </nav>
+                </div>
+                <div class="mt-6">
+                    <div id="dashboard-observasi-content" class="tab-content active">
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div class="bg-blue-50 p-4 rounded-lg card">
+                                    <p class="text-sm text-blue-700"
+                                        data-translate-key="observasi_dashboard_card1_title">Total Observasi</p>
+                                    <p id="total-observasi" class="text-3xl font-bold text-blue-900">-</p>
+                                </div>
+                                <div class="bg-orange-50 p-4 rounded-lg card">
+                                    <p class="text-sm text-orange-700"
+                                        data-translate-key="observasi_dashboard_card2_title">Observasi Terbuka</p>
+                                    <p id="total-observasi-terbuka" class="text-3xl font-bold text-orange-900">-</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg card">
+                                    <p class="text-sm text-green-700"
+                                        data-translate-key="observasi_dashboard_card3_title">Observasi Tertutup</p>
+                                    <p id="total-observasi-tertutup" class="text-3xl font-bold text-green-900">-</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg card">
+                                    <p class="text-sm text-gray-700"
+                                        data-translate-key="observasi_dashboard_card4_title">Tingkat Penutupan</p>
+                                    <p id="tingkat-penutupan-observasi" class="text-3xl font-bold text-gray-900">-</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                                <div class="lg:col-span-3 bg-gray-50 p-6 rounded-lg card">
+                                    <h3 class="text-md font-semibold text-gray-700 mb-4"
+                                        data-translate-key="observasi_dashboard_tren_title">Tren Observasi Bulanan</h3>
+                                    <div class="h-80"><canvas id="trenObservasiChart"></canvas></div>
+                                </div>
+                                <div class="lg:col-span-2 bg-gray-50 p-6 rounded-lg card">
+                                    <h3 class="text-md font-semibold text-gray-700 mb-4"
+                                        data-translate-key="observasi_dashboard_kategori_title">Kategori Observasi</h3>
+                                    <div class="h-80 flex items-center"><canvas id="kategoriObservasiChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="data-observasi-content" class="tab-content">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                            <h3 class="text-lg font-semibold" data-translate-key="observasi_data_title">Semua Laporan
+                                Observasi</h3>
+                            <button
+                                class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2"><i
+                                    data-lucide="plus"></i><span data-translate-key="observasi_data_button_new">Buat
+                                    Laporan Baru</span></button>
+                        </div>
+                        <div class="table-controls mobile-stack">
+                            <input type="text" id="observasi-search" placeholder="Cari dalam tabel..."
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full">
+                            <select id="observasi-filter"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">Semua Status</option>
+                                <option value="Open">Open</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                            <select id="observasi-per-page"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="10">10 per halaman</option>
+                                <option value="25">25 per halaman</option>
+                                <option value="50" selected>50 per halaman</option>
+                            </select>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="text-xs text-gray-500 uppercase border-b">
+                                        <th class="py-3 px-4 sortable" data-column="id"
+                                            data-translate-key="observasi_data_table_id">ID</th>
+                                        <th class="py-3 px-4 sortable" data-column="tanggal"
+                                            data-translate-key="observasi_data_table_tanggal">Tanggal</th>
+                                        <th class="py-3 px-4 sortable" data-column="lokasi"
+                                            data-translate-key="observasi_data_table_lokasi">Lokasi</th>
+                                        <th class="py-3 px-4 sortable" data-column="kategori"
+                                            data-translate-key="observasi_data_table_kategori">Kategori</th>
+                                        <th class="py-3 px-4 sortable" data-column="status"
+                                            data-translate-key="observasi_data_table_status">Status</th>
+                                        <th class="py-3 px-4" data-translate-key="observasi_data_table_aksi">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="laporan-observasi-table-body" class="text-sm text-gray-700"></tbody>
+                            </table>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
+                            <div id="observasi-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
+                            <div id="observasi-pagination" class="pagination"></div>
+                        </div>
+                    </div>
+                    <div id="analisis-observasi-content" class="tab-content">
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0"><i data-lucide="info" class="h-5 w-5 text-blue-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-blue-700"><strong>Analisis Observasi</strong> - Fitur ini
+                                        sedang dalam pengembangan. Halaman ini akan menampilkan analisis mendalam dari
+                                        data observasi keselamatan.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // ========== GLOBAL STATE MANAGEMENT ==========
+        const appState = {
+            data: {},
+            loading: { global: true, components: new Set() },
+            currentPage: 'dashboard',
+            currentTheme: localStorage.getItem('theme') || 'light',
+            currentLanguage: localStorage.getItem('language') || 'id',
+            cache: {
+                key: 'dashboard_data_cache',
+                expiry: 30 * 60 * 1000 // 30 minutes
+            },
+            tables: {},
+            errors: [],
+            notifications: [],
+            deferredInstallPrompt: null,
+            targetPage: null,
+            startDate: null,
+            endDate: null,
+            lastUpdated: null
+        };
+
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0aYGEksnIrt1_YXDbzS1TFqQU6DV4CV0dSC7QH35N33bp6kIGB6bD9-do_v0G8gvGAA/exec';
+
+        // ========== UTILITY & UI FUNCTIONS ==========
+        const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
+        const updateSplashScreen = (progress, text) => { document.getElementById("splash-progress").style.width = `${progress}%`; document.getElementById("splash-text").textContent = text; };
+        const showError = (message, canRetry = true) => { document.getElementById('error-message').textContent = message; document.getElementById('retry-btn').style.display = canRetry ? 'block' : 'none'; document.getElementById('error-banner').classList.remove('hidden'); };
+        const hideError = () => { document.getElementById('error-banner').classList.add('hidden'); };
+        const addNotification = (title, message, type = 'info') => { appState.notifications.unshift({ id: Date.now(), title, message, type, timestamp: new Date() }); updateNotificationUI(); };
+        const updateNotificationUI = () => {
+            const badge = document.getElementById("notification-badge");
+            const list = document.getElementById("notification-list");
+            const count = appState.notifications.length;
+            if (badge) { count > 0 ? (badge.textContent = count > 9 ? '9+' : count, badge.classList.remove("hidden")) : badge.classList.add("hidden"); }
+            if (list) { list.innerHTML = count === 0 ? '<div class="p-4 text-gray-500 text-center">Tidak ada notifikasi</div>' : appState.notifications.map(n => `<div class="p-3 hover:bg-gray-50 border-b last:border-b-0"><p class="font-semibold text-sm text-gray-800">${n.title}</p><p class="text-xs text-gray-600 mt-1">${n.message}</p><p class="text-xs text-gray-400 mt-2 text-right">${n.timestamp.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })}</p></div>`).join(""); }
+        };
+        function updateLastUpdatedTimestamp(timestamp) {
+            const el = document.getElementById('last-updated');
+            if (!el) return;
+            if (timestamp) {
+                appState.lastUpdated = timestamp;
+                const date = new Date(timestamp);
+                el.textContent = `Terakhir diperbarui: ${date.toLocaleDateString('id-ID')} ${date.toLocaleTimeString('id-ID')}`;
+            } else {
+                el.textContent = 'Memperbarui data...';
+            }
+        }
+
+        // ========== CACHE MANAGEMENT ==========
+        function getCachedData() {
+            const cachedItem = localStorage.getItem(appState.cache.key);
+            if (!cachedItem) return null;
+            try {
+                const { data, timestamp } = JSON.parse(cachedItem);
+                if (Date.now() - timestamp > appState.cache.expiry) {
+                    localStorage.removeItem(appState.cache.key);
+                    return null;
+                }
+                return { data, timestamp };
+            } catch (error) {
+                localStorage.removeItem(appState.cache.key);
+                return null;
+            }
+        }
+
+        function setCachedData(data) {
+            const timestamp = Date.now();
+            const itemToCache = { data, timestamp };
+            try {
+                localStorage.setItem(appState.cache.key, JSON.stringify(itemToCache));
+                updateLastUpdatedTimestamp(timestamp);
+            } catch (error) {
+                console.error(`Error saving cache:`, error);
+            }
+        }
+
+        // ========== DATA FETCHING (using Apps Script) ==========
+        async function fetchAllDashboardData() {
+            if (APPS_SCRIPT_URL === 'URL_APPS_SCRIPT_ANDA_DI_SINI') {
+                showError('URL Apps Script belum dikonfigurasi. Silakan perbarui variabel APPS_SCRIPT_URL di dalam kode.', false);
+                return null;
+            }
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?source=dashboard`);
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(`Apps Script Error: ${data.error}`);
+                }
+                return {
+                    pascaCuti: data.PASCA_CUTI || [],
+                    newHire: data.NEW_HIRE || [],
+                    temporary: data.TEMPORARY || [],
+                    visitor: data.VISITOR || [],
+                    kodeAkses: data.KODE_AKSES || [],
+                    setting: data.setting || [],
+                    pendaftaranInduksi: data.pendaftaran_induksi || [],
+                    dataDasbor: data.Data_Dasbor || [],
+                    performance: data.Performance || [],
+                    observasi: generateDummyObservasiData(123)
+                };
+            } catch (error) {
+                console.error("Fetch failed permanently for dashboard data:", error);
+                showError(`Gagal mengambil data dari server: ${error.message}. Coba lagi nanti.`, true);
+                return null;
+            }
+        }
+
+        function generateDummyObservasiData(count) {
+            const data = [];
+            const locations = ['Area Tambang', 'Workshop', 'Kantor', 'Jalan Hauling', 'Mess'];
+            const categories = ['APD', 'Peralatan', 'Prosedur', 'Lingkungan', 'Perilaku'];
+            const statuses = ['Open', 'Closed'];
+            const today = new Date();
+            for (let i = 0; i < count; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - Math.floor(Math.random() * 90));
+                data.push({
+                    id: `OBS-${1000 + i}`,
+                    tanggal: date.toLocaleDateString('en-CA'),
+                    lokasi: locations[Math.floor(Math.random() * locations.length)],
+                    kategori: categories[Math.floor(Math.random() * categories.length)],
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    deskripsi: 'Ini adalah deskripsi dummy untuk observasi keselamatan.',
+                    pelapor: `User ${100 + i}`
+                });
+            }
+            return data.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+        }
+
+        // ========== TABLE MANAGEMENT ==========
+        class TableManager {
+            constructor(tableId, data, headers, options = {}) {
+                this.tableId = tableId;
+                this.originalData = [...data];
+                this.headers = headers;
+                this.currentPage = 1;
+                this.itemsPerPage = parseInt(options.itemsPerPage || 50);
+                this.sortColumn = null;
+                this.sortDirection = 'asc';
+                this.searchTerm = '';
+                this.filterValue = '';
+                this.dateColumn = options.dateColumn;
+                this.statusColumn = options.statusColumn;
+
+                if (this.dateColumn) {
+                    this.originalData.sort((a, b) => {
+                        const dateA = new Date(a[this.dateColumn] || 0);
+                        const dateB = new Date(b[this.dateColumn] || 0);
+                        return dateB - dateA;
+                    });
+                }
+                this.filteredData = [...this.originalData];
+                this.init();
+            }
+            init() { this.setupControls(); this.render(); }
+            setupControls() {
+                const searchInput = document.getElementById(this.tableId.replace('-table-body', '-search'));
+                if (searchInput) searchInput.addEventListener('input', debounce((e) => { this.searchTerm = e.target.value.toLowerCase(); this.applyFilters(); }, 300));
+                const filterSelect = document.getElementById(this.tableId.replace('-table-body', '-filter'));
+                if (filterSelect) filterSelect.addEventListener('change', (e) => { this.filterValue = e.target.value.toLowerCase(); this.applyFilters(); });
+                const perPageSelect = document.getElementById(this.tableId.replace('-table-body', '-per-page'));
+                if (perPageSelect) perPageSelect.addEventListener('change', (e) => { this.itemsPerPage = parseInt(e.target.value); this.currentPage = 1; this.render(); });
+                const table = document.getElementById(this.tableId).closest('table');
+                table.querySelectorAll('th.sortable').forEach(header => { header.addEventListener('click', () => { const column = header.dataset.column; if (this.sortColumn === column) { this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'; } else { this.sortColumn = column; this.sortDirection = 'asc'; } this.updateSortIcons(header); this.applySort(); }); });
+            }
+            updateSortIcons(activeHeader) {
+                const table = document.getElementById(this.tableId).closest('table');
+                table.querySelectorAll('th.sortable').forEach(header => { header.classList.remove('sort-asc', 'sort-desc'); });
+                activeHeader.classList.add(this.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+            applyFilters() {
+                this.filteredData = this.originalData.filter(item => {
+                    if (this.dateColumn && appState.startDate && appState.endDate) {
+                        const itemDateStr = item[this.dateColumn];
+                        if (!itemDateStr) return false;
+                        const itemDate = new Date(itemDateStr);
+                        const endDate = new Date(appState.endDate);
+                        endDate.setHours(23, 59, 59, 999);
+                        if (itemDate < appState.startDate || itemDate > endDate) {
+                            return false;
+                        }
+                    }
+                    if (this.searchTerm && !Object.values(item).some(value => String(value).toLowerCase().includes(this.searchTerm))) return false;
+                    if (this.filterValue) {
+                        const statusFields = this.statusColumn ? [this.statusColumn] : ['STATUS', 'STATUS INDUKSI', 'kategoriKecelakaan', 'status'];
+                        if (!statusFields.some(field => item[field] && String(item[field]).toLowerCase().includes(this.filterValue))) return false;
+                    }
+                    return true;
+                });
+                this.currentPage = 1;
+                this.applySort();
+            }
+            applySort() {
+                if (!this.sortColumn) { this.render(); return; };
+                this.filteredData.sort((a, b) => {
+                    let aVal = a[this.sortColumn] || '', bVal = b[this.sortColumn] || '';
+                    const aNum = parseFloat(aVal), bNum = parseFloat(bVal);
+                    if (!isNaN(aNum) && !isNaN(bNum)) { aVal = aNum; bVal = bNum; } else { aVal = String(aVal).toLowerCase(); bVal = String(bVal).toLowerCase(); }
+                    if (this.sortDirection === 'asc') return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                    else return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+                });
+                this.render();
+            }
+            render() { this.renderTable(); this.renderPagination(); }
+            renderTable() {
+                const tbody = document.getElementById(this.tableId);
+                const start = (this.currentPage - 1) * this.itemsPerPage, end = start + this.itemsPerPage;
+                const pageData = this.filteredData.slice(start, end);
+                if (pageData.length === 0) { tbody.innerHTML = `<tr><td colspan="${this.headers.length + 1}" class="text-center py-4 text-gray-500">Tidak ada data.</td></tr>`; return; }
+                tbody.innerHTML = pageData.map((row, index) => {
+                    const filteredIndex = start + index;
+                    let cells = this.headers.map(header => {
+                        const value = row[header] || '-';
+                        let cellClass = 'py-3 px-4';
+                        const lowerCaseValue = String(value).toLowerCase();
+                        if (header.toLowerCase().includes('status')) {
+                            if (['ok', 'closed'].includes(lowerCaseValue)) cellClass += ' text-green-600 font-semibold';
+                            else if (['hold', 'open'].includes(lowerCaseValue)) cellClass += ' text-orange-500 font-semibold';
+                            else if (lowerCaseValue === 'need') cellClass += ' text-red-600 font-semibold';
+                        }
+                        else if (header.toLowerCase().includes('score')) { const score = parseFloat(value); if (!isNaN(score)) { if (score < 75) cellClass += ' text-red-600 font-bold'; else cellClass += ' text-green-600 font-bold'; } }
+                        return `<td class="${cellClass}">${value}</td>`;
+                    }).join('');
+                    cells += `<td class="py-3 px-4"><button class="text-purple-600 hover:underline text-sm detail-btn" data-tbody-id="${this.tableId}" data-index="${filteredIndex}">Detail</button></td>`;
+                    return `<tr class="border-b hover:bg-gray-50">${cells}</tr>`;
+                }).join('');
+            }
+            renderPagination() {
+                const paginationId = this.tableId.replace('-table-body', '-pagination');
+                const paginationContainer = document.getElementById(paginationId);
+                const summaryId = this.tableId.replace('-table-body', '-summary');
+                const summaryContainer = document.getElementById(summaryId);
+                if (!paginationContainer) return;
+                const totalEntries = this.filteredData.length;
+                const totalPages = Math.ceil(totalEntries / this.itemsPerPage);
+                const startEntry = totalEntries > 0 ? (this.currentPage - 1) * this.itemsPerPage + 1 : 0;
+                const endEntry = Math.min(startEntry + this.itemsPerPage - 1, totalEntries);
+                if (summaryContainer) {
+                    if (totalEntries > 0) { summaryContainer.textContent = `Menampilkan ${startEntry} sampai ${endEntry} dari ${totalEntries} data`; }
+                    else { summaryContainer.textContent = 'Tidak ada data untuk ditampilkan'; }
+                }
+                if (totalPages <= 1) { paginationContainer.innerHTML = ''; return; }
+                let html = `<button class="pagination-btn ${this.currentPage === 1 ? 'disabled' : ''}" ${this.currentPage === 1 ? 'disabled' : ''} data-page="${this.currentPage - 1}">‹</button>`;
+                for (let i = 1; i <= totalPages; i++) { html += `<button class="pagination-btn ${i === this.currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`; }
+                html += `<button class="pagination-btn ${this.currentPage === totalPages ? 'disabled' : ''}" ${this.currentPage === totalPages ? 'disabled' : ''} data-page="${this.currentPage + 1}">›</button>`;
+                paginationContainer.innerHTML = html;
+                paginationContainer.addEventListener('click', (e) => { if (e.target.classList.contains('pagination-btn') && !e.target.disabled) { this.currentPage = parseInt(e.target.dataset.page); this.render(); } });
+            }
+            updateData(newData) { this.originalData = [...newData]; this.applyFilters(); }
+        }
+
+        // ========== CHART MANAGEMENT ==========
+        const chartInstances = {};
+        function initializeCharts() {
+            const defaultChartOptions = (extraOptions = {}) => ({
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: appState.currentTheme === 'dark' ? '#f1f5f9' : '#1f2937' } } },
+                scales: {
+                    x: { ticks: { color: appState.currentTheme === 'dark' ? '#cbd5e1' : '#1f2937' }, grid: { color: 'rgba(128, 128, 128, 0.2)' } },
+                    y: { ticks: { color: appState.currentTheme === 'dark' ? '#cbd5e1' : '#1f2937' }, grid: { color: 'rgba(128, 128, 128, 0.2)' } }
+                }, ...extraOptions
+            });
+            const createChart = (id, type, options) => {
+                const ctx = document.getElementById(id)?.getContext("2d");
+                if (ctx) { if (chartInstances[id]) chartInstances[id].destroy(); chartInstances[id] = new Chart(ctx, { type, data: { labels: [], datasets: [] }, options }); }
+            };
+            createChart('employeeSummaryChart', 'doughnut', defaultChartOptions({ plugins: { legend: { display: false } } }));
+            createChart('thisWeekActivityChart', 'line', defaultChartOptions({ scales: { y: { beginAtZero: true } } }));
+            createChart('trenObservasiChart', 'line', defaultChartOptions({ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }));
+            createChart('kategoriObservasiChart', 'pie', defaultChartOptions({ plugins: { legend: { position: 'right' } } }));
+        }
+
+        // ========== UI UPDATE FUNCTIONS ==========
+        function updateUI(data) {
+            if (!data) {
+                console.warn("Update UI skipped due to missing data.");
+                return;
+            }
+            appState.data = data;
+            hideError();
+            updateNamaPerusahaan(data.setting);
+            // REMOVED initializeTables
+            applyGlobalFilters();
+            document.querySelectorAll('.component-loading').forEach(el => el.classList.remove('component-loading'));
+        }
+
+        function applyGlobalFilters() {
+            if (!appState.data || Object.keys(appState.data).length === 0) return;
+            updateMainDashboard(appState.data);
+            updateObservasiDashboard(appState.data);
+            // REMOVED table filtering
+        }
+
+        function updateNamaPerusahaan(settingData) {
+            if (!settingData || settingData.length === 0) return;
+            const companyName = settingData[0]?.namaPerusahaan || 'GAMITAS';
+            const initial = companyName.charAt(0);
+            document.getElementById('company-name-sidebar').innerHTML = `<span class="text-purple-600">${initial}</span>${companyName.slice(1)}`;
+            document.getElementById('splash-logo').textContent = initial;
+            document.getElementById('splash-company-name').textContent = companyName;
+        }
+        function updateMainDashboard(data) {
+            const empSummary = { cleared: 320, stayHome: 26, serious: 4, notReported: 15 };
+            document.getElementById('emp-cleared').textContent = empSummary.cleared;
+            document.getElementById('emp-stay-home').textContent = empSummary.stayHome;
+            document.getElementById('emp-serious').textContent = empSummary.serious;
+            document.getElementById('emp-not-reported').textContent = empSummary.notReported;
+            if (chartInstances.employeeSummaryChart) {
+                chartInstances.employeeSummaryChart.data = {
+                    labels: ['Izin di rumah', 'Kasus serius', 'Tidak melapor', 'Siap bekerja'],
+                    datasets: [{
+                        data: [empSummary.stayHome, empSummary.serious, empSummary.notReported, empSummary.cleared],
+                        backgroundColor: ['#dc2626', '#f59e0b', '#6b7280', '#16a34a'],
+                        borderWidth: 0
+                    }]
+                };
+                chartInstances.employeeSummaryChart.update();
+            }
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            // FIXED: Added safety checks for all data properties
+            document.getElementById('visitor-on-site').textContent = (data.visitor || []).filter(v => v.DATE === todayStr).length;
+            document.getElementById('visitor-expected').textContent = 12; // Mock data
+            const weeklyLabels = [], weeklyStaffData = [], weeklyVisitorData = [];
+            let totalWeeklyStaff = 0, totalWeeklyVisitors = 0;
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                const dayStr = d.toLocaleDateString('en-CA'), dayLabel = d.getDate().toString();
+                const staffCount = (data.newHire || []).filter(item => item.tanggal === dayStr).length + (data.pascaCuti || []).filter(item => item.DATE === dayStr).length + (data.temporary || []).filter(item => item.DATE === dayStr).length;
+                const visitorCount = (data.visitor || []).filter(item => item.DATE === dayStr).length;
+                weeklyLabels.push(dayLabel); weeklyStaffData.push(staffCount); weeklyVisitorData.push(visitorCount);
+                totalWeeklyStaff += staffCount; totalWeeklyVisitors += visitorCount;
+            }
+            document.getElementById('weekly-staff').textContent = totalWeeklyStaff;
+            document.getElementById('weekly-visitors').textContent = totalWeeklyVisitors;
+            if (chartInstances.thisWeekActivityChart) { chartInstances.thisWeekActivityChart.data = { labels: weeklyLabels, datasets: [{ label: 'Staf', data: weeklyStaffData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true }, { label: 'Pengunjung', data: weeklyVisitorData, borderColor: '#14b8a6', backgroundColor: 'rgba(20, 184, 166, 0.1)', tension: 0.4, fill: true }] }; chartInstances.thisWeekActivityChart.update(); }
+        }
+
+        function updateObservasiDashboard(data) {
+            const obsData = data.observasi;
+            const total = obsData.length;
+            const open = obsData.filter(d => d.status === 'Open').length;
+            const closed = total - open;
+            const closureRate = total > 0 ? ((closed / total) * 100).toFixed(0) + '%' : 'N/A';
+            document.getElementById('total-observasi').textContent = total;
+            document.getElementById('total-observasi-terbuka').textContent = open;
+            document.getElementById('total-observasi-tertutup').textContent = closed;
+            document.getElementById('tingkat-penutupan-observasi').textContent = closureRate;
+            const monthlyTrend = Array(12).fill(0);
+            obsData.forEach(d => { const month = new Date(d.tanggal).getMonth(); if (month >= 0 && month < 12) monthlyTrend[month]++; });
+            if (chartInstances.trenObservasiChart) {
+                chartInstances.trenObservasiChart.data = {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                    datasets: [{ label: 'Jumlah Observasi', data: monthlyTrend, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true }]
+                };
+                chartInstances.trenObservasiChart.update();
+            }
+            const categoryCounts = obsData.reduce((acc, d) => { const cat = d.kategori || 'Lainnya'; acc[cat] = (acc[cat] || 0) + 1; return acc; }, {});
+            if (chartInstances.kategoriObservasiChart) {
+                chartInstances.kategoriObservasiChart.data = {
+                    labels: Object.keys(categoryCounts),
+                    datasets: [{ data: Object.values(categoryCounts), backgroundColor: ['#ef4444', '#f97316', '#8b5cf6', '#10b981', '#3b82f6'] }]
+                };
+                chartInstances.kategoriObservasiChart.update();
+            }
+        }
+
+        function showDetailsInModal(dataObject) {
+            const modal = document.getElementById('detail-modal'), modalBody = document.getElementById('detail-modal-body');
+            let contentHtml = '<dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">';
+            for (const key in dataObject) { contentHtml += `<div class="bg-gray-50 px-3 py-2 rounded-md"><dt class="font-semibold text-gray-600">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</dt><dd class="text-gray-800">${dataObject[key] || '-'}</dd></div>`; }
+            modalBody.innerHTML = contentHtml + '</dl>';
+            modal.classList.remove('hidden');
+        }
+
+        // ========== NAVIGATION & THEME & LANGUAGE ==========
+        function switchPage(pageId) {
+            appState.currentPage = pageId;
+            document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId + '-page')?.classList.add('active');
+            const titles = translations[appState.currentLanguage].pageTitles[pageId] || { title: 'Halaman Tidak Ditemukan', subtitle: '' };
+            document.querySelector('#header-title h2').textContent = titles.title;
+            document.querySelector('#header-title p:not(#last-updated)').textContent = titles.subtitle;
+            document.querySelectorAll('.sidebar-link[data-page]').forEach(link => link.classList.remove('active'));
+            document.querySelector(`.sidebar-link[data-page="${pageId}"]`)?.classList.add('active');
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('show')) sidebar.classList.remove('show');
+        }
+        function setupTabs(tabContainerId) {
+            const tabContainer = document.getElementById(tabContainerId); if (!tabContainer) return;
+            const tabLinks = tabContainer.querySelectorAll('.tab-link'), tabContents = tabContainer.closest('.bg-white').querySelectorAll('.tab-content');
+            tabLinks.forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    const tabId = link.dataset.tab;
+                    tabLinks.forEach(l => { l.classList.remove('border-purple-500', 'text-purple-600'); l.classList.add('border-transparent', 'text-gray-500'); });
+                    link.classList.add('border-purple-500', 'text-purple-600'); link.classList.remove('border-transparent', 'text-gray-500');
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(tabId + '-content')?.classList.add('active');
+                });
+            });
+        }
+        function toggleTheme() {
+            appState.currentTheme = appState.currentTheme === "light" ? "dark" : "light";
+            document.body.classList.remove("theme-light", "theme-dark");
+            document.body.classList.add(`theme-${appState.currentTheme}`);
+            localStorage.setItem("theme", appState.currentTheme);
+            const themeToggleButton = document.getElementById("theme-toggle");
+            if (themeToggleButton) {
+                const newIconName = appState.currentTheme === "light" ? "moon" : "sun";
+                themeToggleButton.innerHTML = `<i data-lucide="${newIconName}" class="w-5 h-5 text-gray-600"></i>`;
+            }
+            lucide.createIcons();
+            initializeCharts();
+            updateUI(appState.data);
+        }
+        const translations = {
+            id: { sidebar_dashboard: "Dashboard", sidebar_induksi: "Induksi", sidebar_pelatihan: "Pelatihan Internal", sidebar_laporan_insiden: "Laporan Insiden", sidebar_laporan_observasi: "Laporan Observasi", sidebar_logout: "Keluar", header_search_placeholder: "Cari...", pageTitles: { dashboard: { title: 'Dashboard Utama', subtitle: 'Ringkasan aktivitas operasional' }, observasi: { title: 'Laporan Observasi', subtitle: 'Manajemen laporan observasi keselamatan' } }, employee_summary_title: "Ringkasan Karyawan Hari Ini", employee_summary_subtitle: "Snapshot Kesejahteraan Karyawan Real-time", employee_summary_cleared: "Siap bekerja", employee_summary_stay_home: "Izin di rumah", employee_summary_serious: "Kasus serius", employee_summary_not_reported: "Tidak melapor", visitor_summary_title: "Ringkasan Pengunjung Hari Ini", visitor_summary_subtitle: "Pengunjung Saat Ini atau yang Diharapkan", visitor_summary_on_site: "Saat ini di Lokasi", visitor_summary_expected: "Diharapkan Datang Hari Ini", weekly_activity_title: "Aktivitas Minggu Ini", weekly_activity_staff: "Staf", weekly_activity_visitors: "Pengunjung", weekly_activity_show_all: "Lihat semua", observasi_tab_dashboard: "Dashboard Observasi", observasi_tab_data: "Data Observasi", observasi_tab_analisis: "Analisis Observasi", observasi_dashboard_card1_title: "Total Observasi", observasi_dashboard_card2_title: "Observasi Terbuka", observasi_dashboard_card3_title: "Observasi Tertutup", observasi_dashboard_card4_title: "Tingkat Penutupan", observasi_dashboard_tren_title: "Tren Observasi Bulanan", observasi_dashboard_kategori_title: "Kategori Observasi", observasi_data_title: "Semua Laporan Observasi", observasi_data_button_new: "Buat Laporan Baru", observasi_data_table_id: "ID", observasi_data_table_tanggal: "Tanggal", observasi_data_table_lokasi: "Lokasi", observasi_data_table_kategori: "Kategori", observasi_data_table_status: "Status", observasi_data_table_aksi: "Aksi" },
+            en: { sidebar_dashboard: "Dashboard", sidebar_induksi: "Induction", sidebar_pelatihan: "Internal Training", sidebar_laporan_insiden: "Incident Report", sidebar_laporan_observasi: "Observation Report", sidebar_logout: "Logout", header_search_placeholder: "Search...", pageTitles: { dashboard: { title: 'Main Dashboard', subtitle: 'Summary of operational activities' }, observasi: { title: 'Observation Report', subtitle: 'Management of safety observation reports' } }, employee_summary_title: "Today's Employees Summary", employee_summary_subtitle: "Real-time Employee Well-being Snapshot", employee_summary_cleared: "Cleared for work", employee_summary_stay_home: "Stay at home", employee_summary_serious: "Serious case", employee_summary_not_reported: "Not reported", visitor_summary_title: "Today's Visitors Summary", visitor_summary_subtitle: "Current or Expected Visitors", visitor_summary_on_site: "Currently on Site", visitor_summary_expected: "Expected Later Today", weekly_activity_title: "This Week's Activity", weekly_activity_staff: "Staff", weekly_activity_visitors: "Visitors", weekly_activity_show_all: "Show all", observasi_tab_dashboard: "Observation Dashboard", observasi_tab_data: "Observation Data", observasi_tab_analisis: "Observation Analysis", observasi_dashboard_card1_title: "Total Observations", observasi_dashboard_card2_title: "Open Observations", observasi_dashboard_card3_title: "Closed Observations", observasi_dashboard_card4_title: "Closure Rate", observasi_dashboard_tren_title: "Monthly Observation Trend", observasi_dashboard_kategori_title: "Observation Category", observasi_data_title: "All Observation Reports", observasi_data_button_new: "Create New Report", observasi_data_table_id: "ID", observasi_data_table_tanggal: "Date", observasi_data_table_lokasi: "Location", observasi_data_table_kategori: "Category", observasi_data_table_status: "Status", observasi_data_table_aksi: "Action" },
+            ko: { sidebar_dashboard: "대시보드", sidebar_induksi: "교육", sidebar_pelatihan: "내부 훈련", sidebar_laporan_insiden: "사고 보고서", sidebar_laporan_observasi: "관찰 보고서", sidebar_logout: "로그아웃", header_search_placeholder: "검색...", pageTitles: { dashboard: { title: '메인 대시보드', subtitle: '운영 활동 요약' }, observasi: { title: '관찰 보고서', subtitle: '안전 관찰 보고서 관리' } }, employee_summary_title: "오늘의 직원 요약", employee_summary_subtitle: "실시간 직원 웰빙 스냅샷", employee_summary_cleared: "업무 가능", employee_summary_stay_home: "재택", employee_summary_serious: "심각한 경우", employee_summary_not_reported: "보고되지 않음", visitor_summary_title: "오늘의 방문자 요약", visitor_summary_subtitle: "현재 또는 예상 방문자", visitor_summary_on_site: "현재 현장에 있음", visitor_summary_expected: "오늘 늦게 예상됨", weekly_activity_title: "이번 주 활동", weekly_activity_staff: "직원", weekly_activity_visitors: "방문객", weekly_activity_show_all: "모두 보기", observasi_tab_dashboard: "관찰 대시보드", observasi_tab_data: "관찰 데이터", observasi_tab_analisis: "관찰 분석", observasi_dashboard_card1_title: "총 관찰", observasi_dashboard_card2_title: "미해결 관찰", observasi_dashboard_card3_title: "해결된 관찰", observasi_dashboard_card4_title: "해결률", observasi_dashboard_tren_title: "월간 관찰 동향", observasi_dashboard_kategori_title: "관찰 카테고리", observasi_data_title: "모든 관찰 보고서", observasi_data_button_new: "새 보고서 작성", observasi_data_table_id: "ID", observasi_data_table_tanggal: "날짜", observasi_data_table_lokasi: "위치", observasi_data_table_kategori: "카테고리", observasi_data_table_status: "상태", observasi_data_table_aksi: "조치" }
+        };
+        const setLanguage = (lang) => {
+            appState.currentLanguage = lang; localStorage.setItem('language', lang); document.documentElement.lang = lang;
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.dataset.translateKey, translation = translations[lang][key];
+                if (translation) { el.hasAttribute('placeholder') ? el.placeholder = translation : el.innerText = translation; }
+            });
+            const activePageEl = document.querySelector('.page-content.active');
+            if (activePageEl) { const activePageId = activePageEl.id.replace('-page', ''), titles = translations[lang].pageTitles[activePageId]; if (titles) { document.querySelector('#header-title h2').textContent = titles.title; document.querySelector('#header-title p:not(#last-updated)').textContent = titles.subtitle; } }
+        };
+
+        // ========== EXPORT & PWA ==========
+        async function handleExport(type) {
+            const { jsPDF } = window.jspdf;
+            const mainContent = document.getElementById(appState.currentPage + "-page");
+            if (!mainContent) { addNotification("Export Error", "Could not find content to export.", "error"); return; }
+            document.getElementById("export-menu").classList.add("hidden");
+            addNotification("Exporting...", `Preparing your ${type} export.`, "info");
+            if (type === "image") { html2canvas(mainContent).then((canvas) => { const link = document.createElement("a"); link.download = `gamitas_dashboard_${new Date().toISOString()}.png`; link.href = canvas.toDataURL("image/png"); link.click(); }); }
+            else if (type === "pdf") { const doc = new jsPDF(); const canvas = await html2canvas(mainContent); const imgData = canvas.toDataURL("image/png"); const imgProps = doc.getImageProperties(imgData); const pdfWidth = doc.internal.pageSize.getWidth(); const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width; doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight); doc.save(`gamitas_report_${new Date().toISOString()}.pdf`); }
+            else if (type === "excel") {
+                const data = appState.data.dataDasbor;
+                if (data && data.length > 0) { const headers = Object.keys(data[0]); let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + data.map(row => headers.map(header => `"${row[header]}"`).join(",")).join("\n"); const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", `gamitas_incident_data.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
+                else { addNotification("Export Error", "No incident data available to export to Excel.", "error"); }
+            }
+        }
+
+        // ========== PASSWORD PROTECTION ==========
+        const CORRECT_PASSWORD = "gamitas2025";
+        function requestPasswordAndSwitchPage(pageId) {
+            if (sessionStorage.getItem('gamitas_access_granted') === 'true') { switchPage(pageId); }
+            else { showPasswordModal(pageId); }
+        }
+        function showPasswordModal(pageId) {
+            appState.targetPage = pageId;
+            const modal = document.getElementById('password-modal');
+            const passwordInput = document.getElementById('password-input');
+            const passwordError = document.getElementById('password-error');
+            passwordInput.value = '';
+            passwordError.classList.add('hidden');
+            modal.classList.remove('hidden');
+            passwordInput.focus();
+        }
+        function handlePasswordSubmit(e) {
+            e.preventDefault();
+            const passwordInput = document.getElementById('password-input');
+            const passwordError = document.getElementById('password-error');
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                sessionStorage.setItem('gamitas_access_granted', 'true');
+                document.getElementById('password-modal').classList.add('hidden');
+                if (appState.targetPage) { switchPage(appState.targetPage); appState.targetPage = null; }
+            } else {
+                passwordError.classList.remove('hidden');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        // ========== EVENT LISTENERS ==========
+        function setupEventListeners() {
+            document.querySelectorAll('.sidebar-link[data-page]').forEach(link => {
+                const pageId = link.dataset.page;
+                const isProtected = pageId === 'observasi';
+                if (isProtected) {
+                    link.addEventListener('click', (e) => { e.preventDefault(); requestPasswordAndSwitchPage(pageId); });
+                } else {
+                    link.addEventListener('click', (e) => { e.preventDefault(); switchPage(pageId); });
+                }
+            });
+
+            document.querySelectorAll('.sidebar-dropdown-toggle').forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const submenu = toggle.nextElementSibling;
+                    if (submenu) submenu.classList.toggle('hidden');
+                    const icon = toggle.querySelector('i[data-lucide="chevron-down"]');
+                    if (icon) icon.classList.toggle('rotate-180');
+                });
+            });
+            setupTabs('observasi-tabs');
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+            document.getElementById('refresh-button').addEventListener('click', forceRefreshData);
+
+            const langSwitcher = document.getElementById('language-switcher'), langToggleBtn = document.getElementById('language-toggle-btn'), langMenu = document.getElementById('language-menu');
+            langToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); langMenu.classList.toggle('hidden'); });
+            langMenu.addEventListener('click', (e) => { e.preventDefault(); const target = e.target.closest('a[data-lang]'); if (target) { setLanguage(target.dataset.lang); langMenu.classList.add('hidden'); } });
+            const notificationBtn = document.getElementById('notification-btn'), notificationDropdown = document.getElementById('notification-dropdown');
+            notificationBtn.addEventListener('click', (e) => { e.stopPropagation(); notificationDropdown.classList.toggle('hidden'); });
+            const exportBtn = document.getElementById('export-btn'), exportMenu = document.getElementById('export-menu');
+            exportBtn.addEventListener('click', (e) => { e.stopPropagation(); exportMenu.classList.toggle('hidden'); });
+            document.querySelectorAll(".export-option").forEach((opt) => opt.addEventListener("click", (e) => handleExport(e.currentTarget.dataset.type)));
+            document.addEventListener('click', (e) => { if (!langSwitcher.contains(e.target)) langMenu.classList.add('hidden'); if (!notificationBtn.parentElement.contains(e.target)) notificationDropdown.classList.add('hidden'); if (!exportBtn.parentElement.contains(e.target)) exportMenu.classList.add('hidden'); });
+            document.getElementById('retry-btn').addEventListener('click', forceRefreshData);
+
+            document.getElementById('page-container').addEventListener('click', (e) => {
+                if (e.target.classList.contains('detail-btn')) {
+                    const tbodyId = e.target.dataset.tbodyId;
+                    const rowIndex = parseInt(e.target.dataset.index);
+                    const tableKeyMap = {
+                        'laporan-observasi-table-body': 'observasi'
+                    };
+                    const tableKey = tableKeyMap[tbodyId];
+                    if (tableKey && appState.tables[tableKey]) {
+                        const dataObject = appState.tables[tableKey].filteredData[rowIndex];
+                        if (dataObject) showDetailsInModal(dataObject);
+                    }
+                }
+            });
+
+            document.body.addEventListener('click', (e) => { if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn') || e.target.matches('.fixed.inset-0')) { document.querySelectorAll('.fixed.inset-0').forEach(modal => modal.classList.add('hidden')); } });
+            document.getElementById("install-button")?.addEventListener("click", () => appState.deferredInstallPrompt?.prompt());
+            window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); appState.deferredInstallPrompt = e; document.getElementById("install-button").style.display = "flex"; });
+            window.addEventListener("online", () => document.getElementById("offline-banner").classList.remove("show"));
+            window.addEventListener("offline", () => document.getElementById("offline-banner").classList.add("show"));
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            mobileMenuToggle.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('show'); });
+            document.addEventListener('click', (e) => { if (!sidebar.contains(e.target) && !mobileMenuToggle.contains(e.target)) { sidebar.classList.remove('show'); } });
+
+            document.getElementById('password-form')?.addEventListener('submit', handlePasswordSubmit);
+
+            const datePicker = flatpickr("#date-range-picker", {
+                mode: "range", dateFormat: "Y-m-d",
+                onChange: function (selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        appState.startDate = selectedDates[0];
+                        appState.endDate = selectedDates[1];
+                        applyGlobalFilters();
+                    }
+                }
+            });
+            document.getElementById('clear-date-filter').addEventListener('click', () => {
+                datePicker.clear();
+                appState.startDate = null;
+                appState.endDate = null;
+                applyGlobalFilters();
+            });
+        }
+
+        async function forceRefreshData() {
+            const refreshButton = document.getElementById('refresh-button');
+            if (!refreshButton) return;
+            const icon = refreshButton.firstElementChild;
+
+            if (icon) icon.classList.add('animate-spin');
+            refreshButton.disabled = true;
+
+            updateLastUpdatedTimestamp(null);
+
+            const freshData = await fetchAllDashboardData();
+
+            if (freshData) {
+                console.log("Forced refresh successful. Updating UI and cache.");
+                updateUI(freshData);
+                setCachedData(freshData);
+            } else {
+                console.log("Forced refresh failed to retrieve new data.");
+            }
+
+            if (icon) icon.classList.remove('animate-spin');
+            refreshButton.disabled = false;
+        }
+
+        // ========== MAIN APPLICATION INITIALIZATION ==========
+        async function initializePage() {
+            const splashScreen = document.getElementById('splash-screen');
+            updateSplashScreen(10, "Initializing UI...");
+            const cached = getCachedData();
+
+            if (cached) {
+                console.log("All data loaded from cache. Rendering initial UI.");
+                updateUI(cached.data);
+                updateLastUpdatedTimestamp(cached.timestamp);
+            }
+
+            updateSplashScreen(30, "Syncing with server...");
+            const freshData = await fetchAllDashboardData();
+
+            if (freshData) {
+                const isDataDifferent = JSON.stringify(freshData) !== JSON.stringify(appState.data);
+                if (isDataDifferent) {
+                    console.log("New data found. Updating UI and saving to cache.");
+                    updateUI(freshData);
+                    setCachedData(freshData);
+                    addNotification("Data Diperbarui", "Data terbaru telah berhasil disinkronkan.", "success");
+                } else {
+                    console.log("Data is up to date.");
+                }
+            }
+
+            updateSplashScreen(95, "Finalizing dashboard...");
+            switchPage('dashboard');
+            updateNotificationUI();
+            if (!cached) addNotification("Selamat Datang!", "Dasbor GAMITAS siap digunakan.", "success");
+            splashScreen.style.opacity = "0";
+            setTimeout(() => splashScreen.style.display = "none", 500);
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            document.body.classList.add(`theme-${appState.currentTheme}`);
+            const themeToggleButton = document.getElementById("theme-toggle");
+            if (themeToggleButton) {
+                const iconName = appState.currentTheme === 'light' ? 'moon' : 'sun';
+                themeToggleButton.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 text-gray-600"></i>`;
+            }
+
+            const template = document.getElementById('page-templates');
+            document.getElementById('page-container').innerHTML = template.innerHTML;
+
+            lucide.createIcons();
+            initializeCharts();
+            setupEventListeners();
+            setLanguage(appState.currentLanguage);
+
+            await initializePage();
+        });
+    </script>
 </body>
+
 </html>

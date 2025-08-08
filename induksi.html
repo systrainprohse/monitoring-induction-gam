@@ -1,623 +1,933 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>📋 Monitoring Induksi</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <!-- Tambahkan link Font Awesome untuk ikon -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Induksi & Izin Tambang - GAMITAS</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
-    <audio
-      id="notif-sound"
-      src="sounds/notification.mp3"
-      preload="auto"
-    ></audio>
-  </head>
-  <body>
-    <script>
-      // Redirect to login if not logged in
-      const userRole = localStorage.getItem("userRole");
-      if (!userRole) {
-        window.location.href = "index.html"; // index.html is the login page
-      }
-    </script>
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-    <header class="minimal-header">
-      <h1>SITE PT. GANDA ALAM MAKMUR</h1>
-      <audio id="intro-audio" src="sounds/intro.mp3" preload="auto"></audio>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-      <div class="splash-screen">
-        <div class="splash-logo">🚀</div>
-        <p class="splash-text">Memuat Aplikasi...</p>
-      </div>
+        :root {
+            --bg-light: #f8fafc;
+            --bg-dark: #1e293b;
+            --text-light: #1f2937;
+            --text-dark: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Dark Theme Styles */
+        .theme-dark {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        .theme-dark .bg-white {
+            background-color: #334155 !important;
+        }
+
+        .theme-dark .bg-gray-50,
+        .theme-dark .bg-gray-100 {
+            background-color: #475569 !important;
+        }
+
+        .theme-dark .text-gray-800,
+        .theme-dark .text-gray-900 {
+            color: #f1f5f9 !important;
+        }
+
+        .theme-dark .text-gray-700 {
+            color: #e2e8f0 !important;
+        }
+
+        .theme-dark .text-gray-600 {
+            color: #cbd5e1 !important;
+        }
+
+        .theme-dark .text-gray-500 {
+            color: #94a3b8 !important;
+        }
+
+        .theme-dark .border-gray-200,
+        .theme-dark .border-b,
+        .theme-dark .border-t {
+            border-color: #475569 !important;
+        }
+
+        .theme-dark .hover\:bg-gray-100:hover {
+            background-color: #475569 !important;
+        }
+
+        .theme-dark .hover\:bg-gray-50:hover {
+            background-color: #4b5a70 !important;
+        }
+
+        .theme-dark .shadow-md,
+        .theme-dark .shadow-lg {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-dark input,
+        .theme-dark select {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #f1f5f9;
+        }
+
+        .theme-dark input::placeholder {
+            color: #94a3b8;
+        }
+
+        .theme-dark .tab-link.active {
+            color: #a78bfa !important;
+            border-color: #a78bfa !important;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .component-loading {
+            position: relative;
+            min-height: 100px;
+            overflow: hidden;
+        }
+
+        .component-loading::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        .theme-dark .component-loading::after {
+            background: linear-gradient(90deg, transparent, rgba(100, 116, 139, 0.5), transparent);
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="theme-light">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800"><span class="text-purple-600">G</span>AMITAS - Induksi &
+                    Izin Tambang</h1>
+                <p id="last-updated" class="text-xs text-gray-500">Memuat data...</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <a href="./index.html"
+                    class="text-purple-600 hover:text-purple-800 font-medium flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+                    <i data-lucide="arrow-left-circle"></i>
+                    <span class="hidden sm:inline">Kembali</span>
+                </a>
+                <button id="refresh-button" class="p-2 rounded-full hover:bg-gray-100" title="Muat Ulang Data">
+                    <i data-lucide="refresh-cw" class="w-5 h-5 text-gray-600"></i>
+                </button>
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100" title="Ganti Tema">
+                    <i data-lucide="sun" class="w-5 h-5 text-gray-600"></i>
+                </button>
+            </div>
+        </div>
     </header>
 
-    <main class="container">
-      <h2 class="page-title-container">
-        <span>📋 INDUKSI, SPDK, CHECKLIST, MINE PERMIT</span>
-        <button
-          id="force-refresh-btn"
-          title="Paksa Muat Ulang Data dari Spreadsheet"
-          class="header-action-btn"
-        >
-          <i class="fas fa-sync-alt"></i>
-        </button>
-      </h2>
+    <main class="p-4 sm:p-6 lg:p-8">
+        <div id="error-banner" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+            <p class="font-bold">Gagal Memuat Data</p>
+            <p id="error-message-content">Terjadi kesalahan.</p>
+        </div>
 
-      <!-- Kontainer Gabungan untuk Semua Kartu KPI -->
-      <div id="kpi-container" class="kpi-container">
-        <!-- Card untuk Induksi Hari Ini (Core) dengan ikon dan warna -->
-        <div class="kpi-card kpi-core">
-          <div class="kpi-icon">
-            <i class="fas fa-building"></i>
-          </div>
-          <div class="kpi-content">
-            <div class="kpi-value" id="induksi-core-today-count">0</div>
-            <div class="kpi-label">Induksi Hari Ini (Core)</div>
-            <div class="kpi-comparison" id="core-comparison">
-              <span class="comparison-arrow"></span>
-              <span class="comparison-value">0</span> vs kemarin
-            </div>
-            <small class="kpi-sublabel">GAM, UT, WEM/TEM, BMJ</small>
-          </div>
-        </div>
-        <!-- Card untuk Induksi Hari Ini (Mitra) dengan ikon dan warna -->
-        <div class="kpi-card kpi-mitra">
-          <div class="kpi-icon">
-            <i class="fas fa-users"></i>
-          </div>
-          <div class="kpi-content">
-            <div class="kpi-value" id="induksi-mitra-today-count">0</div>
-            <div class="kpi-label">Induksi Hari Ini (Mitra)</div>
-            <div class="kpi-comparison" id="mitra-comparison">
-              <span class="comparison-arrow"></span>
-              <span class="comparison-value">0</span> vs kemarin
-            </div>
-            <small class="kpi-sublabel">Perusahaan Lainnya</small>
-          </div>
-        </div>
-        <!-- Card untuk Induksi Hari Ini (Visitor) -->
-        <div class="kpi-card kpi-visitor">
-          <div class="kpi-icon">
-            <i class="fas fa-user-friends"></i>
-            <span
-              id="active-visitor-count"
-              class="kpi-active-badge"
-              title="Jumlah visitor aktif saat ini"
-              >0</span
-            >
-          </div>
-          <div class="kpi-content">
-            <div class="kpi-value" id="induksi-visitor-today-count">0</div>
-            <div class="kpi-label">Induksi Hari Ini (Visitor)</div>
-            <div class="kpi-comparison" id="visitor-comparison">
-              <span class="comparison-arrow"></span>
-              <span class="comparison-value">0</span> vs kemarin
-            </div>
-            <small class="kpi-sublabel">Tamu Perusahaan</small>
-          </div>
-        </div>
-        <!-- Card untuk Induksi Hari Ini (New Hire & Cuti) -->
-        <div class="kpi-card kpi-summary">
-          <div class="kpi-icon">
-            <i class="fas fa-calendar-check"></i>
-          </div>
-          <div class="kpi-content">
-            <div class="kpi-title">Status Hari Ini</div>
-            <div class="kpi-multi-value">
-              <div class="kpi-sub-item">
-                <span class="kpi-sub-label">New Hire</span>
-                <span
-                  class="kpi-sub-value"
-                  id="induksi-newhire-today-count"
-                ></span>
-                <div class="kpi-comparison" id="newhire-comparison">
-                  <span class="comparison-arrow"></span>
-                  <span class="comparison-value">0</span> vs kemarin
+        <div id="induksi-page" class="page-content active">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs" id="induksi-tabs">
+                        <a href="#"
+                            class="tab-link shrink-0 border-b-2 border-purple-500 px-1 pb-4 text-sm font-medium text-purple-600"
+                            data-tab="dashboard-induksi">Dashboard Induksi</a>
+                        <a href="#"
+                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            data-tab="new-hire">Induksi New Hire</a>
+                        <a href="#"
+                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            data-tab="pasca-cuti">Induksi Pasca Cuti</a>
+                        <a href="#"
+                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            data-tab="temporary">Temporary</a>
+                        <a href="#"
+                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            data-tab="visitor">Visitor</a>
+                        <a href="#"
+                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            data-tab="absensi">Absensi</a>
+                    </nav>
                 </div>
-              </div>
-              <div class="kpi-sub-item">
-                <span class="kpi-sub-label">Cuti</span>
-                <span
-                  class="kpi-sub-value"
-                  id="induksi-cuti-today-count"
-                ></span>
-                <div class="kpi-comparison" id="cuti-comparison">
-                  <span class="comparison-arrow"></span>
-                  <span class="comparison-value">0</span> vs kemarin
+                <div class="mt-6">
+                    <div id="dashboard-induksi-content" class="tab-content active">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                                <div class="flex items-center"><i data-lucide="building-2"
+                                        class="w-8 h-8 text-purple-500 mr-4"></i>
+                                    <div>
+                                        <p id="induksi-core-today" class="text-2xl font-bold">0</p>
+                                        <p class="text-sm text-gray-500">Induksi Hari Ini (Core)</p>
+                                    </div>
+                                </div>
+                                <div id="induksi-core-detail" class="text-xs text-gray-500 mt-2 space-y-1"></div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                                <div class="flex items-center"><i data-lucide="users"
+                                        class="w-8 h-8 text-green-500 mr-4"></i>
+                                    <div>
+                                        <p id="induksi-mitra-today" class="text-2xl font-bold">0</p>
+                                        <p class="text-sm text-gray-500">Induksi Hari Ini (Mitra)</p>
+                                    </div>
+                                </div>
+                                <div id="induksi-mitra-detail" class="text-xs text-gray-500 mt-2 space-y-1"></div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                                <div class="flex items-center"><i data-lucide="user"
+                                        class="w-8 h-8 text-blue-500 mr-4"></i>
+                                    <div>
+                                        <p id="induksi-visitor-today" class="text-2xl font-bold">0</p>
+                                        <p class="text-sm text-gray-500">Induksi Hari Ini (Visitor)</p>
+                                    </div>
+                                </div>
+                                <div id="induksi-visitor-detail" class="text-xs text-gray-500 mt-2 space-y-1"></div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                                <div class="flex items-center mb-2"><i data-lucide="calendar-check"
+                                        class="w-8 h-8 text-orange-500 mr-4"></i>
+                                    <p class="text-sm text-gray-500">Status Hari Ini</p>
+                                </div>
+                                <div class="flex justify-around">
+                                    <div class="text-center">
+                                        <p id="status-new-hire" class="text-xl font-bold">0</p>
+                                        <p class="text-xs">New Hire</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p id="status-cuti" class="text-xl font-bold">0</p>
+                                        <p class="text-xs">Cuti</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                            <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                                    <h3 class="font-semibold mb-2">Statistik Skor Hari Ini</h3>
+                                    <div class="flex justify-between text-center">
+                                        <div id="skor-terendah">...</div>
+                                        <div id="skor-tertinggi">...</div>
+                                        <div id="skor-rata">...</div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg shadow card flex items-center"><i
+                                        data-lucide="key-round" class="w-10 h-10 text-orange-500 mr-4"></i>
+                                    <div>
+                                        <h3 class="font-semibold">Password Hari Ini</h3>
+                                        <p id="kode-akses-value" class="text-2xl font-bold">...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-4 rounded-lg shadow card flex flex-col items-center justify-center text-center">
+                                <p class="font-bold text-lg" id="day-name">-</p>
+                                <p class="text-5xl font-bold" id="date-number">-</p>
+                                <p class="text-sm" id="month-year">-</p>
+                                <p id="clock" class="mt-2 text-lg bg-black bg-opacity-20 px-3 py-1 rounded-full">
+                                    00:00:00</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 gap-6 mt-6">
+                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                                <h3 class="font-semibold mb-2">Total Pendaftaran: <span id="total-pendaftaran"
+                                        class="font-bold">0</span></h3>
+                                <div id="pendaftaran-breakdown" class="overflow-x-auto">
+                                    <div class="flex gap-x-4 gap-y-1 text-xs whitespace-nowrap"></div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                                <h3 class="font-semibold mb-2">Total Approval Permit: <span id="total-approval"
+                                        class="font-bold">0</span></h3>
+                                <div id="approval-breakdown" class="overflow-x-auto">
+                                    <div class="flex gap-x-4 gap-y-1 text-xs whitespace-nowrap"></div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                                <h3 class="font-semibold mb-2">Permit Temporary Aktif: <span id="total-temporary"
+                                        class="font-bold">0</span></h3>
+                                <div id="temporary-breakdown" class="overflow-x-auto">
+                                    <div class="flex gap-x-4 gap-y-1 text-xs whitespace-nowrap"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="new-hire-content" class="tab-content">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                            <h3 class="text-lg font-semibold">Data Induksi Karyawan Baru</h3><button
+                                id="add-new-hire-btn"
+                                class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2"><i
+                                    data-lucide="plus"></i><span>Tambah Data</span></button>
+                        </div>
+                        <div class="table-controls mobile-stack"><input type="text" id="new-hire-search"
+                                placeholder="Cari dalam tabel..."
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full"><select
+                                id="new-hire-filter"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">Semua Status</option>
+                                <option value="ok">OK</option>
+                                <option value="hold">Hold</option>
+                                <option value="need">Need</option>
+                            </select><select id="new-hire-per-page"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="10">10 per halaman</option>
+                                <option value="25">25 per halaman</option>
+                                <option value="50" selected>50 per halaman</option>
+                            </select></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="text-xs text-gray-500 uppercase border-b">
+                                        <th class="py-3 px-4 sortable" data-column="tanggal">Tanggal</th>
+                                        <th class="py-3 px-4 sortable" data-column="NIK">NIK</th>
+                                        <th class="py-3 px-4 sortable" data-column="NAMA">Nama</th>
+                                        <th class="py-3 px-4 sortable" data-column="JABATAN">Jabatan</th>
+                                        <th class="py-3 px-4 sortable" data-column="perusahaan">Perusahaan</th>
+                                        <th class="py-3 px-4 sortable" data-column="STATUS">Status</th>
+                                        <th class="py-3 px-4 sortable" data-column="SCORE">Skor</th>
+                                        <th class="py-3 px-4">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="new-hire-table-body" class="text-sm text-gray-700"></tbody>
+                            </table>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
+                            <div id="new-hire-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
+                            <div id="new-hire-pagination" class="pagination"></div>
+                        </div>
+                    </div>
+                    <div id="pasca-cuti-content" class="tab-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Data Induksi Pasca Cuti</h3>
+                        </div>
+                        <div class="table-controls mobile-stack"><input type="text" id="pasca-cuti-search"
+                                placeholder="Cari dalam tabel..."
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full"><select
+                                id="pasca-cuti-filter"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">Semua Status</option>
+                                <option value="ok">OK</option>
+                                <option value="hold">Hold</option>
+                                <option value="need">Need</option>
+                            </select><select id="pasca-cuti-per-page"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="10">10 per halaman</option>
+                                <option value="25">25 per halaman</option>
+                                <option value="50" selected>50 per halaman</option>
+                            </select></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="text-xs text-gray-500 uppercase border-b">
+                                        <th class="py-3 px-4 sortable" data-column="DATE">Tanggal</th>
+                                        <th class="py-3 px-4 sortable" data-column="NIK">NIK</th>
+                                        <th class="py-3 px-4 sortable" data-column="NAMA">Nama</th>
+                                        <th class="py-3 px-4 sortable" data-column="JABATAN">Jabatan</th>
+                                        <th class="py-3 px-4 sortable" data-column="PERUSAHAAN">Perusahaan</th>
+                                        <th class="py-3 px-4 sortable" data-column="STATUS INDUKSI">Status</th>
+                                        <th class="py-3 px-4 sortable" data-column="SCORE">Skor</th>
+                                        <th class="py-3 px-4">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pasca-cuti-table-body" class="text-sm text-gray-700"></tbody>
+                            </table>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
+                            <div id="pasca-cuti-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
+                            <div id="pasca-cuti-pagination" class="pagination"></div>
+                        </div>
+                    </div>
+                    <div id="temporary-content" class="tab-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Data Induksi Temporary</h3>
+                        </div>
+                        <div class="table-controls mobile-stack"><input type="text" id="temporary-search"
+                                placeholder="Cari dalam tabel..."
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full"><select
+                                id="temporary-filter"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">Semua Status</option>
+                                <option value="ok">OK</option>
+                                <option value="hold">Hold</option>
+                                <option value="need">Need</option>
+                            </select><select id="temporary-per-page"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="10">10 per halaman</option>
+                                <option value="25">25 per halaman</option>
+                                <option value="50" selected>50 per halaman</option>
+                            </select></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="text-xs text-gray-500 uppercase border-b">
+                                        <th class="py-3 px-4 sortable" data-column="DATE">Tanggal</th>
+                                        <th class="py-3 px-4 sortable" data-column="NIK">NIK</th>
+                                        <th class="py-3 px-4 sortable" data-column="NAMA">Nama</th>
+                                        <th class="py-3 px-4 sortable" data-column="JABATAN">Jabatan</th>
+                                        <th class="py-3 px-4 sortable" data-column="PERUSAHAAN">Perusahaan</th>
+                                        <th class="py-3 px-4 sortable" data-column="STATUS">Status</th>
+                                        <th class="py-3 px-4 sortable" data-column="SCORE">Skor</th>
+                                        <th class="py-3 px-4">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="temporary-table-body" class="text-sm text-gray-700"></tbody>
+                            </table>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
+                            <div id="temporary-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
+                            <div id="temporary-pagination" class="pagination"></div>
+                        </div>
+                    </div>
+                    <div id="visitor-content" class="tab-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Data Induksi Visitor</h3>
+                        </div>
+                        <div class="table-controls mobile-stack"><input type="text" id="visitor-search"
+                                placeholder="Cari dalam tabel..."
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full"><select
+                                id="visitor-filter"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">Semua Status</option>
+                                <option value="ok">OK</option>
+                                <option value="hold">Hold</option>
+                                <option value="need">Need</option>
+                            </select><select id="visitor-per-page"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="10">10 per halaman</option>
+                                <option value="25">25 per halaman</option>
+                                <option value="50" selected>50 per halaman</option>
+                            </select></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="text-xs text-gray-500 uppercase border-b">
+                                        <th class="py-3 px-4 sortable" data-column="DATE">Tanggal</th>
+                                        <th class="py-3 px-4 sortable" data-column="NIK">NIK</th>
+                                        <th class="py-3 px-4 sortable" data-column="NAMA">Nama</th>
+                                        <th class="py-3 px-4 sortable" data-column="JABATAN">Jabatan</th>
+                                        <th class="py-3 px-4 sortable" data-column="PERUSAHAAN">Perusahaan</th>
+                                        <th class="py-3 px-4 sortable" data-column="STATUS">Status</th>
+                                        <th class="py-3 px-4 sortable" data-column="SCORE">Skor</th>
+                                        <th class="py-3 px-4">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="visitor-table-body" class="text-sm text-gray-700"></tbody>
+                            </table>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
+                            <div id="visitor-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
+                            <div id="visitor-pagination" class="pagination"></div>
+                        </div>
+                    </div>
+                    <div id="absensi-content" class="tab-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Data Pendaftaran Induksi</h3>
+                        </div>
+                        <div class="table-controls mobile-stack"><input type="text" id="absensi-search"
+                                placeholder="Cari dalam tabel..."
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full"><select
+                                id="absensi-per-page"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="10">10 per halaman</option>
+                                <option value="25">25 per halaman</option>
+                                <option value="50" selected>50 per halaman</option>
+                            </select></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="text-xs text-gray-500 uppercase border-b">
+                                        <th class="py-3 px-4 sortable" data-column="Timestamp">Waktu</th>
+                                        <th class="py-3 px-4 sortable" data-column="NAMA">Nama</th>
+                                        <th class="py-3 px-4 sortable" data-column="NIK KTP">NIK</th>
+                                        <th class="py-3 px-4 sortable" data-column="PERUSAHAAN">Perusahaan</th>
+                                        <th class="py-3 px-4 sortable" data-column="JENIS INDUKSI">Jenis Induksi</th>
+                                        <th class="py-3 px-4">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="absensi-table-body" class="text-sm text-gray-700"></tbody>
+                            </table>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
+                            <div id="absensi-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
+                            <div id="absensi-pagination" class="pagination"></div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
         </div>
-        <!-- Card untuk Statistik Skor Harian -->
-        <div class="kpi-card kpi-daily kpi-score span-col-2">
-          <div class="kpi-icon">
-            <i class="fas fa-chart-line"></i>
-          </div>
-          <div class="kpi-content">
-            <div class="kpi-title">Statistik Skor Hari Ini</div>
-            <div class="kpi-multi-value">
-              <div class="kpi-sub-item">
-                <span class="kpi-sub-label">Terendah</span>
-                <span class="kpi-sub-value" id="score-lowest-today">0</span>
-                <div class="kpi-comparison" id="lowest-score-comparison">
-                  <span class="comparison-arrow"></span>
-                  <span class="comparison-value">0</span> vs kemarin
-                </div>
-              </div>
-              <div class="kpi-sub-item">
-                <span class="kpi-sub-label">Tertinggi</span>
-                <span class="kpi-sub-value" id="score-highest-today">0</span>
-                <div class="kpi-comparison" id="highest-score-comparison">
-                  <span class="comparison-arrow"></span>
-                  <span class="comparison-value">0</span> vs kemarin
-                </div>
-              </div>
-              <div class="kpi-sub-item">
-                <span class="kpi-sub-label">Rata-rata</span>
-                <span class="kpi-sub-value" id="score-average-today">0</span>
-                <div class="kpi-comparison" id="average-score-comparison">
-                  <span class="comparison-arrow"></span>
-                  <span class="comparison-value">0</span> vs kemarin
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Card untuk Password Hari Ini -->
-        <div class="kpi-card kpi-daily kpi-password">
-          <div class="kpi-icon">
-            <i class="fas fa-key"></i>
-          </div>
-          <div class="kpi-content">
-            <div class="kpi-title">Password Hari Ini</div>
-            <div
-              class="kpi-value"
-              id="password-today"
-              title="Klik untuk menyalin"
-            >
-              Memuat...
-            </div>
-            <small class="kpi-sublabel">Gunakan untuk akses induksi</small>
-          </div>
-        </div>
-        <!-- Card untuk Tanggal Hari Ini -->
-        <div class="kpi-card kpi-date-display">
-          <div class="date-day" id="current-day"></div>
-          <div class="date-full" id="current-date"></div>
-          <div class="date-year" id="current-year"></div>
-          <div class="digital-clock" id="current-time"></div>
-        </div>
-      </div>
-
-      <div class="loader" id="loader">
-        <div class="loader-content">
-          <div class="coffee-cup"></div>
-          <p>Sabar ya, ambil kopi dulu...</p>
-        </div>
-      </div>
-
-      <nav aria-label="Navigasi Konten Induksi">
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="newhire">
-            📄 Approval Induksi - Permit
-          </button>
-          <button class="tab-btn" data-tab="pendaftaran">📄 Pendaftaran</button>
-
-          <div class="tab-group-collapsible">
-            <button
-              class="tab-group-toggle"
-              id="toggle-induksi"
-              data-group-id="induksi-group"
-            >
-              📘 Proses Induksi ▾
-            </button>
-            <div id="induksi-group" class="tab-subgroup">
-              <button class="tab-btn" data-tab="hasil_induksi">
-                📘 Induksi
-              </button>
-              <button class="tab-btn" data-tab="visitor">
-                📘 Induksi - Visitor
-              </button>
-              <button class="tab-btn" data-tab="remidial">📊 REMIDIAL</button>
-            </div>
-          </div>
-          <button class="tab-btn" data-tab="grafik">📈 Grafik</button>
-          <button class="tab-btn" data-tab="temporary">🚧 Temporary</button>
-        </div>
-      </nav>
-
-      <div id="newhire" class="tab-content active">
-        <!-- Menggunakan class "filter-bar" dan struktur label yang lebih jelas -->
-        <div class="filter-bar">
-          <label for="filter-newhire">Perusahaan:</label>
-          <select id="filter-newhire">
-            <option value="all">Semua</option>
-          </select>
-          <label for="search-perusahaan-newhire" class="sr-only"
-            >Cari Perusahaan</label
-          >
-          <input
-            type="text"
-            id="search-perusahaan-newhire"
-            placeholder="atau cari perusahaan..."
-          />
-          <label for="startDate-newhire">Tanggal:</label>
-          <input type="date" id="startDate-newhire" />
-          <span>s.d.</span>
-          <input type="date" id="endDate-newhire" aria-label="Tanggal akhir" />
-          <label for="search-newhire">Cari:</label>
-          <input type="text" id="search-newhire" placeholder="Cari nama..." />
-          <button id="export-newhire" class="export-btn">Export Excel</button>
-        </div>
-
-        <div class="table-wrapper">
-          <table id="table-newhire">
-            <tbody>
-              <tr>
-                <td colspan="11" class="placeholder-cell">
-                  Data masih di progress...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="pagination-container" id="pagination-newhire"></div>
-      </div>
-
-      <div id="pendaftaran" class="tab-content">
-        <div class="filter-container">
-          <label for="filter-pendaftaran">🏢</label>
-          <select
-            id="filter-pendaftaran"
-            aria-label="Filter berdasarkan perusahaan"
-          ></select>
-          <label for="search-perusahaan-pendaftaran" class="sr-only"
-            >Cari Perusahaan</label
-          >
-          <input
-            type="text"
-            id="search-perusahaan-pendaftaran"
-            placeholder="Cari perusahaan..."
-          />
-          <label for="startDate-pendaftaran">📅</label>
-          <input
-            type="date"
-            id="startDate-pendaftaran"
-            aria-label="Tanggal mulai pendaftaran"
-          />
-          <span>s.d.</span>
-          <input
-            type="date"
-            id="endDate-pendaftaran"
-            aria-label="Tanggal akhir pendaftaran"
-          />
-          <label for="search-pendaftaran">🔍</label>
-          <input
-            type="text"
-            id="search-pendaftaran"
-            placeholder="Cari nama..."
-          />
-          <button id="export-pendaftaran" class="export-btn">
-            Export Excel
-          </button>
-        </div>
-        <div class="table-wrapper">
-          <table id="table-pendaftaran">
-            <tbody>
-              <tr>
-                <td colspan="7" class="placeholder-cell">
-                  Data masih di progress...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="pagination-container" id="pagination-pendaftaran"></div>
-      </div>
-
-      <div id="hasil_induksi" class="tab-content">
-        <div class="filter-container">
-          <label for="filter-hasil_induksi">🏢</label>
-          <select
-            id="filter-hasil_induksi"
-            aria-label="Filter berdasarkan perusahaan"
-          ></select>
-          <label for="search-perusahaan-hasil_induksi" class="sr-only"
-            >Cari Perusahaan</label
-          >
-          <input
-            type="text"
-            id="search-perusahaan-hasil_induksi"
-            placeholder="Cari perusahaan..."
-          />
-          <label for="startDate-hasil_induksi">📅</label>
-          <input
-            type="date"
-            id="startDate-hasil_induksi"
-            aria-label="Tanggal mulai hasil induksi"
-          />
-          <span>s.d.</span>
-          <input
-            type="date"
-            id="endDate-hasil_induksi"
-            aria-label="Tanggal akhir hasil induksi"
-          />
-          <label for="search-hasil_induksi">🔍</label>
-          <input
-            type="text"
-            id="search-hasil_induksi"
-            placeholder="Cari nama..."
-          />
-          <button id="export-hasil_induksi" class="export-btn">
-            Export Excel
-          </button>
-        </div>
-        <div class="table-wrapper">
-          <table id="table-hasil_induksi">
-            <tbody>
-              <tr>
-                <td colspan="9" class="placeholder-cell">
-                  Data masih di progress...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="pagination-container" id="pagination-hasil_induksi"></div>
-      </div>
-
-      <div id="visitor" class="tab-content">
-        <div class="filter-container">
-          <label for="filter-visitor">🏢</label>
-          <select
-            id="filter-visitor"
-            aria-label="Filter berdasarkan perusahaan"
-          ></select>
-          <label for="search-perusahaan-visitor" class="sr-only"
-            >Cari Perusahaan</label
-          >
-          <input
-            type="text"
-            id="search-perusahaan-visitor"
-            placeholder="Cari perusahaan..."
-          />
-          <label for="startDate-visitor">📅</label>
-          <input
-            type="date"
-            id="startDate-visitor"
-            aria-label="Tanggal mulai induksi visitor"
-          />
-          <span>s.d.</span>
-          <input
-            type="date"
-            id="endDate-visitor"
-            aria-label="Tanggal akhir induksi visitor"
-          />
-          <label for="search-visitor">🔍</label>
-          <input type="text" id="search-visitor" placeholder="Cari nama..." />
-          <button id="export-visitor" class="export-btn">Export Excel</button>
-        </div>
-        <div class="table-wrapper">
-          <table id="table-visitor">
-            <tbody>
-              <tr>
-                <td colspan="9" class="placeholder-cell">
-                  Data masih di progress...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="pagination-container" id="pagination-visitor"></div>
-      </div>
-
-      <div id="remidial" class="tab-content">
-        <h2>SCORE MINIMAL 75</h2>
-        <div class="filter-container">
-          <label for="filter-remidial">🏢</label>
-          <select
-            id="filter-remidial"
-            aria-label="Filter berdasarkan perusahaan"
-          ></select>
-          <label for="search-perusahaan-remidial" class="sr-only"
-            >Cari Perusahaan</label
-          >
-          <input
-            type="text"
-            id="search-perusahaan-remidial"
-            placeholder="Cari perusahaan..."
-          />
-          <label for="startDate-remidial">📅</label>
-          <input
-            type="date"
-            id="startDate-remidial"
-            aria-label="Tanggal mulai remidial"
-          />
-          <span>s.d.</span>
-          <input
-            type="date"
-            id="endDate-remidial"
-            aria-label="Tanggal akhir remidial"
-          />
-          <label for="search-remidial">🔍</label>
-          <input type="text" id="search-remidial" placeholder="Cari nama..." />
-          <button id="export-remidial" class="export-btn">Export Excel</button>
-        </div>
-        <div class="table-wrapper">
-          <table id="table-remidial">
-            <tbody>
-              <tr>
-                <td colspan="9" class="placeholder-cell">
-                  Data masih di progress...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="pagination-container" id="pagination-remidial"></div>
-      </div>
-
-      <div id="grafik" class="tab-content">
-        <!-- Filter untuk Grafik -->
-        <div class="filter-bar">
-          <label for="startDate-grafik">Tanggal:</label>
-          <input type="date" id="startDate-grafik" />
-          <span>s.d.</span>
-          <input
-            type="date"
-            id="endDate-grafik"
-            aria-label="Tanggal akhir grafik"
-          />
-          <label for="search-grafik">Cari Jabatan:</label>
-          <input
-            type="text"
-            id="search-grafik"
-            placeholder="Cari nama jabatan..."
-          />
-        </div>
-        <!-- Container untuk semua chart -->
-        <div class="dashboard-grid">
-          <!-- Card untuk Grafik Tren Induksi -->
-          <div class="dashboard-card span-col-3">
-            <div class="card-header with-filters">
-              <h3>Tren Induksi</h3>
-              <div id="trend-chart-filter" class="time-filter-buttons">
-                <button class="time-filter-btn active" data-period="daily">
-                  Harian
-                </button>
-                <button class="time-filter-btn" data-period="weekly">
-                  Mingguan
-                </button>
-                <button class="time-filter-btn" data-period="monthly">
-                  Bulanan
-                </button>
-                <button class="time-filter-btn" data-period="yearly">
-                  Tahunan
-                </button>
-              </div>
-              <div class="filter-item">
-                <label for="trend-year-filter" class="sr-only"
-                  >Pilih Tahun</label
-                >
-                <select
-                  id="trend-year-filter"
-                  class="chart-year-select"
-                ></select>
-              </div>
-            </div>
-            <canvas id="induksiTrendChart"></canvas>
-          </div>
-          <!-- Card untuk Grafik Skor Jabatan -->
-          <div class="dashboard-card span-col-2">
-            <div class="card-header">
-              <h3>Skor Induksi per Jabatan</h3>
-            </div>
-            <canvas id="skorJabatanChart"></canvas>
-          </div>
-          <!-- Card untuk Grafik Komposisi Perusahaan -->
-          <div class="dashboard-card">
-            <div class="card-header">
-              <h3>Komposisi Induksi</h3>
-            </div>
-            <canvas id="induksiPerusahaanChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div id="temporary" class="tab-content">
-        <h2>Data Temporary</h2>
-        <div class="filter-bar">
-          <label for="filter-temporary">Perusahaan:</label>
-          <select id="filter-temporary">
-            <option value="all">Semua</option>
-          </select>
-          <label for="search-perusahaan-temporary" class="sr-only"
-            >Cari Perusahaan</label
-          >
-          <input
-            type="text"
-            id="search-perusahaan-temporary"
-            placeholder="atau cari perusahaan..."
-          />
-          <label for="startDate-temporary">Tanggal:</label>
-          <input type="date" id="startDate-temporary" />
-          <span>s.d.</span>
-          <input
-            type="date"
-            id="endDate-temporary"
-            aria-label="Tanggal akhir temporary"
-          />
-          <label for="search-temporary">Cari:</label>
-          <input type="text" id="search-temporary" placeholder="Cari nama..." />
-          <button id="export-temporary" class="export-btn">Export Excel</button>
-        </div>
-        <div class="table-wrapper">
-          <table id="table-temporary">
-            <!-- Placeholder, akan diisi oleh script.js -->
-            <tbody>
-              <tr>
-                <td colspan="8" class="placeholder-cell">Memuat data...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="pagination-container" id="pagination-temporary"></div>
-      </div>
     </main>
 
-    <div
-      class="whatsapp-float"
-      id="open-wa-form"
-      role="button"
-      tabindex="0"
-      aria-label="Buka form WhatsApp"
-    >
-      <img
-        src="https://img.icons8.com/color/48/whatsapp--v1.png"
-        alt="WhatsApp"
-      />
-    </div>
+    <script>
+        // ========== GLOBAL STATE & UTILITIES ==========
+        const appState = {
+            data: {},
+            currentTheme: localStorage.getItem('theme') || 'light',
+            cache: {
+                key: 'induksi_data_cache',
+                expiry: 30 * 60 * 1000 // 30 minutes
+            },
+            tables: {},
+            lastUpdated: null
+        };
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0aYGEksnIrt1_YXDbzS1TFqQU6DV4CV0dSC7QH35N33bp6kIGB6bD9-do_v0G8gvGAA/exec';
+        const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
 
-    <div id="wa-form-popup" class="wa-popup hidden">
-      <label for="wa-nama">👤 Nama:</label>
-      <input type="text" id="wa-nama" placeholder="Masukkan nama Anda" />
-      <label for="wa-pesan">❓ Pertanyaan:</label>
-      <textarea id="wa-pesan" placeholder="Tulis pertanyaan Anda..."></textarea>
-      <button id="kirim-wa-btn">💬 Kirim via WhatsApp</button>
-      <button id="close-wa-form" class="close-btn" aria-label="Tutup">X</button>
-    </div>
+        function showErrorBanner(message) {
+            const banner = document.getElementById('error-banner');
+            const messageContent = document.getElementById('error-message-content');
+            if (banner && messageContent) {
+                messageContent.innerHTML = message;
+                banner.classList.remove('hidden');
+            }
+        }
 
-    <div id="safety-banner" class="safety-banner">
-      <div class="banner-container">
-        <span class="banner-icon">📢</span>
-        <div id="banner-text" class="banner-text">
-          Selalu gunakan APD saat bekerja • Jaga jarak aman • Utamakan
-          keselamatan kerja • Laporkan potensi bahaya ke supervisor •
-        </div>
-      </div>
-    </div>
+        function updateLastUpdatedTimestamp(timestamp) {
+            const el = document.getElementById('last-updated');
+            if (!el) return;
+            if (timestamp) {
+                appState.lastUpdated = timestamp;
+                const date = new Date(timestamp);
+                el.textContent = `Terakhir diperbarui: ${date.toLocaleDateString('id-ID')} ${date.toLocaleTimeString('id-ID')}`;
+            } else {
+                el.textContent = 'Memperbarui data...';
+            }
+        }
 
-    <div id="safety-alert" class="safety-toast hidden">
-      <img
-        src="https://img.icons8.com/emoji/48/warning-emoji.png"
-        alt="Warning Icon"
-      />
-      <div class="safety-message">
-        ⚠️ Pesan keselamatan akan muncul di sini.
-      </div>
-    </div>
+        // ========== CACHING FUNCTIONS ==========
+        function getCachedData() {
+            const cachedItem = localStorage.getItem(appState.cache.key);
+            if (!cachedItem) return null;
+            try {
+                const { data, timestamp } = JSON.parse(cachedItem);
+                if (Date.now() - timestamp > appState.cache.expiry) {
+                    localStorage.removeItem(appState.cache.key);
+                    return null;
+                }
+                return { data, timestamp };
+            } catch (error) {
+                localStorage.removeItem(appState.cache.key);
+                return null;
+            }
+        }
 
-    <script src="js/common.js" defer></script>
-    <script src="js/script.js" defer></script>
-  </body>
+        function setCachedData(data) {
+            const timestamp = Date.now();
+            const itemToCache = { data, timestamp };
+            try {
+                localStorage.setItem(appState.cache.key, JSON.stringify(itemToCache));
+                updateLastUpdatedTimestamp(timestamp);
+            } catch (error) {
+                console.error(`Error saving cache:`, error);
+            }
+        }
+
+        // ========== DATA FETCHING ==========
+        async function fetchAllInduksiData() {
+            if (APPS_SCRIPT_URL === 'URL_APPS_SCRIPT_ANDA_DI_SINI') {
+                showErrorBanner('URL Apps Script belum dikonfigurasi.');
+                return null;
+            }
+
+            // FIXED: Added retry mechanism
+            const maxRetries = 3;
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    const response = await fetch(`${APPS_SCRIPT_URL}?source=dashboard`);
+                    if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+                    const data = await response.json();
+                    if (data.error) throw new Error(`Apps Script Error: ${data.error}`);
+                    return {
+                        pascaCuti: data.PASCA_CUTI || [],
+                        newHire: data.NEW_HIRE || [],
+                        temporary: data.TEMPORARY || [],
+                        visitor: data.VISITOR || [],
+                        kodeAkses: data.KODE_AKSES || [],
+                        setting: data.setting || [],
+                        pendaftaranInduksi: data.pendaftaran_induksi || [],
+                    };
+                } catch (error) {
+                    console.warn(`Attempt ${attempt} for induksi data failed: ${error.message}.`);
+                    if (attempt === maxRetries) {
+                        console.error("Fetch failed permanently for induksi data:", error);
+                        showErrorBanner(`Gagal mengambil data dari server. Data yang ditampilkan mungkin usang.`);
+                        return null;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                }
+            }
+            return null;
+        }
+
+        // ========== UI UPDATE FUNCTIONS ==========
+        function updateUI(data) {
+            if (!data) return;
+            appState.data = data;
+            updateInduksiDashboard(data);
+            initializeTables(data);
+            document.querySelectorAll('.component-loading').forEach(el => el.classList.remove('component-loading'));
+        }
+
+        function updateInduksiDashboard(data) {
+            const settingData = data.setting || [];
+            const newHireData = data.newHire || [];
+            const pascaCutiData = data.pascaCuti || [];
+            const temporaryData = data.temporary || [];
+            const visitorData = data.visitor || [];
+            const pendaftaranInduksiData = data.pendaftaranInduksi || [];
+            const kodeAksesData = data.kodeAkses || [];
+
+            const today = new Date(), yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+            const todayStr = today.toLocaleDateString('en-CA'), yesterdayStr = yesterday.toLocaleDateString('en-CA');
+
+            const mainCompany = settingData.length > 0 ? settingData[0].namaPerusahaan : "PT. Ganda Alam Makmur";
+
+            const induksiToday = [...newHireData.filter(d => d.tanggal === todayStr), ...pascaCutiData.filter(d => d.DATE === todayStr), ...temporaryData.filter(d => d.DATE === todayStr)];
+            const induksiYesterday = [...newHireData.filter(d => d.tanggal === yesterdayStr), ...pascaCutiData.filter(d => d.DATE === yesterdayStr), ...temporaryData.filter(d => d.DATE === yesterdayStr)];
+            const visitorsToday = visitorData.filter(d => d.DATE === todayStr), visitorsYesterday = visitorData.filter(d => d.DATE === yesterdayStr);
+
+            updateCard('induksi-core', induksiToday.filter(d => (d.perusahaan || d.PERUSAHAAN) === mainCompany), induksiYesterday.filter(d => (d.perusahaan || d.PERUSAHAAN) === mainCompany));
+            updateCard('induksi-mitra', induksiToday.filter(d => (d.perusahaan || d.PERUSAHAAN) !== mainCompany), induksiYesterday.filter(d => (d.perusahaan || d.PERUSAHAAN) !== mainCompany));
+            updateCard('induksi-visitor', visitorsToday, visitorsYesterday);
+
+            document.getElementById('status-new-hire').textContent = newHireData.filter(d => d.tanggal === todayStr).length;
+            document.getElementById('status-cuti').textContent = pascaCutiData.filter(d => d.DATE === todayStr).length;
+
+            const todayScores = [...induksiToday, ...visitorsToday].map(d => parseFloat(d.SCORE)).filter(s => !isNaN(s));
+            const yesterdayScores = [...induksiYesterday, ...visitorsYesterday].map(d => parseFloat(d.SCORE)).filter(s => !isNaN(s));
+
+            updateScoreCard('skor-terendah', todayScores, yesterdayScores, Math.min, false);
+            updateScoreCard('skor-tertinggi', todayScores, yesterdayScores, Math.max, true);
+            updateScoreCard('skor-rata', todayScores, yesterdayScores, arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0, true);
+
+            document.getElementById('kode-akses-value').textContent = kodeAksesData.find(k => k.tanggal && k.tanggal.trim() === todayStr)?.kode_akses || 'N/A';
+
+            updateBreakdownCard('pendaftaran', pendaftaranInduksiData, 'PERUSAHAAN');
+            updateBreakdownCard('approval', newHireData.filter(d => d.STATUS && d.STATUS.toLowerCase() !== 'pending'), 'perusahaan');
+            updateBreakdownCard('temporary', temporaryData, 'PERUSAHAAN');
+            updateClock();
+        }
+        function updateCard(id, todayData, yesterdayData) {
+            const todayCount = todayData.length, yesterdayCount = yesterdayData.length, diff = todayCount - yesterdayCount;
+            document.getElementById(`${id}-today`).textContent = todayCount;
+            const detailEl = document.getElementById(`${id}-detail`);
+            if (detailEl) {
+                let icon = '', color = 'text-gray-500';
+                if (diff > 0) { icon = `<i data-lucide="arrow-up" class="w-3 h-3 mr-1"></i>`; color = 'text-green-500'; }
+                else if (diff < 0) { icon = `<i data-lucide="arrow-down" class="w-3 h-3 mr-1"></i>`; color = 'text-red-500'; }
+                detailEl.innerHTML = `<span class="flex items-center ${color}">${icon} ${Math.abs(diff)} vs kemarin</span>`;
+                lucide.createIcons();
+            }
+        }
+        function updateScoreCard(id, todayScores, yesterdayScores, aggregator, higherIsBetter) {
+            const el = document.getElementById(id); if (!el) return;
+            const todayValue = todayScores.length > 0 ? aggregator(todayScores) : 0;
+            const yesterdayValue = yesterdayScores.length > 0 ? aggregator(yesterdayScores) : 0;
+            const diff = todayValue - yesterdayValue;
+            let icon = '', color = 'text-gray-500';
+            if (diff > 0) { icon = `<i data-lucide="arrow-up" class="w-3 h-3 mr-1"></i>`; color = higherIsBetter ? 'text-green-500' : 'text-red-500'; }
+            else if (diff < 0) { icon = `<i data-lucide="arrow-down" class="w-3 h-3 mr-1"></i>`; color = higherIsBetter ? 'text-red-500' : 'text-green-500'; }
+            el.innerHTML = `<div><p class="text-xs capitalize">${id.split('-')[1]}</p><p class="text-xl font-bold">${todayValue.toFixed(1)}</p><p class="flex items-center justify-center text-xs ${color}">${icon} ${yesterdayValue.toFixed(1)} vs kemarin</p></div>`;
+            lucide.createIcons();
+        }
+        function updateBreakdownCard(id, data, companyField) {
+            document.getElementById(`total-${id}`).textContent = data.length;
+            const counts = data.reduce((acc, item) => { const company = item[companyField] || 'Lainnya'; acc[company] = (acc[company] || 0) + 1; return acc; }, {});
+            const sortedCounts = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            document.getElementById(`${id}-breakdown`).querySelector('div').innerHTML = sortedCounts.map(([company, count]) => `<span class="mx-4 whitespace-nowrap">${company} (<span class="font-semibold">${count}</span>)</span>`).join('');
+        }
+        function updateClock() {
+            const clockElement = document.getElementById('clock');
+            if (clockElement) {
+                const now = new Date();
+                document.getElementById('day-name').textContent = now.toLocaleDateString('id-ID', { weekday: 'long' }).toUpperCase();
+                document.getElementById('date-number').textContent = now.getDate();
+                document.getElementById('month-year').textContent = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                clockElement.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/\./g, ':');
+            }
+        }
+
+        // ========== TABLE MANAGEMENT ==========
+        class TableManager {
+            constructor(tableId, data, headers, options = {}) {
+                this.tableId = tableId;
+                this.originalData = [...data];
+                this.headers = headers;
+                this.currentPage = 1;
+                this.itemsPerPage = parseInt(options.itemsPerPage || 50);
+                this.sortColumn = null;
+                this.sortDirection = 'asc';
+                this.searchTerm = '';
+                this.filterValue = '';
+                this.dateColumn = options.dateColumn;
+                this.statusColumn = options.statusColumn;
+
+                if (this.dateColumn) {
+                    this.originalData.sort((a, b) => {
+                        const dateA = new Date(a[this.dateColumn] || 0);
+                        const dateB = new Date(b[this.dateColumn] || 0);
+                        return dateB - dateA;
+                    });
+                }
+                this.filteredData = [...this.originalData];
+                this.init();
+            }
+            init() { this.setupControls(); this.render(); }
+            setupControls() {
+                const searchInput = document.getElementById(this.tableId.replace('-table-body', '-search'));
+                if (searchInput) searchInput.addEventListener('input', debounce((e) => { this.searchTerm = e.target.value.toLowerCase(); this.applyFilters(); }, 300));
+                const filterSelect = document.getElementById(this.tableId.replace('-table-body', '-filter'));
+                if (filterSelect) filterSelect.addEventListener('change', (e) => { this.filterValue = e.target.value.toLowerCase(); this.applyFilters(); });
+                const perPageSelect = document.getElementById(this.tableId.replace('-table-body', '-per-page'));
+                if (perPageSelect) perPageSelect.addEventListener('change', (e) => { this.itemsPerPage = parseInt(e.target.value); this.currentPage = 1; this.render(); });
+                const table = document.getElementById(this.tableId).closest('table');
+                table.querySelectorAll('th.sortable').forEach(header => { header.addEventListener('click', () => { const column = header.dataset.column; if (this.sortColumn === column) { this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'; } else { this.sortColumn = column; this.sortDirection = 'asc'; } this.updateSortIcons(header); this.applySort(); }); });
+            }
+            updateSortIcons(activeHeader) {
+                const table = document.getElementById(this.tableId).closest('table');
+                table.querySelectorAll('th.sortable').forEach(header => { header.classList.remove('sort-asc', 'sort-desc'); });
+                activeHeader.classList.add(this.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+            applyFilters() {
+                this.filteredData = this.originalData.filter(item => {
+                    if (this.searchTerm && !Object.values(item).some(value => String(value).toLowerCase().includes(this.searchTerm))) return false;
+                    if (this.filterValue) {
+                        const statusFields = this.statusColumn ? [this.statusColumn] : ['STATUS', 'STATUS INDUKSI'];
+                        if (!statusFields.some(field => item[field] && String(item[field]).toLowerCase().includes(this.filterValue))) return false;
+                    }
+                    return true;
+                });
+                this.currentPage = 1;
+                this.applySort();
+            }
+            applySort() {
+                if (!this.sortColumn) { this.render(); return; };
+                this.filteredData.sort((a, b) => {
+                    let aVal = a[this.sortColumn] || '', bVal = b[this.sortColumn] || '';
+                    const aNum = parseFloat(aVal), bNum = parseFloat(bVal);
+                    if (!isNaN(aNum) && !isNaN(bNum)) { aVal = aNum; bVal = bNum; } else { aVal = String(aVal).toLowerCase(); bVal = String(bVal).toLowerCase(); }
+                    if (this.sortDirection === 'asc') return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                    else return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+                });
+                this.render();
+            }
+            render() { this.renderTable(); this.renderPagination(); }
+            renderTable() {
+                const tbody = document.getElementById(this.tableId);
+                const start = (this.currentPage - 1) * this.itemsPerPage, end = start + this.itemsPerPage;
+                const pageData = this.filteredData.slice(start, end);
+                if (pageData.length === 0) { tbody.innerHTML = `<tr><td colspan="${this.headers.length + 1}" class="text-center py-4 text-gray-500">Tidak ada data.</td></tr>`; return; }
+                tbody.innerHTML = pageData.map((row, index) => {
+                    const filteredIndex = start + index;
+                    let cells = this.headers.map(header => {
+                        const value = row[header] || '-';
+                        let cellClass = 'py-3 px-4';
+                        const lowerCaseValue = String(value).toLowerCase();
+                        if (header.toLowerCase().includes('status')) {
+                            if (['ok', 'closed'].includes(lowerCaseValue)) cellClass += ' text-green-600 font-semibold';
+                            else if (['hold', 'open'].includes(lowerCaseValue)) cellClass += ' text-orange-500 font-semibold';
+                            else if (lowerCaseValue === 'need') cellClass += ' text-red-600 font-semibold';
+                        }
+                        else if (header.toLowerCase().includes('score')) { const score = parseFloat(value); if (!isNaN(score)) { if (score < 75) cellClass += ' text-red-600 font-bold'; else cellClass += ' text-green-600 font-bold'; } }
+                        return `<td class="${cellClass}">${value}</td>`;
+                    }).join('');
+                    cells += `<td class="py-3 px-4"><button class="text-purple-600 hover:underline text-sm detail-btn" data-tbody-id="${this.tableId}" data-index="${filteredIndex}">Detail</button></td>`;
+                    return `<tr class="border-b hover:bg-gray-50">${cells}</tr>`;
+                }).join('');
+            }
+            renderPagination() {
+                const paginationId = this.tableId.replace('-table-body', '-pagination');
+                const paginationContainer = document.getElementById(paginationId);
+                const summaryId = this.tableId.replace('-table-body', '-summary');
+                const summaryContainer = document.getElementById(summaryId);
+                if (!paginationContainer) return;
+                const totalEntries = this.filteredData.length;
+                const totalPages = Math.ceil(totalEntries / this.itemsPerPage);
+                const startEntry = totalEntries > 0 ? (this.currentPage - 1) * this.itemsPerPage + 1 : 0;
+                const endEntry = Math.min(startEntry + this.itemsPerPage - 1, totalEntries);
+                if (summaryContainer) {
+                    if (totalEntries > 0) { summaryContainer.textContent = `Menampilkan ${startEntry} sampai ${endEntry} dari ${totalEntries} data`; }
+                    else { summaryContainer.textContent = 'Tidak ada data untuk ditampilkan'; }
+                }
+                if (totalPages <= 1) { paginationContainer.innerHTML = ''; return; }
+                let html = `<button class="pagination-btn ${this.currentPage === 1 ? 'disabled' : ''}" ${this.currentPage === 1 ? 'disabled' : ''} data-page="${this.currentPage - 1}">‹</button>`;
+                for (let i = 1; i <= totalPages; i++) { html += `<button class="pagination-btn ${i === this.currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`; }
+                html += `<button class="pagination-btn ${this.currentPage === totalPages ? 'disabled' : ''}" ${this.currentPage === totalPages ? 'disabled' : ''} data-page="${this.currentPage + 1}">›</button>`;
+                paginationContainer.innerHTML = html;
+                paginationContainer.addEventListener('click', (e) => { if (e.target.classList.contains('pagination-btn') && !e.target.disabled) { this.currentPage = parseInt(e.target.dataset.page); this.render(); } });
+            }
+            updateData(newData) { this.originalData = [...newData]; this.applyFilters(); }
+        }
+
+        function initializeTables(data) {
+            appState.tables.newHire = new TableManager('new-hire-table-body', data.newHire, ['tanggal', 'NIK', 'NAMA', 'JABATAN', 'perusahaan', 'STATUS', 'SCORE'], { dateColumn: 'tanggal' });
+            appState.tables.pascaCuti = new TableManager('pasca-cuti-table-body', data.pascaCuti, ['DATE', 'NIK', 'NAMA', 'JABATAN', 'PERUSAHAAN', 'STATUS INDUKSI', 'SCORE'], { dateColumn: 'DATE' });
+            appState.tables.temporary = new TableManager('temporary-table-body', data.temporary, ['DATE', 'NIK', 'NAMA', 'JABATAN', 'PERUSAHAAN', 'STATUS', 'SCORE'], { dateColumn: 'DATE' });
+            appState.tables.visitor = new TableManager('visitor-table-body', data.visitor, ['DATE', 'NIK', 'NAMA', 'JABATAN', 'PERUSAHAAN', 'STATUS', 'SCORE'], { dateColumn: 'DATE' });
+            appState.tables.absensi = new TableManager('absensi-table-body', data.pendaftaranInduksi, ['Timestamp', 'NAMA', 'NIK KTP', 'PERUSAHAAN', 'JENIS INDUKSI'], { dateColumn: 'Timestamp' });
+        }
+
+        // ========== THEME & NAVIGATION ==========
+        function setupTabs(tabContainerId) {
+            const tabContainer = document.getElementById(tabContainerId); if (!tabContainer) return;
+            const tabLinks = tabContainer.querySelectorAll('.tab-link'), tabContents = tabContainer.closest('.bg-white').querySelectorAll('.tab-content');
+            tabLinks.forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    const tabId = link.dataset.tab;
+                    tabLinks.forEach(l => { l.classList.remove('border-purple-500', 'text-purple-600'); l.classList.add('border-transparent', 'text-gray-500'); });
+                    link.classList.add('border-purple-500', 'text-purple-600'); link.classList.remove('border-transparent', 'text-gray-500');
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(tabId + '-content')?.classList.add('active');
+                });
+            });
+        }
+        function toggleTheme() {
+            appState.currentTheme = appState.currentTheme === "light" ? "dark" : "light";
+            document.body.classList.remove("theme-light", "theme-dark");
+            document.body.classList.add(`theme-${appState.currentTheme}`);
+            localStorage.setItem("theme", appState.currentTheme);
+            const themeToggleButton = document.getElementById("theme-toggle");
+            if (themeToggleButton) {
+                const newIconName = appState.currentTheme === "light" ? "moon" : "sun";
+                themeToggleButton.innerHTML = `<i data-lucide="${newIconName}" class="w-5 h-5 text-gray-600"></i>`;
+            }
+            lucide.createIcons();
+            // No charts to re-initialize on this page
+        }
+
+        // ========== EVENT LISTENERS ==========
+        function setupEventListeners() {
+            setupTabs('induksi-tabs');
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+            document.getElementById('refresh-button').addEventListener('click', forceRefreshData);
+        }
+
+        async function forceRefreshData() {
+            const refreshButton = document.getElementById('refresh-button');
+            if (!refreshButton) return;
+            const icon = refreshButton.firstElementChild;
+
+            if (icon) icon.classList.add('animate-spin');
+            refreshButton.disabled = true;
+
+            updateLastUpdatedTimestamp(null);
+
+            const freshData = await fetchAllInduksiData();
+
+            if (freshData) {
+                console.log("Forced refresh successful. Updating UI and cache.");
+                updateUI(freshData);
+                setCachedData(freshData);
+            } else {
+                console.log("Forced refresh failed to retrieve new data.");
+            }
+
+            if (icon) icon.classList.remove('animate-spin');
+            refreshButton.disabled = false;
+        }
+
+        // ========== MAIN INITIALIZATION ==========
+        async function initializePage() {
+            const cached = getCachedData();
+
+            if (cached) {
+                console.log("All data loaded from cache. Rendering initial UI.");
+                updateUI(cached.data);
+                updateLastUpdatedTimestamp(cached.timestamp);
+            }
+
+            await forceRefreshData();
+        }
+
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            document.body.classList.add(`theme-${appState.currentTheme}`);
+            const themeToggleButton = document.getElementById("theme-toggle");
+            if (themeToggleButton) {
+                const iconName = appState.currentTheme === 'light' ? 'moon' : 'sun';
+                themeToggleButton.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 text-gray-600"></i>`;
+            }
+
+            lucide.createIcons();
+
+            await initializePage();
+
+            setupEventListeners();
+            setInterval(updateClock, 1000);
+        });
+    </script>
+</body>
+
 </html>
