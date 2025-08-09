@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halaman Uji Coba API dengan Filter Tanggal</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            color: #1a73e8;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #1a73e8;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #155ab6;
+        }
+
+        #response-container {
+            margin-top: 25px;
+        }
+
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        .status {
+            font-style: italic;
+            color: #666;
+        }
+
+        .error {
+            color: #d93025;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>🧪 Halaman Uji Coba API</h1>
+        <p>Gunakan halaman ini untuk melakukan tes panggilan dan memfilter data dari API Anda.</p>
+
+        <div class="input-group">
+            <label for="apiUrl">URL Web App Anda:</label>
+            <input type="text" id="apiUrl" placeholder="https://script.google.com/macros/s/xxxxxxxx/exec">
+        </div>
+
+        <div class="input-group">
+            <label for="source">Pilih Sumber Data (Source):</label>
+            <select id="source">
+                <option value="dashboard">dashboard</option>
+                <option value="induksi">induksi</option>
+                <option value="pelatihan">pelatihan</option>
+                <option value="insiden">insiden</option>
+            </select>
+        </div>
+
+        <!-- Input Baru untuk Filter Tanggal -->
+        <div class="input-group">
+            <label for="dateFilter">Filter Berdasarkan Tanggal (format yyyy-MM-dd):</label>
+            <input type="text" id="dateFilter" placeholder="Contoh: 2024-08-17 (Kosongkan untuk melihat semua)">
+        </div>
+
+        <button id="testButton">Ambil dan Filter Data</button>
+
+        <div id="response-container">
+            <h2>Respons API:</h2>
+            <pre id="jsonResponse"><code class="status">Hasil akan ditampilkan di sini...</code></pre>
+        </div>
+    </div>
+
+    <script>
+        const testButton = document.getElementById('testButton');
+        const apiUrlInput = document.getElementById('apiUrl');
+        const sourceSelect = document.getElementById('source');
+        const dateFilterInput = document.getElementById('dateFilter');
+        const jsonResponseOutput = document.getElementById('jsonResponse');
+
+        async function fetchData() {
+            const apiUrl = apiUrlInput.value.trim();
+            const source = sourceSelect.value;
+            const filterDate = dateFilterInput.value.trim();
+
+            if (!apiUrl) {
+                jsonResponseOutput.innerHTML = '<code class="error">Error: Harap masukkan URL Web App Anda.</code>';
+                return;
+            }
+
+            const fullUrl = `${apiUrl}?source=${source}`;
+            jsonResponseOutput.innerHTML = '<code class="status">Menghubungi API... Mohon tunggu...</code>';
+
+            try {
+                const response = await fetch(fullUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP Error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                // Jika tidak ada tanggal filter, tampilkan semua data
+                if (!filterDate) {
+                    jsonResponseOutput.textContent = JSON.stringify(data, null, 2);
+                    return;
+                }
+
+                // --- Logika untuk Memfilter Data ---
+                const filteredData = {};
+                let itemsFound = 0;
+
+                // Loop setiap kunci di dalam respons (contoh: 'pascaCuti', 'newHire', dll.)
+                for (const key in data) {
+                    if (Array.isArray(data[key])) {
+
+                        // Filter array yang ada di dalam kunci tersebut
+                        const filteredArray = data[key].filter(item => {
+                            // Cek beberapa kemungkinan nama kolom tanggal
+                            const dateFields = ['date', 'timestamp', 'tanggalKejadian', 'tanggalMulai', 'dateRegist', 'tanggal'];
+                            for (const field of dateFields) {
+                                // Jika kolom ada, berupa string, dan dimulai dengan tanggal yang difilter
+                                if (item[field] && typeof item[field] === 'string' && item[field].startsWith(filterDate)) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        });
+
+                        // Jika ditemukan data yang cocok, tambahkan ke hasil
+                        if (filteredArray.length > 0) {
+                            filteredData[key] = filteredArray;
+                            itemsFound += filteredArray.length;
+                        }
+                    }
+                }
+
+                if (itemsFound > 0) {
+                    jsonResponseOutput.textContent = JSON.stringify(filteredData, null, 2);
+                } else {
+                    jsonResponseOutput.innerHTML = `<code class="status">Tidak ada data yang cocok dengan tanggal "${filterDate}".</code>`;
+                }
+
+            } catch (error) {
+                console.error("Gagal mengambil data:", error);
+                jsonResponseOutput.innerHTML = `<code class="error">Gagal mengambil data:\n${error.message}\n\nPastikan URL benar dan skrip telah di-deploy dengan benar (dengan perbaikan CORS).</code>`;
+            }
+        }
+
+        testButton.addEventListener('click', fetchData);
+    </script>
+
+</body>
+
+</html>

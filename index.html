@@ -651,67 +651,89 @@
     <template id="page-templates">
         <!-- Dashboard Page -->
         <div id="dashboard-page" class="page-content">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md card">
-                    <h3 class="text-lg font-semibold text-gray-800" data-translate-key="employee_summary_title">
-                        Ringkasan Karyawan Hari Ini</h3>
-                    <p class="text-sm text-gray-500 mb-4" data-translate-key="employee_summary_subtitle">Snapshot
-                        Kesejahteraan Karyawan Real-time</p>
-                    <div id="employee-summary-content" class="flex flex-col md:flex-row items-center gap-6">
-                        <div class="w-full md:w-1/2">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p id="emp-cleared" class="text-3xl font-bold text-green-600">-</p>
-                                    <p class="text-sm text-gray-500" data-translate-key="employee_summary_cleared">Siap
-                                        bekerja</p>
-                                </div>
-                                <div>
-                                    <p id="emp-stay-home" class="text-3xl font-bold text-red-600">-</p>
-                                    <p class="text-sm text-gray-500" data-translate-key="employee_summary_stay_home">
-                                        Izin di rumah</p>
-                                </div>
-                                <div>
-                                    <p id="emp-serious" class="text-3xl font-bold text-orange-500">-</p>
-                                    <p class="text-sm text-gray-500" data-translate-key="employee_summary_serious">Kasus
-                                        serius</p>
-                                </div>
-                                <div>
-                                    <p id="emp-not-reported" class="text-3xl font-bold text-gray-400">-</p>
-                                    <p class="text-sm text-gray-500" data-translate-key="employee_summary_not_reported">
-                                        Tidak melapor</p>
-                                </div>
-                            </div>
+            <!-- Ringkasan Induksi -->
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Ringkasan Induksi Hari Ini</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-4 rounded-lg shadow card">
+                    <div class="flex items-center"><i data-lucide="building-2" class="w-8 h-8 text-purple-500 mr-4"></i>
+                        <div>
+                            <p id="induksi-core-today" class="text-2xl font-bold">-</p>
+                            <p class="text-sm text-gray-500">Induksi (Core)</p>
                         </div>
-                        <div class="w-full md:w-1/2 h-48"><canvas id="employeeSummaryChart"></canvas></div>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-md card">
-                    <h3 class="text-lg font-semibold text-gray-800" data-translate-key="visitor_summary_title">Ringkasan
-                        Pengunjung Hari Ini</h3>
-                    <p class="text-sm text-gray-500 mb-4" data-translate-key="visitor_summary_subtitle">Pengunjung Saat
-                        Ini atau yang Diharapkan</p>
-                    <div id="visitor-summary-content" class="space-y-4">
-                        <div class="flex items-center space-x-4">
-                            <div class="bg-green-100 p-3 rounded-lg"><i data-lucide="check-circle"
-                                    class="w-6 h-6 text-green-600"></i></div>
-                            <div>
-                                <p id="visitor-on-site" class="text-2xl font-bold text-gray-800">-</p>
-                                <p class="text-sm text-gray-500" data-translate-key="visitor_summary_on_site">Saat ini
-                                    di Lokasi</p>
-                            </div>
+                <div class="bg-white p-4 rounded-lg shadow card">
+                    <div class="flex items-center"><i data-lucide="users" class="w-8 h-8 text-green-500 mr-4"></i>
+                        <div>
+                            <p id="induksi-mitra-today" class="text-2xl font-bold">-</p>
+                            <p class="text-sm text-gray-500">Induksi (Mitra)</p>
                         </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="bg-orange-100 p-3 rounded-lg"><i data-lucide="hourglass"
-                                    class="w-6 h-6 text-orange-600"></i></div>
-                            <div>
-                                <p id="visitor-expected" class="text-2xl font-bold text-gray-800">-</p>
-                                <p class="text-sm text-gray-500" data-translate-key="visitor_summary_expected">
-                                    Diharapkan Datang Hari Ini</p>
-                            </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow card">
+                    <div class="flex items-center"><i data-lucide="user" class="w-8 h-8 text-blue-500 mr-4"></i>
+                        <div>
+                            <p id="induksi-visitor-today" class="text-2xl font-bold">-</p>
+                            <p class="text-sm text-gray-500">Induksi (Visitor)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow card">
+                    <div class="flex items-center mb-2"><i data-lucide="calendar-check"
+                            class="w-8 h-8 text-orange-500 mr-4"></i>
+                        <p class="text-sm text-gray-500">Status Hari Ini</p>
+                    </div>
+                    <div class="flex justify-around">
+                        <div class="text-center">
+                            <p id="status-new-hire" class="text-xl font-bold">-</p>
+                            <p class="text-xs">New Hire</p>
+                        </div>
+                        <div class="text-center">
+                            <p id="status-cuti" class="text-xl font-bold">-</p>
+                            <p class="text-xs">Cuti</p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Ringkasan Pelatihan -->
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Ringkasan Pelatihan</h3>
+            <div id="pelatihan-stats-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
+                <div class="bg-white p-4 rounded-lg card">
+                    <p class="text-sm text-gray-500">Total Kompetensi</p>
+                    <p class="text-3xl font-bold text-gray-800">-</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg card">
+                    <p class="text-sm text-gray-500">Total Manpower Terlatih</p>
+                    <p class="text-3xl font-bold text-gray-800">-</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg card">
+                    <p class="text-sm text-gray-500">Total Kebutuhan Pelatihan</p>
+                    <p class="text-3xl font-bold text-gray-800">-</p>
+                </div>
+            </div>
+
+            <!-- Top Risk -->
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Top 5 Risk Penyebab Kecelakaan</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-md card">
+                    <h4 class="font-semibold text-gray-700 mb-3">Penyebab Langsung</h4>
+                    <ul id="top-risk-langsung" class="space-y-2 text-sm text-gray-600">
+                        <li class="component-loading h-6 rounded"></li>
+                        <li class="component-loading h-6 rounded"></li>
+                        <li class="component-loading h-6 rounded"></li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md card">
+                    <h4 class="font-semibold text-gray-700 mb-3">Penyebab Tidak Langsung</h4>
+                    <ul id="top-risk-tidak-langsung" class="space-y-2 text-sm text-gray-600">
+                        <li class="component-loading h-6 rounded"></li>
+                        <li class="component-loading h-6 rounded"></li>
+                        <li class="component-loading h-6 rounded"></li>
+                    </ul>
+                </div>
+            </div>
+
             <div class="bg-white p-6 rounded-xl shadow-md mb-6 card">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                     <div>
@@ -885,7 +907,8 @@
             lastUpdated: null
         };
 
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0aYGEksnIrt1_YXDbzS1TFqQU6DV4CV0dSC7QH35N33bp6kIGB6bD9-do_v0G8gvGAA/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7jx5UXyJgpGSk8hxEnvmAC2lY76ujIKYXOei50k0KwDNqJeYSSv8k_J18Elp0sEfX/exec';
+
 
         // ========== UTILITY & UI FUNCTIONS ==========
         const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
@@ -942,29 +965,33 @@
 
         // ========== DATA FETCHING (using Apps Script) ==========
         async function fetchAllDashboardData() {
-            if (APPS_SCRIPT_URL === 'URL_APPS_SCRIPT_ANDA_DI_SINI') {
-                showError('URL Apps Script belum dikonfigurasi. Silakan perbarui variabel APPS_SCRIPT_URL di dalam kode.', false);
-                return null;
-            }
             try {
                 const response = await fetch(`${APPS_SCRIPT_URL}?source=dashboard`);
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
                 const data = await response.json();
-                if (data.error) {
-                    throw new Error(`Apps Script Error: ${data.error}`);
-                }
+                if (data.error) throw new Error(`Apps Script Error: ${data.error}`);
+
+                const pelatihanResponse = await fetch(`${APPS_SCRIPT_URL}?source=pelatihan`);
+                if (!pelatihanResponse.ok) throw new Error(`Pelatihan fetch failed: ${pelatihanResponse.statusText}`);
+                const pelatihanData = await pelatihanResponse.json();
+                if (pelatihanData.error) throw new Error(`Apps Script Error (Pelatihan): ${pelatihanData.error}`);
+
+                // Gunakan key yang sesuai dengan Apps Script yang baru
                 return {
-                    pascaCuti: data.PASCA_CUTI || [],
-                    newHire: data.NEW_HIRE || [],
-                    temporary: data.TEMPORARY || [],
-                    visitor: data.VISITOR || [],
-                    kodeAkses: data.KODE_AKSES || [],
+                    pascaCuti: data.pascaCuti || [],
+                    newHire: data.newHire || [],
+                    temporary: data.temporary || [],
+                    visitor: data.visitor || [],
+                    kodeAkses: data.kodeAkses || [],
                     setting: data.setting || [],
-                    pendaftaranInduksi: data.pendaftaran_induksi || [],
-                    dataDasbor: data.Data_Dasbor || [],
-                    performance: data.Performance || [],
+                    pendaftaranInduksi: data.pendaftaranInduksi || [],
+                    dataDasbor: data.dataDasbor || [],
+                    hsePerformance: data.hsePerformance || [],
+                    monitoringInternal: pelatihanData.monitoringInternal || [],
+                    jadwalTraining: pelatihanData.jadwalTraining || [],
+                    kompetensiManpower: pelatihanData.kompetensiManpower || [],
+                    pesertaTrainingActual: pelatihanData.pesertaTrainingActual || [],
+                    trainingRegister: pelatihanData.trainingRegister || [],
                     observasi: generateDummyObservasiData(123)
                 };
             } catch (error) {
@@ -973,7 +1000,6 @@
                 return null;
             }
         }
-
         function generateDummyObservasiData(count) {
             const data = [];
             const locations = ['Area Tambang', 'Workshop', 'Kantor', 'Jalan Hauling', 'Mess'];
@@ -1133,7 +1159,6 @@
                 const ctx = document.getElementById(id)?.getContext("2d");
                 if (ctx) { if (chartInstances[id]) chartInstances[id].destroy(); chartInstances[id] = new Chart(ctx, { type, data: { labels: [], datasets: [] }, options }); }
             };
-            createChart('employeeSummaryChart', 'doughnut', defaultChartOptions({ plugins: { legend: { display: false } } }));
             createChart('thisWeekActivityChart', 'line', defaultChartOptions({ scales: { y: { beginAtZero: true } } }));
             createChart('trenObservasiChart', 'line', defaultChartOptions({ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }));
             createChart('kategoriObservasiChart', 'pie', defaultChartOptions({ plugins: { legend: { position: 'right' } } }));
@@ -1148,7 +1173,6 @@
             appState.data = data;
             hideError();
             updateNamaPerusahaan(data.setting);
-            // REMOVED initializeTables
             applyGlobalFilters();
             document.querySelectorAll('.component-loading').forEach(el => el.classList.remove('component-loading'));
         }
@@ -1156,8 +1180,10 @@
         function applyGlobalFilters() {
             if (!appState.data || Object.keys(appState.data).length === 0) return;
             updateMainDashboard(appState.data);
+            updateInduksiSummaryCards(appState.data);
+            updatePelatihanSummaryCards(appState.data);
+            updateTopTenRisk(appState.data);
             updateObservasiDashboard(appState.data);
-            // REMOVED table filtering
         }
 
         function updateNamaPerusahaan(settingData) {
@@ -1168,40 +1194,86 @@
             document.getElementById('splash-logo').textContent = initial;
             document.getElementById('splash-company-name').textContent = companyName;
         }
+
+        const getRowDate = (row) => row.date || row.DATE || row.tanggal;
+
         function updateMainDashboard(data) {
-            const empSummary = { cleared: 320, stayHome: 26, serious: 4, notReported: 15 };
-            document.getElementById('emp-cleared').textContent = empSummary.cleared;
-            document.getElementById('emp-stay-home').textContent = empSummary.stayHome;
-            document.getElementById('emp-serious').textContent = empSummary.serious;
-            document.getElementById('emp-not-reported').textContent = empSummary.notReported;
-            if (chartInstances.employeeSummaryChart) {
-                chartInstances.employeeSummaryChart.data = {
-                    labels: ['Izin di rumah', 'Kasus serius', 'Tidak melapor', 'Siap bekerja'],
-                    datasets: [{
-                        data: [empSummary.stayHome, empSummary.serious, empSummary.notReported, empSummary.cleared],
-                        backgroundColor: ['#dc2626', '#f59e0b', '#6b7280', '#16a34a'],
-                        borderWidth: 0
-                    }]
-                };
-                chartInstances.employeeSummaryChart.update();
-            }
-            const todayStr = new Date().toLocaleDateString('en-CA');
-            // FIXED: Added safety checks for all data properties
-            document.getElementById('visitor-on-site').textContent = (data.visitor || []).filter(v => v.DATE === todayStr).length;
-            document.getElementById('visitor-expected').textContent = 12; // Mock data
             const weeklyLabels = [], weeklyStaffData = [], weeklyVisitorData = [];
             let totalWeeklyStaff = 0, totalWeeklyVisitors = 0;
             for (let i = 6; i >= 0; i--) {
                 const d = new Date(); d.setDate(d.getDate() - i);
                 const dayStr = d.toLocaleDateString('en-CA'), dayLabel = d.getDate().toString();
-                const staffCount = (data.newHire || []).filter(item => item.tanggal === dayStr).length + (data.pascaCuti || []).filter(item => item.DATE === dayStr).length + (data.temporary || []).filter(item => item.DATE === dayStr).length;
-                const visitorCount = (data.visitor || []).filter(item => item.DATE === dayStr).length;
+                const staffCount = (data.newHire || []).filter(item => getRowDate(item) === dayStr).length + (data.pascaCuti || []).filter(item => getRowDate(item) === dayStr).length + (data.temporary || []).filter(item => getRowDate(item) === dayStr).length;
+                const visitorCount = (data.visitor || []).filter(item => getRowDate(item) === dayStr).length;
                 weeklyLabels.push(dayLabel); weeklyStaffData.push(staffCount); weeklyVisitorData.push(visitorCount);
                 totalWeeklyStaff += staffCount; totalWeeklyVisitors += visitorCount;
             }
             document.getElementById('weekly-staff').textContent = totalWeeklyStaff;
             document.getElementById('weekly-visitors').textContent = totalWeeklyVisitors;
             if (chartInstances.thisWeekActivityChart) { chartInstances.thisWeekActivityChart.data = { labels: weeklyLabels, datasets: [{ label: 'Staf', data: weeklyStaffData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true }, { label: 'Pengunjung', data: weeklyVisitorData, borderColor: '#14b8a6', backgroundColor: 'rgba(20, 184, 166, 0.1)', tension: 0.4, fill: true }] }; chartInstances.thisWeekActivityChart.update(); }
+        }
+
+        function updateInduksiSummaryCards(data) {
+            const settingData = data.setting || [];
+            const newHireData = data.newHire || [];
+            const pascaCutiData = data.pascaCuti || [];
+            const temporaryData = data.temporary || [];
+            const visitorData = data.visitor || [];
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            const mainCompany = settingData.length > 0 ? (settingData[0].namaPerusahaan || "PT. GAM") : "PT. GAM";
+
+            const induksiToday = [...newHireData.filter(d => getRowDate(d) === todayStr), ...pascaCutiData.filter(d => getRowDate(d) === todayStr), ...temporaryData.filter(d => getRowDate(d) === todayStr)];
+            const visitorsToday = visitorData.filter(d => getRowDate(d) === todayStr);
+
+            document.getElementById('induksi-core-today').textContent = induksiToday.filter(d => (d.perusahaan) === mainCompany).length;
+            document.getElementById('induksi-mitra-today').textContent = induksiToday.filter(d => (d.perusahaan) !== mainCompany).length;
+            document.getElementById('induksi-visitor-today').textContent = visitorsToday.length;
+            document.getElementById('status-new-hire').textContent = newHireData.filter(d => getRowDate(d) === todayStr).length;
+            document.getElementById('status-cuti').textContent = pascaCutiData.filter(d => getRowDate(d) === todayStr).length;
+        }
+
+        function updatePelatihanSummaryCards(data) {
+            const kompetensiData = data.kompetensiManpower || [];
+            const monitoringData = data.monitoringInternal || [];
+            const cards = document.getElementById('pelatihan-stats-cards').children;
+
+            // Total kompetensi unik
+            cards[0].querySelector('p.text-3xl').textContent = new Set(kompetensiData.map(item => item.kompetensi)).size;
+
+            // Total manpower terlatih (NIK unik)
+            cards[1].querySelector('p.text-3xl').textContent = new Set(kompetensiData.map(item => item.nik)).size;
+
+            // Total kebutuhan pelatihan
+            cards[2].querySelector('p.text-3xl').textContent = monitoringData.reduce((sum, item) => sum + (parseInt(item.needTraining) || 0), 0);
+        }
+
+        function updateTopTenRisk(data) {
+            const insidenData = data.dataDasbor || [];
+            const countOccurrences = (arr, key) => arr.reduce((acc, curr) => { if (curr[key]) acc[curr[key]] = (acc[curr[key]] || 0) + 1; return acc; }, {});
+
+            const renderList = (elementId, causeData) => {
+                const container = document.getElementById(elementId);
+                container.innerHTML = ''; // Clear previous list
+                if (Object.keys(causeData).length === 0) {
+                    container.innerHTML = '<li>Tidak ada data.</li>';
+                    return;
+                }
+                Object.entries(causeData)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 5)
+                    .forEach(([cause, count]) => {
+                        const li = document.createElement('li');
+                        li.className = 'flex justify-between items-center';
+                        li.innerHTML = `<span>${cause}</span><span class="font-bold text-purple-600">${count}</span>`;
+                        container.appendChild(li);
+                    });
+            };
+
+            const penyebabLangsung = countOccurrences(insidenData, 'penyebabLangsung');
+            const penyebabTidakLangsung = countOccurrences(insidenData, 'penyebabDasar');
+
+            renderList('top-risk-langsung', penyebabLangsung);
+            renderList('top-risk-tidak-langsung', penyebabTidakLangsung);
         }
 
         function updateObservasiDashboard(data) {

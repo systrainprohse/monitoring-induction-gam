@@ -338,7 +338,8 @@
         };
         const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
 
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0aYGEksnIrt1_YXDbzS1TFqQU6DV4CV0dSC7QH35N33bp6kIGB6bD9-do_v0G8gvGAA/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7jx5UXyJgpGSk8hxEnvmAC2lY76ujIKYXOei50k0KwDNqJeYSSv8k_J18Elp0sEfX/exec';
+
 
         function showErrorBanner(message) {
             const banner = document.getElementById('error-banner');
