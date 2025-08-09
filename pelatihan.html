@@ -331,14 +331,14 @@
             data: {},
             currentTheme: localStorage.getItem('theme') || 'light',
             cache: {
-                key: 'pelatihan_data_cache', // Single key for all training data
+                key: 'pelatihan_data_cache',
                 expiry: 30 * 60 * 1000 // 30 minutes
             },
             lastUpdated: null
         };
         const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
 
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7jx5UXyJgpGSk8hxEnvmAC2lY76ujIKYXOei50k0KwDNqJeYSSv8k_J18Elp0sEfX/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2Y8RqZfew430e6L6lBXda12RY5zOD7W85cYNjI9384MSeX4pF_Bn_pvtYOjjQYCt0/exec';
 
 
         function showErrorBanner(message) {
@@ -392,32 +392,49 @@
             }
         }
 
-        // ========== DATA FETCHING ==========
-        async function fetchAllTrainingData() {
-            if (APPS_SCRIPT_URL === 'URL_APPS_SCRIPT_ANDA_DI_SINI') {
-                showErrorBanner('URL Apps Script belum dikonfigurasi. Silakan perbarui variabel APPS_SCRIPT_URL di dalam kode.');
-                return null;
-            }
-            try {
-                const response = await fetch(`${APPS_SCRIPT_URL}?source=pelatihan`);
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.statusText}`);
+        // ========== DATA FETCHING (JSONP METHOD) ==========
+        function fetchAllTrainingData() {
+            return new Promise((resolve, reject) => {
+                if (APPS_SCRIPT_URL === 'URL_APPS_SCRIPT_ANDA_DI_SINI') {
+                    const errorMsg = 'URL Apps Script belum dikonfigurasi. Silakan perbarui variabel APPS_SCRIPT_URL di dalam kode.';
+                    showErrorBanner(errorMsg);
+                    return reject(new Error(errorMsg));
                 }
-                const data = await response.json();
-                if (data.error) {
-                    throw new Error(`Apps Script Error: ${data.error}`);
-                }
-                return {
-                    monitoringInternal: data.monitoring_internal || [],
-                    jadwalTraining: data.jadwal_training || [],
-                    kompetensiManpower: data.kompetensi_manpower || []
+
+                const callbackName = 'jsonp_callback_pelatihan_' + Math.round(100000 * Math.random());
+
+                window[callbackName] = function (data) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+
+                    if (data.error) {
+                        return reject(new Error(`API Error: ${data.error}. Details: ${data.details || ''}`));
+                    }
+
+                    // Map the data to the expected structure
+                    const formattedData = {
+                        monitoringInternal: data.monitoringInternal || [],
+                        jadwalTraining: data.jadwalTraining || [],
+                        kompetensiManpower: data.kompetensiManpower || []
+                    };
+                    resolve(formattedData);
                 };
-            } catch (error) {
-                console.error("Fetch failed permanently for training data:", error);
-                showErrorBanner(`Gagal mengambil data dari server. Data yang ditampilkan mungkin usang. Silakan periksa koneksi internet Anda dan coba lagi.`);
-                return null;
-            }
+
+                const script = document.createElement('script');
+                script.src = `${APPS_SCRIPT_URL}?source=pelatihan&callback=${callbackName}`;
+
+                script.onerror = function () {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    const error = new Error('Permintaan data gagal. Server tidak merespons atau terjadi kesalahan jaringan.');
+                    showErrorBanner(`Gagal mengambil data dari server. Data yang ditampilkan mungkin usang. Silakan periksa koneksi internet Anda dan coba lagi.`);
+                    reject(error);
+                };
+
+                document.body.appendChild(script);
+            });
         }
+
 
         // ========== CHART MANAGEMENT ==========
         const chartInstances = {};
@@ -455,14 +472,14 @@
 
         function updatePelatihanDashboard(data) {
             const cards = document.querySelector('#pelatihan-stats-cards');
-            const totalKompetensi = new Set(data.kompetensiManpower.map(item => item.KOMPETENSI)).size;
-            const totalManpower = new Set(data.kompetensiManpower.map(item => item.NIK)).size;
-            const totalKebutuhan = data.monitoringInternal.reduce((sum, item) => sum + (parseInt(item['NEED TRAINING']) || 0), 0);
+            const totalKompetensi = new Set(data.kompetensiManpower.map(item => item.kompetensi)).size;
+            const totalManpower = new Set(data.kompetensiManpower.map(item => item.nik)).size;
+            const totalKebutuhan = data.monitoringInternal.reduce((sum, item) => sum + (parseInt(item.needTraining) || 0), 0);
             cards.children[0].querySelector('p.text-3xl').textContent = totalKompetensi;
             cards.children[1].querySelector('p.text-3xl').textContent = totalManpower;
             cards.children[2].querySelector('p.text-3xl').textContent = totalKebutuhan;
 
-            const kompetensiCounts = data.kompetensiManpower.reduce((acc, item) => { const komp = item.KOMPETENSI || ""; if (komp.includes('POP')) acc.pop++; if (komp.includes('POM')) acc.pom++; if (komp.includes('POU')) acc.pou++; return acc; }, { pop: 0, pom: 0, pou: 0 });
+            const kompetensiCounts = data.kompetensiManpower.reduce((acc, item) => { const komp = item.kompetensi || ""; if (komp.includes('POP')) acc.pop++; if (komp.includes('POM')) acc.pom++; if (komp.includes('POU')) acc.pou++; return acc; }, { pop: 0, pom: 0, pou: 0 });
             if (chartInstances.kompetensiChart) {
                 chartInstances.kompetensiChart.data = {
                     labels: ['POP', 'POM', 'POU'],
@@ -471,7 +488,7 @@
                 chartInstances.kompetensiChart.update();
             }
 
-            const totalDone = data.monitoringInternal.reduce((sum, item) => sum + (parseInt(item.DONE) || 0), 0);
+            const totalDone = data.monitoringInternal.reduce((sum, item) => sum + (parseInt(item.done) || 0), 0);
             if (chartInstances.progressPelatihanChart) {
                 chartInstances.progressPelatihanChart.data = {
                     labels: ['Selesai', 'Belum Selesai'],
@@ -480,36 +497,36 @@
                 chartInstances.progressPelatihanChart.update();
             }
 
-            const top5 = data.monitoringInternal.filter(item => item['NEED TRAINING']).sort((a, b) => parseInt(b['NEED TRAINING']) - parseInt(a['NEED TRAINING'])).slice(0, 5);
+            const top5 = data.monitoringInternal.filter(item => item.needTraining).sort((a, b) => parseInt(b.needTraining) - parseInt(a.needTraining)).slice(0, 5);
             if (chartInstances.topPelatihanChart) {
                 chartInstances.topPelatihanChart.data = {
-                    labels: top5.map(item => item['INTERNAL TRAINING']),
-                    datasets: [{ label: 'Kebutuhan', data: top5.map(item => parseInt(item['NEED TRAINING'])), backgroundColor: '#8b5cf6' }]
+                    labels: top5.map(item => item.internalTraining),
+                    datasets: [{ label: 'Kebutuhan', data: top5.map(item => parseInt(item.needTraining)), backgroundColor: '#8b5cf6' }]
                 };
                 chartInstances.topPelatihanChart.update();
             }
 
             const jadwalList = document.getElementById('jadwal-mendatang-list');
             if (jadwalList) {
-                jadwalList.innerHTML = data.jadwalTraining.slice(0, 3).map(item => `<li class="flex items-center space-x-3"><div class="bg-purple-100 p-2 rounded-lg"><i data-lucide="calendar" class="w-5 h-5 text-purple-600"></i></div><div><p class="font-semibold text-gray-800 text-sm">${item.nama_kegiatan}</p><p class="text-xs text-gray-500">${item['tanggal mulai']} - ${item.tanggal_selesai}</p></div></li>`).join('');
+                jadwalList.innerHTML = data.jadwalTraining.slice(0, 3).map(item => `<li class="flex items-center space-x-3"><div class="bg-purple-100 p-2 rounded-lg"><i data-lucide="calendar" class="w-5 h-5 text-purple-600"></i></div><div><p class="font-semibold text-gray-800 text-sm">${item.namaKegiatan}</p><p class="text-xs text-gray-500">${item.tanggalMulai} - ${item.tanggalSelesai}</p></div></li>`).join('');
                 lucide.createIcons();
             }
         }
         function populateManpowerList(manpowerData) {
             const listContainer = document.getElementById('manpower-list'), searchInput = document.getElementById('manpower-search');
             if (!listContainer) return;
-            const uniqueManpower = [...new Map(manpowerData.map(item => [item['NIK'], item])).values()];
+            const uniqueManpower = [...new Map(manpowerData.map(item => [item.nik, item])).values()];
             let filteredManpower = uniqueManpower;
-            const renderList = () => { listContainer.innerHTML = filteredManpower.map(man => `<li class="px-3 py-2 text-sm text-gray-700 rounded-md cursor-pointer hover:bg-purple-100 hover:text-purple-700" data-nik="${man.NIK}">${man.NAMA}</li>`).join(''); };
-            if (searchInput) searchInput.addEventListener('input', debounce((e) => { const searchTerm = e.target.value.toLowerCase(); filteredManpower = uniqueManpower.filter(man => man.NAMA.toLowerCase().includes(searchTerm) || man.NIK.toLowerCase().includes(searchTerm)); renderList(); }, 300));
+            const renderList = () => { listContainer.innerHTML = filteredManpower.map(man => `<li class="px-3 py-2 text-sm text-gray-700 rounded-md cursor-pointer hover:bg-purple-100 hover:text-purple-700" data-nik="${man.nik}">${man.nama}</li>`).join(''); };
+            if (searchInput) searchInput.addEventListener('input', debounce((e) => { const searchTerm = e.target.value.toLowerCase(); filteredManpower = uniqueManpower.filter(man => man.nama.toLowerCase().includes(searchTerm) || man.nik.toLowerCase().includes(searchTerm)); renderList(); }, 300));
             renderList();
         }
         function showManpowerDetails(nik, manpowerData) {
             const detailContainer = document.getElementById('manpower-detail'); if (!detailContainer) return;
-            const competencies = manpowerData.filter(item => item.NIK === nik);
+            const competencies = manpowerData.filter(item => item.nik === nik);
             if (competencies.length === 0) { detailContainer.innerHTML = `<p class="text-gray-500">Tidak ada data untuk NIK ${nik}.</p>`; return; }
             const man = competencies[0];
-            detailContainer.innerHTML = `<h4 class="font-bold text-lg text-gray-800">${man.NAMA}</h4><p class="text-sm text-gray-500 mb-4">NIK: ${man.NIK} | ${man.JABATAN}</p><h5 class="font-semibold text-md text-gray-700 mt-4 mb-2">Daftar Kompetensi:</h5><div class="grid grid-cols-1 gap-2">${competencies.map(comp => `<div class="p-2 rounded-lg border ${comp.STATUS === 'VALID' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}"><p class="font-medium">${comp.KOMPETENSI}</p><p class="text-sm">${comp.STATUS}</p></div>`).join('')}</div>`;
+            detailContainer.innerHTML = `<h4 class="font-bold text-lg text-gray-800">${man.nama}</h4><p class="text-sm text-gray-500 mb-4">NIK: ${man.nik} | ${man.jabatan}</p><h5 class="font-semibold text-md text-gray-700 mt-4 mb-2">Daftar Kompetensi:</h5><div class="grid grid-cols-1 gap-2">${competencies.map(comp => `<div class="p-2 rounded-lg border ${comp.status === 'VALID' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}"><p class="font-medium">${comp.kompetensi}</p><p class="text-sm">${comp.status}</p></div>`).join('')}</div>`;
         }
         function generateCalendar(year, month, trainingData) {
             const grid = document.getElementById('calendar-grid'), monthYearEl = document.getElementById('calendar-month-year');
@@ -522,11 +539,11 @@
             for (let i = 0; i < firstDay.getDay(); i++) { grid.innerHTML += `<div class="bg-gray-50"></div>`; }
             for (let day = 1; day <= lastDay.getDate(); day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const events = trainingData.filter(t => t['tanggal mulai'] === dateStr);
+                const events = trainingData.filter(t => t.tanggalMulai === dateStr);
                 const dayEl = document.createElement('div');
                 dayEl.className = 'p-2 border-t border-gray-200 bg-white min-h-24';
                 dayEl.innerHTML = `<span class="text-sm font-medium text-gray-800">${day}</span>`;
-                if (events.length > 0) { events.forEach(event => { dayEl.innerHTML += `<p class="text-xs mt-1 bg-purple-100 text-purple-700 rounded px-1 truncate">${event.nama_kegiatan}</p>`; }); }
+                if (events.length > 0) { events.forEach(event => { dayEl.innerHTML += `<p class="text-xs mt-1 bg-purple-100 text-purple-700 rounded px-1 truncate">${event.namaKegiatan}</p>`; }); }
                 grid.appendChild(dayEl);
             }
         }
@@ -573,7 +590,6 @@
 
         async function forceRefreshData() {
             const refreshButton = document.getElementById('refresh-button');
-            // FIXED: Check if refreshButton exists before using it
             if (!refreshButton) return;
             const icon = refreshButton.firstElementChild;
 
@@ -584,20 +600,19 @@
 
             updateLastUpdatedTimestamp(null);
 
-            const freshData = await fetchAllTrainingData();
-
-            if (freshData) {
+            try {
+                const freshData = await fetchAllTrainingData();
                 console.log("Forced refresh successful. Updating UI and cache.");
                 updateUI(freshData);
                 setCachedData(freshData);
-            } else {
-                console.log("Forced refresh failed to retrieve new data.");
+            } catch (error) {
+                console.log("Forced refresh failed to retrieve new data.", error);
+            } finally {
+                if (icon) {
+                    icon.classList.remove('animate-spin');
+                }
+                refreshButton.disabled = false;
             }
-
-            if (icon) {
-                icon.classList.remove('animate-spin');
-            }
-            refreshButton.disabled = false;
         }
 
         // ========== MAIN INITIALIZATION ==========
@@ -608,9 +623,12 @@
                 console.log("All data loaded from cache. Rendering initial UI.");
                 updateUI(cached.data);
                 updateLastUpdatedTimestamp(cached.timestamp);
+                // Fetch new data in background
+                forceRefreshData();
+            } else {
+                // No cache, so do a full fetch
+                await forceRefreshData();
             }
-
-            await forceRefreshData();
         }
 
 

@@ -795,7 +795,7 @@
             hsePerformanceData: {},
             translations: {}
         };
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7jx5UXyJgpGSk8hxEnvmAC2lY76ujIKYXOei50k0KwDNqJeYSSv8k_J18Elp0sEfX/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2Y8RqZfew430e6L6lBXda12RY5zOD7W85cYNjI9384MSeX4pF_Bn_pvtYOjjQYCt0/exec';
 
         const { jsPDF } = window.jspdf;
 
@@ -851,50 +851,46 @@
             }
         }
 
-        // ========== DATA FETCHING (FIXED) ==========
-        async function fetchAllData() {
-            if (APPS_SCRIPT_URL === 'URL_APPS_SCRIPT_ANDA_DI_SINI') {
-                showErrorBanner('URL Apps Script belum dikonfigurasi.');
-                return null;
-            }
-            try {
-                const response = await fetch(`${APPS_SCRIPT_URL}?source=insiden`);
-                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+        // ========== DATA FETCHING (JSONP METHOD) ==========
+        function fetchAllData() {
+            return new Promise((resolve, reject) => {
+                if (APPS_SCRIPT_URL === 'URL_APPS_SCRIPT_ANDA_DI_SINI') {
+                    const errorMsg = 'URL Apps Script belum dikonfigurasi.';
+                    showErrorBanner(errorMsg);
+                    return reject(new Error(errorMsg));
+                }
 
-                const data = await response.json();
-                if (data.error) throw new Error(`Apps Script Error: ${data.error}`);
+                const callbackName = 'jsonp_callback_insiden_' + Math.round(100000 * Math.random());
 
-                const incidentsWithDetails = (data.Data_Dasbor || []).map(d => ({
-                    ...d,
-                    lat: d.Y, // FIX: Use 'Y' from sheet for latitude
-                    lon: d.X, // FIX: Use 'X' from sheet for longitude
-                    biayaPengobatan: d.biayaPengobatan || Math.random() * 1000000,
-                    biayaPerbaikanUnit: d.biayaPerbaikanUnit || Math.random() * 50000000,
-                    biayaTidakLangsung: d.biayaTidakLangsung || Math.random() * 20000000,
-                    unitTerlibat: d.unitTerlibat || 'DUMP TRUCK',
-                    penyebabLangsung: d.penyebabLangsung || 'TINDAKAN TIDAK AMAN',
-                    penyebabDasar: d.penyebabDasar || 'FAKTOR MANUSIA',
-                    kategoriCedera: d.kategoriCedera || '-',
-                    tipeCedera: d.tipeCedera || '-',
-                    bagianCedera: d.bagianCedera || 'Tidak Diketahui',
-                    namaKaryawan: d.namaKaryawan || 'N/A',
-                    jabatan: d.jabatan || 'Operator HD',
-                    statusKaryawan: d.statusKaryawan || 'EXPERIENCE',
-                    kronologi: d.kronologi || 'Tidak tersedia'
-                }));
+                window[callbackName] = function (data) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
 
-                const hsePerformance = data.HSE_Performance || generateHSEData(incidentsWithDetails);
+                    if (data.error) {
+                        return reject(new Error(`API Error: ${data.error}. Details: ${data.details || ''}`));
+                    }
 
-                return {
-                    dataDasbor: incidentsWithDetails,
-                    performance: data.Performance || [],
-                    hsePerformance: hsePerformance
+                    // Map the data to the expected structure
+                    const formattedData = {
+                        dataDasbor: data.dataDasbor || [],
+                        hsePerformance: data.hsePerformance || []
+                    };
+                    resolve(formattedData);
                 };
-            } catch (error) {
-                console.error("Fetch failed permanently:", error);
-                showErrorBanner(`Gagal mengambil data dari server. Pesan: ${error.message}. Silakan coba lagi.`);
-                return null;
-            }
+
+                const script = document.createElement('script');
+                script.src = `${APPS_SCRIPT_URL}?source=insiden&callback=${callbackName}`;
+
+                script.onerror = function () {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    const error = new Error('Permintaan data gagal. Server tidak merespons atau terjadi kesalahan jaringan.');
+                    showErrorBanner(`Gagal mengambil data dari server. Pesan: ${error.message}. Silakan coba lagi.`);
+                    reject(error);
+                };
+
+                document.body.appendChild(script);
+            });
         }
 
         function generateHSEData(incidents) {
@@ -1023,7 +1019,7 @@
             }
 
             const totalPengobatan = insidenData.reduce((sum, d) => sum + (Number(d.biayaPengobatan) || 0), 0);
-            const totalPerbaikan = insidenData.reduce((sum, d) => sum + (Number(d.biayaPerbaikanUnit) || 0), 0);
+            const totalPerbaikan = insidenData.reduce((sum, d) => sum + (Number(d.biayaPerbaikan) || 0), 0);
             const totalTidakLangsung = insidenData.reduce((sum, d) => sum + (Number(d.biayaTidakLangsung) || 0), 0);
             const totalBiaya = totalPengobatan + totalPerbaikan + totalTidakLangsung;
 
@@ -1504,18 +1500,17 @@
 
             updateLastUpdatedTimestamp(null);
 
-            const freshData = await fetchAllData();
-
-            if (freshData) {
+            try {
+                const freshData = await fetchAllData();
                 console.log("Forced refresh successful. Updating UI and cache.");
                 updateUI(freshData);
                 setCachedData(freshData);
-            } else {
-                console.log("Forced refresh failed to retrieve new data.");
+            } catch (error) {
+                console.log("Forced refresh failed to retrieve new data.", error);
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                refreshButton.disabled = false;
             }
-
-            if (icon) icon.classList.remove('animate-spin');
-            refreshButton.disabled = false;
         }
 
         // ========== LANGUAGE FUNCTIONS (NEW) ==========
