@@ -15,7 +15,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         :root {
-            --bg-light: #f8fafc;
+            --bg-light: #f0f4f8;
             --bg-dark: #1e293b;
             --text-light: #1f2937;
             --text-dark: #f1f5f9;
@@ -26,6 +26,21 @@
             background-color: var(--bg-light);
             color: var(--text-light);
             transition: background-color 0.3s ease, color 0.3s ease;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(217, 89%, 70%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 98% 1%, hsla(283, 89%, 70%, 0.2) 0px, transparent 50%);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-dark .glass-panel {
+            background: rgba(51, 65, 85, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Dark Theme Styles */
@@ -95,6 +110,12 @@
             border-color: #a78bfa !important;
         }
 
+        .theme-dark .pagination button.active {
+            background-color: #a78bfa;
+            color: #1e293b;
+            border-color: #a78bfa;
+        }
+
         .tab-content {
             display: none;
         }
@@ -152,7 +173,6 @@
             }
         }
 
-        /* Loading animation for refresh button */
         .animate-spin {
             animation: spin 1s linear infinite;
         }
@@ -166,12 +186,173 @@
                 transform: rotate(360deg);
             }
         }
+
+        .table-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pagination button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e2e8f0;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .pagination button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .pagination button.active {
+            background-color: #9333ea;
+            color: white;
+            border-color: #9333ea;
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        th.sortable:hover {
+            background-color: #f9fafb;
+        }
+
+        .theme-dark th.sortable:hover {
+            background-color: #4b5a70;
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: 0.5rem;
+            opacity: 0.5;
+        }
+
+        th.sortable.sort-asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+
+        th.sortable.sort-desc::after {
+            content: '↓';
+            opacity: 1;
+        }
+
+        /* Matrix Table Styles */
+        .matrix-table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .matrix-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.8rem;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .theme-dark .matrix-table th,
+        .theme-dark .matrix-table td {
+            border-color: #475569;
+        }
+
+        .matrix-table th {
+            background-color: #f8fafc;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .theme-dark .matrix-table th {
+            background-color: #334155;
+        }
+
+        .matrix-table .th-vertical {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            text-align: left;
+            padding: 0.75rem 0.25rem;
+            min-width: 30px;
+        }
+
+        .matrix-table .sticky-col {
+            position: sticky;
+            left: 0;
+            background-color: #f8fafc;
+            z-index: 5;
+        }
+
+        .theme-dark .matrix-table .sticky-col {
+            background-color: #334155;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            background-color: var(--bg-light);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+
+        .theme-dark .modal-container {
+            background-color: var(--bg-dark);
+        }
     </style>
 </head>
 
 <body class="theme-light">
 
-    <header class="bg-white shadow-md sticky top-0 z-50">
+    <header class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800"><span class="text-purple-600">G</span>AMITAS - Pelatihan
@@ -201,7 +382,7 @@
         </div>
 
         <div id="pelatihan-page" class="page-content active">
-            <div class="bg-white p-6 rounded-xl shadow-md">
+            <div class="glass-panel p-6 rounded-xl shadow-md">
                 <div class="border-b border-gray-200">
                     <nav class="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs" id="pelatihan-tabs">
                         <a href="#"
@@ -210,6 +391,9 @@
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
                             data-tab="pelatihan-manpower">Pelatihan Manpower</a>
+                        <a href="#"
+                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            data-tab="competency-lx">List Competency LX</a>
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
                             data-tab="matrix-kompetensi">Matrix Kompetensi</a>
@@ -225,26 +409,26 @@
                     <div id="dashboard-pelatihan-content" class="tab-content active">
                         <div class="space-y-6">
                             <div id="pelatihan-stats-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                                <div class="bg-gray-50 p-4 rounded-lg card component-loading">
+                                <div class="bg-white p-4 rounded-lg card component-loading">
                                     <p class="text-sm text-gray-500">Total Kompetensi Tercatat</p>
                                     <p class="text-3xl font-bold text-gray-800">-</p>
                                 </div>
-                                <div class="bg-gray-50 p-4 rounded-lg card component-loading">
+                                <div class="bg-white p-4 rounded-lg card component-loading">
                                     <p class="text-sm text-gray-500">Total Manpower Terlatih</p>
                                     <p class="text-3xl font-bold text-gray-800">-</p>
                                 </div>
-                                <div class="bg-gray-50 p-4 rounded-lg card component-loading">
+                                <div class="bg-white p-4 rounded-lg card component-loading">
                                     <p class="text-sm text-gray-500">Total Kebutuhan Pelatihan</p>
                                     <p class="text-3xl font-bold text-gray-800">-</p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                <div class="lg:col-span-2 bg-gray-50 p-6 rounded-lg card component-loading">
+                                <div class="lg:col-span-2 bg-white p-6 rounded-lg card component-loading">
                                     <h3 class="text-md font-semibold text-gray-700 mb-4">Grafik Sebaran Kompetensi POP,
                                         POM, POU</h3>
                                     <div class="h-64"><canvas id="kompetensiChart"></canvas></div>
                                 </div>
-                                <div class="bg-gray-50 p-6 rounded-lg card component-loading">
+                                <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3 class="text-md font-semibold text-gray-700 mb-4">Progress Pelatihan Keseluruhan
                                     </h3>
                                     <div class="h-64 flex items-center justify-center"><canvas
@@ -252,12 +436,12 @@
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                <div class="lg:col-span-2 bg-gray-50 p-6 rounded-lg card component-loading">
+                                <div class="lg:col-span-2 bg-white p-6 rounded-lg card component-loading">
                                     <h3 class="text-md font-semibold text-gray-700 mb-4">Top 5 Pelatihan yang Paling
                                         Dibutuhkan</h3>
                                     <div class="h-64"><canvas id="topPelatihanChart"></canvas></div>
                                 </div>
-                                <div class="bg-gray-50 p-6 rounded-lg card component-loading">
+                                <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3 class="text-md font-semibold text-gray-700 mb-4">Jadwal Mendatang</h3>
                                     <ul id="jadwal-mendatang-list" class="space-y-4"></ul>
                                 </div>
@@ -276,22 +460,73 @@
                                     <ul id="manpower-list" class="space-y-1"></ul>
                                 </div>
                             </div>
-                            <div id="manpower-detail" class="md:col-span-2 p-4 border rounded-lg bg-white">
+                            <div id="manpower-detail-placeholder"
+                                class="md:col-span-2 p-4 border rounded-lg bg-white flex items-center justify-center">
                                 <p class="text-gray-500">Pilih nama dari daftar untuk melihat detail kompetensi.</p>
                             </div>
                         </div>
                     </div>
+                    <div id="competency-lx-content" class="tab-content">
+                        <h3 class="text-lg font-semibold mb-4">Daftar Competency LX</h3>
+                        <div class="table-controls">
+                            <input type="text" id="competency-lx-search" placeholder="Cari dalam tabel..."
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <select id="competency-lx-per-page"
+                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="10">10 per halaman</option>
+                                <option value="25">25 per halaman</option>
+                                <option value="50" selected>50 per halaman</option>
+                            </select>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="text-xs text-gray-500 uppercase border-b">
+                                        <th class="py-3 px-4 sortable" data-column="competency">Competency</th>
+                                        <th class="py-3 px-4 sortable" data-column="competencyCode">Code</th>
+                                        <th class="py-3 px-4 sortable" data-column="jenisCompetency">Jenis</th>
+                                        <th class="py-3 px-4 sortable" data-column="kelompokCompetency">Kelompok</th>
+                                        <th class="py-3 px-4 sortable" data-column="peraturan">Peraturan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="competency-lx-table-body" class="text-sm text-gray-700"></tbody>
+                            </table>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
+                            <div id="competency-lx-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
+                            <div id="competency-lx-pagination" class="pagination"></div>
+                        </div>
+                    </div>
                     <div id="matrix-kompetensi-content" class="tab-content">
-                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
-                            <div class="flex">
-                                <div class="flex-shrink-0"><i data-lucide="info" class="h-5 w-5 text-blue-400"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-blue-700"><strong>Matrix Kompetensi</strong> - Fitur ini
-                                        sedang dalam pengembangan. Matrix ini akan menampilkan pemetaan kompetensi
-                                        setiap karyawan berdasarkan jabatan dan area kerja.</p>
+                        <h3 class="text-lg font-semibold mb-4">Matrix Kompetensi Jabatan</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <select id="matrix-dept-filter" class="w-full md:w-auto p-2 border rounded-md"></select>
+                                <select id="matrix-section-filter"
+                                    class="w-full md:w-auto p-2 border rounded-md"></select>
+                                <select id="matrix-jabatan-filter"
+                                    class="w-full md:w-auto p-2 border rounded-md"></select>
+                                <div class="flex flex-wrap gap-x-4 gap-y-2 items-center text-xs ml-auto">
+                                    <span
+                                        class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full font-medium bg-green-100 text-green-800">N2:
+                                        Cukup Perlu</span>
+                                    <span
+                                        class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full font-medium bg-blue-100 text-blue-800">N3:
+                                        Mampu Mandiri</span>
+                                    <span
+                                        class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full font-medium bg-orange-100 text-orange-800">N4:
+                                        Perlu Supervisi</span>
+                                    <span
+                                        class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full font-medium bg-red-100 text-red-800">N5:
+                                        Sangat Perlu</span>
                                 </div>
                             </div>
+                        </div>
+                        <div class="matrix-table-container">
+                            <table id="matrix-table" class="matrix-table">
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
                     <div id="jadwal-pelatihan-content" class="tab-content">
@@ -325,15 +560,30 @@
         </div>
     </main>
 
+    <!-- MODAL CONTAINER -->
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="flex justify-between items-center mb-4 border-b pb-4">
+                <h2 id="modal-title" class="text-xl font-bold">Detail</h2>
+                <button id="modal-close-button" class="p-2 rounded-full hover:bg-gray-200">
+                    <i data-lucide="x" class="w-6 h-6 text-gray-600"></i>
+                </button>
+            </div>
+            <div id="modal-content" class="space-y-4"></div>
+        </div>
+    </div>
+
+
     <script>
         // ========== GLOBAL STATE & UTILITIES ==========
         const appState = {
             data: {},
             currentTheme: localStorage.getItem('theme') || 'light',
             cache: {
-                key: 'pelatihan_data_cache',
+                key: 'pelatihan_data_cache_v2',
                 expiry: 30 * 60 * 1000 // 30 minutes
             },
+            tables: {}, // Object to hold all table managers
             lastUpdated: null
         };
         const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
@@ -395,12 +645,6 @@
         // ========== DATA FETCHING (JSONP METHOD) ==========
         function fetchAllTrainingData() {
             return new Promise((resolve, reject) => {
-                if (APPS_SCRIPT_URL === 'URL_APPS_SCRIPT_ANDA_DI_SINI') {
-                    const errorMsg = 'URL Apps Script belum dikonfigurasi. Silakan perbarui variabel APPS_SCRIPT_URL di dalam kode.';
-                    showErrorBanner(errorMsg);
-                    return reject(new Error(errorMsg));
-                }
-
                 const callbackName = 'jsonp_callback_pelatihan_' + Math.round(100000 * Math.random());
 
                 window[callbackName] = function (data) {
@@ -411,11 +655,12 @@
                         return reject(new Error(`API Error: ${data.error}. Details: ${data.details || ''}`));
                     }
 
-                    // Map the data to the expected structure
                     const formattedData = {
                         monitoringInternal: data.monitoringInternal || [],
                         jadwalTraining: data.jadwalTraining || [],
-                        kompetensiManpower: data.kompetensiManpower || []
+                        kompetensiManpower: data.kompetensiManpower || [],
+                        competencyLx: data.competencyLx || [],
+                        internalMatrix: data.internalMatrix || []
                     };
                     resolve(formattedData);
                 };
@@ -435,23 +680,118 @@
             });
         }
 
+        function stringToHslColor(str, s = 70, l = 85) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const h = hash % 360;
+            return `hsl(${h}, ${s}%, ${l}%)`;
+        }
+
+        // ========== TABLE MANAGER CLASS ==========
+        class TableManager {
+            constructor(tableId, data, headers, options = {}) {
+                this.tableId = tableId;
+                this.originalData = [...data];
+                this.headers = headers;
+                this.currentPage = 1;
+                this.itemsPerPage = parseInt(options.itemsPerPage || 50);
+                this.sortColumn = null;
+                this.sortDirection = 'asc';
+                this.searchTerm = '';
+                this.dateColumn = options.dateColumn;
+
+                if (this.dateColumn) {
+                    this.originalData.sort((a, b) => new Date(b[this.dateColumn] || 0) - new Date(a[this.dateColumn] || 0));
+                }
+                this.filteredData = [...this.originalData];
+                this.init();
+            }
+            init() { this.setupControls(); this.render(); }
+            setupControls() {
+                const searchInput = document.getElementById(this.tableId.replace('-table-body', '-search'));
+                if (searchInput) searchInput.addEventListener('input', debounce((e) => { this.searchTerm = e.target.value.toLowerCase(); this.applyFilters(); }, 300));
+
+                const perPageSelect = document.getElementById(this.tableId.replace('-table-body', '-per-page'));
+                if (perPageSelect) perPageSelect.addEventListener('change', (e) => { this.itemsPerPage = parseInt(e.target.value); this.currentPage = 1; this.render(); });
+
+                const table = document.getElementById(this.tableId).closest('table');
+                table.querySelectorAll('th.sortable').forEach(header => { header.addEventListener('click', () => { const column = header.dataset.column; if (this.sortColumn === column) { this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'; } else { this.sortColumn = column; this.sortDirection = 'asc'; } this.updateSortIcons(header); this.applySort(); }); });
+            }
+            updateSortIcons(activeHeader) {
+                const table = document.getElementById(this.tableId).closest('table');
+                table.querySelectorAll('th.sortable').forEach(header => { header.classList.remove('sort-asc', 'sort-desc'); });
+                activeHeader.classList.add(this.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+            applyFilters() {
+                this.filteredData = this.originalData.filter(item => {
+                    return !this.searchTerm || Object.values(item).some(value => String(value).toLowerCase().includes(this.searchTerm));
+                });
+                this.currentPage = 1;
+                this.applySort();
+            }
+            applySort() {
+                if (this.sortColumn) {
+                    this.filteredData.sort((a, b) => {
+                        let aVal = a[this.sortColumn] || '', bVal = b[this.sortColumn] || '';
+                        if (this.sortDirection === 'asc') return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                        else return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+                    });
+                }
+                this.render();
+            }
+            render() { this.renderTable(); this.renderPagination(); }
+            renderTable() {
+                const tbody = document.getElementById(this.tableId);
+                const start = (this.currentPage - 1) * this.itemsPerPage;
+                const end = start + this.itemsPerPage;
+                const pageData = this.filteredData.slice(start, end);
+                if (pageData.length === 0) { tbody.innerHTML = `<tr><td colspan="${this.headers.length}" class="text-center py-4 text-gray-500">Tidak ada data.</td></tr>`; return; }
+
+                tbody.innerHTML = pageData.map(row => {
+                    const cells = this.headers.map(header => {
+                        const value = row[header] || '-';
+                        if (this.tableId === 'competency-lx-table-body' && ['jenisCompetency', 'kelompokCompetency', 'peraturan'].includes(header) && value !== '-') {
+                            const bgColor = stringToHslColor(value);
+                            return `<td class="py-3 px-4"><span class="px-2 py-1 text-xs font-medium rounded-full text-gray-800" style="background-color: ${bgColor};">${value}</span></td>`;
+                        }
+                        return `<td class="py-3 px-4">${value}</td>`;
+                    }).join('');
+                    return `<tr class="border-b hover:bg-gray-50">${cells}</tr>`;
+                }).join('');
+            }
+            renderPagination() {
+                const paginationId = this.tableId.replace('-table-body', '-pagination');
+                const paginationContainer = document.getElementById(paginationId);
+                const summaryId = this.tableId.replace('-table-body', '-summary');
+                const summaryContainer = document.getElementById(summaryId);
+                if (!paginationContainer) return;
+
+                const totalEntries = this.filteredData.length;
+                const totalPages = Math.ceil(totalEntries / this.itemsPerPage);
+                const start = (this.currentPage - 1) * this.itemsPerPage;
+                const startEntry = totalEntries > 0 ? start + 1 : 0;
+                const endEntry = Math.min(start + this.itemsPerPage, totalEntries);
+
+                if (summaryContainer) {
+                    summaryContainer.textContent = totalEntries > 0 ? `Menampilkan ${startEntry} sampai ${endEntry} dari ${totalEntries} data` : 'Tidak ada data';
+                }
+                if (totalPages <= 1) { paginationContainer.innerHTML = ''; return; }
+                let html = `<button class="pagination-btn" ${this.currentPage === 1 ? 'disabled' : ''} data-page="${this.currentPage - 1}">‹</button>`;
+                for (let i = 1; i <= totalPages; i++) { html += `<button class="pagination-btn ${i === this.currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`; }
+                html += `<button class="pagination-btn" ${this.currentPage === totalPages ? 'disabled' : ''} data-page="${this.currentPage + 1}">›</button>`;
+                paginationContainer.innerHTML = html;
+                paginationContainer.addEventListener('click', (e) => { if (e.target.classList.contains('pagination-btn') && !e.target.disabled) { this.currentPage = parseInt(e.target.dataset.page); this.render(); } });
+            }
+        }
 
         // ========== CHART MANAGEMENT ==========
         const chartInstances = {};
         let currentDate = new Date();
         function initializeCharts() {
-            const defaultChartOptions = (extraOptions = {}) => ({
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { labels: { color: appState.currentTheme === 'dark' ? '#f1f5f9' : '#1f2937' } } },
-                scales: {
-                    x: { ticks: { color: appState.currentTheme === 'dark' ? '#cbd5e1' : '#1f2937' }, grid: { color: 'rgba(128, 128, 128, 0.2)' } },
-                    y: { ticks: { color: appState.currentTheme === 'dark' ? '#cbd5e1' : '#1f2937' }, grid: { color: 'rgba(128, 128, 128, 0.2)' } }
-                }, ...extraOptions
-            });
-            const createChart = (id, type, options) => {
-                const ctx = document.getElementById(id)?.getContext("2d");
-                if (ctx) { if (chartInstances[id]) chartInstances[id].destroy(); chartInstances[id] = new Chart(ctx, { type, data: { labels: [], datasets: [] }, options }); }
-            };
+            const defaultChartOptions = (extraOptions = {}) => ({ responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: appState.currentTheme === 'dark' ? '#f1f5f9' : '#1f2937' } } }, scales: { x: { ticks: { color: appState.currentTheme === 'dark' ? '#cbd5e1' : '#1f2937' }, grid: { color: 'rgba(128, 128, 128, 0.2)' } }, y: { ticks: { color: appState.currentTheme === 'dark' ? '#cbd5e1' : '#1f2937' }, grid: { color: 'rgba(128, 128, 128, 0.2)' } } }, ...extraOptions });
+            const createChart = (id, type, options) => { const ctx = document.getElementById(id)?.getContext("2d"); if (ctx) { if (chartInstances[id]) chartInstances[id].destroy(); chartInstances[id] = new Chart(ctx, { type, data: { labels: [], datasets: [] }, options }); } };
             createChart('kompetensiChart', 'bar', defaultChartOptions({ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }));
             createChart('progressPelatihanChart', 'doughnut', defaultChartOptions({ plugins: { legend: { position: 'bottom' } } }));
             createChart('topPelatihanChart', 'bar', defaultChartOptions({ indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }));
@@ -459,14 +799,18 @@
 
         // ========== UI UPDATE FUNCTIONS ==========
         function updateUI(data) {
-            if (!data || !data.monitoringInternal || !data.jadwalTraining || !data.kompetensiManpower) {
-                console.warn("Update UI skipped due to incomplete data.");
-                return;
-            };
+            if (!data) { console.warn("Update UI skipped due to incomplete data."); return; };
             appState.data = data;
             updatePelatihanDashboard(data);
             populateManpowerList(data.kompetensiManpower);
             generateCalendar(currentDate.getFullYear(), currentDate.getMonth(), data.jadwalTraining);
+
+            appState.tables['competencyLx'] = new TableManager('competency-lx-table-body', data.competencyLx || [],
+                ['competency', 'competencyCode', 'jenisCompetency', 'kelompokCompetency', 'peraturan']
+            );
+
+            initializeMatrix(data.internalMatrix || []);
+
             document.querySelectorAll('.component-loading').forEach(el => el.classList.remove('component-loading'));
         }
 
@@ -478,39 +822,14 @@
             cards.children[0].querySelector('p.text-3xl').textContent = totalKompetensi;
             cards.children[1].querySelector('p.text-3xl').textContent = totalManpower;
             cards.children[2].querySelector('p.text-3xl').textContent = totalKebutuhan;
-
             const kompetensiCounts = data.kompetensiManpower.reduce((acc, item) => { const komp = item.kompetensi || ""; if (komp.includes('POP')) acc.pop++; if (komp.includes('POM')) acc.pom++; if (komp.includes('POU')) acc.pou++; return acc; }, { pop: 0, pom: 0, pou: 0 });
-            if (chartInstances.kompetensiChart) {
-                chartInstances.kompetensiChart.data = {
-                    labels: ['POP', 'POM', 'POU'],
-                    datasets: [{ label: 'Jumlah Kompetensi', data: [kompetensiCounts.pop, kompetensiCounts.pom, kompetensiCounts.pou], backgroundColor: ['#8b5cf6', '#06b6d4', '#10b981'] }]
-                };
-                chartInstances.kompetensiChart.update();
-            }
-
+            if (chartInstances.kompetensiChart) { chartInstances.kompetensiChart.data = { labels: ['POP', 'POM', 'POU'], datasets: [{ label: 'Jumlah Kompetensi', data: [kompetensiCounts.pop, kompetensiCounts.pom, kompetensiCounts.pou], backgroundColor: ['#8b5cf6', '#06b6d4', '#10b981'] }] }; chartInstances.kompetensiChart.update(); }
             const totalDone = data.monitoringInternal.reduce((sum, item) => sum + (parseInt(item.done) || 0), 0);
-            if (chartInstances.progressPelatihanChart) {
-                chartInstances.progressPelatihanChart.data = {
-                    labels: ['Selesai', 'Belum Selesai'],
-                    datasets: [{ data: [totalDone, totalKebutuhan > totalDone ? totalKebutuhan - totalDone : 0], backgroundColor: ['#10b981', '#e5e7eb'], borderWidth: 0 }]
-                };
-                chartInstances.progressPelatihanChart.update();
-            }
-
+            if (chartInstances.progressPelatihanChart) { chartInstances.progressPelatihanChart.data = { labels: ['Selesai', 'Belum Selesai'], datasets: [{ data: [totalDone, totalKebutuhan > totalDone ? totalKebutuhan - totalDone : 0], backgroundColor: ['#10b981', '#e5e7eb'], borderWidth: 0 }] }; chartInstances.progressPelatihanChart.update(); }
             const top5 = data.monitoringInternal.filter(item => item.needTraining).sort((a, b) => parseInt(b.needTraining) - parseInt(a.needTraining)).slice(0, 5);
-            if (chartInstances.topPelatihanChart) {
-                chartInstances.topPelatihanChart.data = {
-                    labels: top5.map(item => item.internalTraining),
-                    datasets: [{ label: 'Kebutuhan', data: top5.map(item => parseInt(item.needTraining)), backgroundColor: '#8b5cf6' }]
-                };
-                chartInstances.topPelatihanChart.update();
-            }
-
+            if (chartInstances.topPelatihanChart) { chartInstances.topPelatihanChart.data = { labels: top5.map(item => item.internalTraining), datasets: [{ label: 'Kebutuhan', data: top5.map(item => parseInt(item.needTraining)), backgroundColor: '#8b5cf6' }] }; chartInstances.topPelatihanChart.update(); }
             const jadwalList = document.getElementById('jadwal-mendatang-list');
-            if (jadwalList) {
-                jadwalList.innerHTML = data.jadwalTraining.slice(0, 3).map(item => `<li class="flex items-center space-x-3"><div class="bg-purple-100 p-2 rounded-lg"><i data-lucide="calendar" class="w-5 h-5 text-purple-600"></i></div><div><p class="font-semibold text-gray-800 text-sm">${item.namaKegiatan}</p><p class="text-xs text-gray-500">${item.tanggalMulai} - ${item.tanggalSelesai}</p></div></li>`).join('');
-                lucide.createIcons();
-            }
+            if (jadwalList) { jadwalList.innerHTML = data.jadwalTraining.slice(0, 3).map(item => `<li class="flex items-center space-x-3"><div class="bg-purple-100 p-2 rounded-lg"><i data-lucide="calendar" class="w-5 h-5 text-purple-600"></i></div><div><p class="font-semibold text-gray-800 text-sm">${item.namaKegiatan}</p><p class="text-xs text-gray-500">${item.tanggalMulai} - ${item.tanggalSelesai}</p></div></li>`).join(''); lucide.createIcons(); }
         }
         function populateManpowerList(manpowerData) {
             const listContainer = document.getElementById('manpower-list'), searchInput = document.getElementById('manpower-search');
@@ -522,11 +841,26 @@
             renderList();
         }
         function showManpowerDetails(nik, manpowerData) {
-            const detailContainer = document.getElementById('manpower-detail'); if (!detailContainer) return;
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+
             const competencies = manpowerData.filter(item => item.nik === nik);
-            if (competencies.length === 0) { detailContainer.innerHTML = `<p class="text-gray-500">Tidak ada data untuk NIK ${nik}.</p>`; return; }
+            if (competencies.length === 0) return;
             const man = competencies[0];
-            detailContainer.innerHTML = `<h4 class="font-bold text-lg text-gray-800">${man.nama}</h4><p class="text-sm text-gray-500 mb-4">NIK: ${man.nik} | ${man.jabatan}</p><h5 class="font-semibold text-md text-gray-700 mt-4 mb-2">Daftar Kompetensi:</h5><div class="grid grid-cols-1 gap-2">${competencies.map(comp => `<div class="p-2 rounded-lg border ${comp.status === 'VALID' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}"><p class="font-medium">${comp.kompetensi}</p><p class="text-sm">${comp.status}</p></div>`).join('')}</div>`;
+
+            modalTitle.textContent = `Detail Kompetensi: ${man.nama}`;
+            modalContent.innerHTML = `
+                <p class="text-sm text-gray-500 mb-4">NIK: ${man.nik} | ${man.jabatan}</p>
+                <h5 class="font-semibold text-md text-gray-700 mt-4 mb-2">Daftar Kompetensi:</h5>
+                <div class="grid grid-cols-1 gap-2">
+                    ${competencies.map(comp => `
+                        <div class="p-2 rounded-lg border ${comp.status === 'VALID' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}">
+                            <p class="font-medium">${comp.kompetensi}</p>
+                            <p class="text-sm">${comp.status}</p>
+                        </div>
+                    `).join('')}
+                </div>`;
+            document.getElementById('detail-modal').classList.add('active');
         }
         function generateCalendar(year, month, trainingData) {
             const grid = document.getElementById('calendar-grid'), monthYearEl = document.getElementById('calendar-month-year');
@@ -548,10 +882,89 @@
             }
         }
 
+        function initializeMatrix(matrixData) {
+            const deptFilter = document.getElementById('matrix-dept-filter');
+            const sectionFilter = document.getElementById('matrix-section-filter');
+            const jabatanFilter = document.getElementById('matrix-jabatan-filter');
+            const tableHead = document.querySelector('#matrix-table thead');
+            const tableBody = document.querySelector('#matrix-table tbody');
+
+            if (!matrixData.length) return;
+
+            const competencyHeaders = Object.keys(matrixData[0]).filter(key => !['departement', 'section', 'jabatan'].includes(key));
+
+            const populateFilter = (element, data, key) => {
+                const options = ['Semua', ...new Set(data.map(item => item[key]))];
+                element.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+            };
+
+            populateFilter(deptFilter, matrixData, 'departement');
+            populateFilter(sectionFilter, matrixData, 'section');
+            populateFilter(jabatanFilter, matrixData, 'jabatan');
+
+            const renderMatrix = () => {
+                const selectedDept = deptFilter.value;
+                const selectedSection = sectionFilter.value;
+                const selectedJabatan = jabatanFilter.value;
+
+                const filteredData = matrixData.filter(row =>
+                    (selectedDept === 'Semua' || row.departement === selectedDept) &&
+                    (selectedSection === 'Semua' || row.section === selectedSection) &&
+                    (selectedJabatan === 'Semua' || row.jabatan === selectedJabatan)
+                );
+
+                let headerHtml = '<tr><th class="sticky-col">Departemen</th><th class="sticky-col" style="left: 100px;">Section</th><th class="sticky-col" style="left: 200px;">Jabatan</th>';
+                headerHtml += competencyHeaders.map(h => `<th class="th-vertical">${h.replace(/([A-Z])/g, ' $1').trim()}</th>`).join('');
+                headerHtml += '</tr>';
+                tableHead.innerHTML = headerHtml;
+
+                tableBody.innerHTML = filteredData.map(row => {
+                    let rowHtml = `<tr><td class="sticky-col">${row.departement}</td><td class="sticky-col" style="left: 100px;">${row.section}</td><td class="sticky-col" style="left: 200px;">${row.jabatan}</td>`;
+                    rowHtml += competencyHeaders.map(h => {
+                        const level = row[h];
+                        let cellContent = '';
+                        if (level) {
+                            let bgColor, textColor, icon, label;
+                            switch (level) {
+                                case 'N2':
+                                    bgColor = 'bg-green-100'; textColor = 'text-green-800'; label = 'Cukup Perlu';
+                                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                                    break;
+                                case 'N3':
+                                    bgColor = 'bg-blue-100'; textColor = 'text-blue-800'; label = 'Mampu Mandiri';
+                                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                                    break;
+                                case 'N4':
+                                    bgColor = 'bg-orange-100'; textColor = 'text-orange-800'; label = 'Perlu Supervisi';
+                                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+                                    break;
+                                case 'N5':
+                                    bgColor = 'bg-red-100'; textColor = 'text-red-800'; label = 'Sangat Perlu';
+                                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+                                    break;
+                                default:
+                                    bgColor = ''; textColor = 'text-gray-800'; icon = ''; label = level;
+                            }
+                            cellContent = `<span class="px-2 py-1 text-xs font-medium rounded-full inline-flex items-center ${bgColor} ${textColor}">${icon} ${label}</span>`;
+                        }
+                        return `<td class="text-center">${cellContent}</td>`;
+                    }).join('');
+                    rowHtml += '</tr>';
+                    return rowHtml;
+                }).join('');
+            };
+
+            [deptFilter, sectionFilter, jabatanFilter].forEach(el => el.addEventListener('change', renderMatrix));
+            renderMatrix();
+        }
+
+
         // ========== THEME & NAVIGATION ==========
         function setupTabs(tabContainerId) {
-            const tabContainer = document.getElementById(tabContainerId); if (!tabContainer) return;
-            const tabLinks = tabContainer.querySelectorAll('.tab-link'), tabContents = tabContainer.closest('.bg-white').querySelectorAll('.tab-content');
+            const tabContainer = document.getElementById(tabContainerId);
+            if (!tabContainer) return;
+            const tabLinks = tabContainer.querySelectorAll('.tab-link');
+            const tabContents = tabContainer.closest('.glass-panel').querySelectorAll('.tab-content');
             tabLinks.forEach(link => {
                 link.addEventListener('click', e => {
                     e.preventDefault();
@@ -586,6 +999,11 @@
             document.getElementById('manpower-list')?.addEventListener('click', (e) => { if (e.target?.matches('li')) { showManpowerDetails(e.target.dataset.nik, appState.data.kompetensiManpower); document.querySelectorAll('#manpower-list li').forEach(li => li.classList.remove('bg-purple-200')); e.target.classList.add('bg-purple-200'); } });
             document.getElementById('prev-month')?.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); generateCalendar(currentDate.getFullYear(), currentDate.getMonth(), appState.data.jadwalTraining); });
             document.getElementById('next-month')?.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); generateCalendar(currentDate.getFullYear(), currentDate.getMonth(), appState.data.jadwalTraining); });
+
+            // Modal listeners
+            const modal = document.getElementById('detail-modal');
+            modal.addEventListener('click', (e) => { if (e.target.id === 'detail-modal') modal.classList.remove('active'); });
+            document.getElementById('modal-close-button').addEventListener('click', () => modal.classList.remove('active'));
         }
 
         async function forceRefreshData() {
