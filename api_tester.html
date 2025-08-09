@@ -4,205 +4,717 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halaman Uji Coba API dengan Filter Tanggal</title>
+    <title>Professional API Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            background-color: #f4f7f9;
-            color: #333;
+        * {
             margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 25px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        h1 {
-            color: #1a73e8;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 10px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        input[type="text"],
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 0;
             box-sizing: border-box;
         }
 
-        button {
-            background-color: #1a73e8;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 24px;
             color: white;
-            padding: 12px 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.3;
+            }
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .tab-button {
+            padding: 12px 24px;
             border: none;
-            border-radius: 4px;
+            background: transparent;
+            color: #64748b;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 16px;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: 100%;
+            }
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
             font-weight: 600;
-            transition: background-color 0.3s;
+            position: sticky;
+            top: 0;
         }
 
-        button:hover {
-            background-color: #155ab6;
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
         }
 
-        #response-container {
-            margin-top: 25px;
+        .data-table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
         }
 
-        pre {
-            background-color: #282c34;
-            color: #abb2bf;
-            padding: 15px;
-            border-radius: 5px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: "Courier New", Courier, monospace;
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
         }
 
-        .status {
-            font-style: italic;
-            color: #666;
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease;
+            z-index: 1000;
         }
 
-        .error {
-            color: #d93025;
-            font-weight: bold;
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .search-box {
+            padding: 10px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-badge.warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .status-badge.danger {
+            background: #ef4444;
+            color: white;
         }
     </style>
 </head>
 
 <body>
+    <div id="app">
+        <!-- Header -->
+        <header class="bg-white shadow-lg sticky top-0 z-50">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                        <h1
+                            class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            Professional API Dashboard
+                        </h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="refreshData()"
+                            class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                </path>
+                            </svg>
+                            Refresh Data
+                        </button>
+                        <select id="apiSource" onchange="handleSourceChange()"
+                            class="px-4 py-2 border-2 border-purple-300 rounded-lg focus:outline-none focus:border-purple-500">
+                            <option value="">Pilih Sumber Data</option>
+                            <option value="dashboard">Dashboard</option>
+                            <option value="induksi">Induksi</option>
+                            <option value="pelatihan">Pelatihan</option>
+                            <option value="insiden">Insiden</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-    <div class="container">
-        <h1>🧪 Halaman Uji Coba API</h1>
-        <p>Gunakan halaman ini untuk melakukan tes panggilan dan memfilter data dari API Anda.</p>
+        <!-- Main Content -->
+        <main class="container mx-auto px-6 py-8">
+            <!-- API URL Configuration -->
+            <div class="glass-card p-6 mb-8">
+                <div class="flex items-center gap-4">
+                    <label class="font-semibold text-gray-700">API URL:</label>
+                    <input type="text" id="apiUrl" placeholder="Masukkan URL Web App"
+                        value="https://script.google.com/macros/s/AKfycbzLQpj9qzSFmLuO5-SUl1hHIfC86c4S7SfupeZ5PoQqD_D0soMDpISqL1G2MYpejAmU/exec"
+                        class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+                    <button onclick="testConnection()"
+                        class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        Test Connection
+                    </button>
+                </div>
+            </div>
 
-        <div class="input-group">
-            <label for="apiUrl">URL Web App Anda:</label>
-            <input type="text" id="apiUrl" placeholder="https://script.google.com/macros/s/xxxxxxxx/exec">
-        </div>
+            <!-- Metrics Cards -->
+            <div id="metricsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Metrics will be dynamically inserted here -->
+            </div>
 
-        <div class="input-group">
-            <label for="source">Pilih Sumber Data (Source):</label>
-            <select id="source">
-                <option value="dashboard">dashboard</option>
-                <option value="induksi">induksi</option>
-                <option value="pelatihan">pelatihan</option>
-                <option value="insiden">insiden</option>
-            </select>
-        </div>
+            <!-- Data Tabs -->
+            <div class="glass-card p-6 mb-8">
+                <div class="border-b border-gray-200 mb-6">
+                    <div id="tabButtons" class="flex gap-4">
+                        <!-- Tab buttons will be dynamically inserted here -->
+                    </div>
+                </div>
 
-        <!-- Input Baru untuk Filter Tanggal -->
-        <div class="input-group">
-            <label for="dateFilter">Filter Berdasarkan Tanggal (format yyyy-MM-dd):</label>
-            <input type="text" id="dateFilter" placeholder="Contoh: 2024-08-17 (Kosongkan untuk melihat semua)">
-        </div>
+                <!-- Search and Filter -->
+                <div class="mb-6">
+                    <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Cari data..."
+                        class="search-box">
+                </div>
 
-        <button id="testButton">Ambil dan Filter Data</button>
+                <!-- Data Content -->
+                <div id="dataContent" class="min-h-[400px]">
+                    <!-- Data will be displayed here -->
+                </div>
+            </div>
 
-        <div id="response-container">
-            <h2>Respons API:</h2>
-            <pre id="jsonResponse"><code class="status">Hasil akan ditampilkan di sini...</code></pre>
-        </div>
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4">Trend Analysis</h3>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4">Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
-        const testButton = document.getElementById('testButton');
-        const apiUrlInput = document.getElementById('apiUrl');
-        const sourceSelect = document.getElementById('source');
-        const dateFilterInput = document.getElementById('dateFilter');
-        const jsonResponseOutput = document.getElementById('jsonResponse');
+        // Global variables
+        let currentData = {};
+        let activeTab = '';
+        let charts = {};
 
-        async function fetchData() {
-            const apiUrl = apiUrlInput.value.trim();
-            const source = sourceSelect.value;
-            const filterDate = dateFilterInput.value.trim();
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeDashboard();
+        });
 
+        function initializeDashboard() {
+            showNotification('Dashboard initialized successfully!', 'success');
+            updateMetrics();
+        }
+
+        // Fetch data using JSONP
+        function fetchData(source) {
+            const apiUrl = document.getElementById('apiUrl').value;
             if (!apiUrl) {
-                jsonResponseOutput.innerHTML = '<code class="error">Error: Harap masukkan URL Web App Anda.</code>';
+                showNotification('Please enter API URL', 'error');
                 return;
             }
 
-            const fullUrl = `${apiUrl}?source=${source}`;
-            jsonResponseOutput.innerHTML = '<code class="status">Menghubungi API... Mohon tunggu...</code>';
+            showLoader();
 
-            try {
-                const response = await fetch(fullUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP Error! Status: ${response.status}`);
-                }
-                const data = await response.json();
+            const callbackName = 'jsonpCallback_' + Date.now();
 
-                // Jika tidak ada tanggal filter, tampilkan semua data
-                if (!filterDate) {
-                    jsonResponseOutput.textContent = JSON.stringify(data, null, 2);
+            window[callbackName] = function (data) {
+                delete window[callbackName];
+                document.body.removeChild(script);
+
+                if (data.error) {
+                    showNotification('Error: ' + data.error, 'error');
+                    hideLoader();
                     return;
                 }
 
-                // --- Logika untuk Memfilter Data ---
-                const filteredData = {};
-                let itemsFound = 0;
+                currentData = data;
+                displayData(data);
+                updateMetrics();
+                updateCharts(data);
+                hideLoader();
+                showNotification('Data loaded successfully!', 'success');
+            };
 
-                // Loop setiap kunci di dalam respons (contoh: 'pascaCuti', 'newHire', dll.)
-                for (const key in data) {
-                    if (Array.isArray(data[key])) {
+            const script = document.createElement('script');
+            script.src = `${apiUrl}?source=${source}&callback=${callbackName}`;
 
-                        // Filter array yang ada di dalam kunci tersebut
-                        const filteredArray = data[key].filter(item => {
-                            // Cek beberapa kemungkinan nama kolom tanggal
-                            const dateFields = ['date', 'timestamp', 'tanggalKejadian', 'tanggalMulai', 'dateRegist', 'tanggal'];
-                            for (const field of dateFields) {
-                                // Jika kolom ada, berupa string, dan dimulai dengan tanggal yang difilter
-                                if (item[field] && typeof item[field] === 'string' && item[field].startsWith(filterDate)) {
-                                    return true;
-                                }
-                            }
-                            return false;
-                        });
+            script.onerror = function () {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                showNotification('Failed to fetch data', 'error');
+                hideLoader();
+            };
 
-                        // Jika ditemukan data yang cocok, tambahkan ke hasil
-                        if (filteredArray.length > 0) {
-                            filteredData[key] = filteredArray;
-                            itemsFound += filteredArray.length;
-                        }
-                    }
-                }
+            document.body.appendChild(script);
+        }
 
-                if (itemsFound > 0) {
-                    jsonResponseOutput.textContent = JSON.stringify(filteredData, null, 2);
-                } else {
-                    jsonResponseOutput.innerHTML = `<code class="status">Tidak ada data yang cocok dengan tanggal "${filterDate}".</code>`;
-                }
-
-            } catch (error) {
-                console.error("Gagal mengambil data:", error);
-                jsonResponseOutput.innerHTML = `<code class="error">Gagal mengambil data:\n${error.message}\n\nPastikan URL benar dan skrip telah di-deploy dengan benar (dengan perbaikan CORS).</code>`;
+        // Handle source selection change
+        function handleSourceChange() {
+            const source = document.getElementById('apiSource').value;
+            if (source) {
+                fetchData(source);
             }
         }
 
-        testButton.addEventListener('click', fetchData);
-    </script>
+        // Refresh data
+        function refreshData() {
+            const source = document.getElementById('apiSource').value;
+            if (source) {
+                fetchData(source);
+            } else {
+                showNotification('Please select a data source', 'warning');
+            }
+        }
 
+        // Test API connection
+        function testConnection() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            if (!apiUrl) {
+                showNotification('Please enter API URL', 'error');
+                return;
+            }
+
+            showNotification('Testing connection...', 'info');
+
+            // Test with dashboard source
+            const callbackName = 'testCallback_' + Date.now();
+
+            window[callbackName] = function (data) {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                showNotification('Connection successful!', 'success');
+            };
+
+            const script = document.createElement('script');
+            script.src = `${apiUrl}?source=dashboard&callback=${callbackName}`;
+
+            script.onerror = function () {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                showNotification('Connection failed!', 'error');
+            };
+
+            document.body.appendChild(script);
+        }
+
+        // Display data in tabs
+        function displayData(data) {
+            const tabButtons = document.getElementById('tabButtons');
+            const dataContent = document.getElementById('dataContent');
+
+            // Clear existing tabs
+            tabButtons.innerHTML = '';
+
+            // Create tabs for each data category
+            Object.keys(data).forEach((key, index) => {
+                const button = document.createElement('button');
+                button.className = `tab-button ${index === 0 ? 'active' : ''}`;
+                button.textContent = formatTabName(key);
+                button.onclick = () => switchTab(key);
+                tabButtons.appendChild(button);
+
+                if (index === 0) {
+                    activeTab = key;
+                    showTabData(key, data[key]);
+                }
+            });
+        }
+
+        // Switch between tabs
+        function switchTab(tabKey) {
+            activeTab = tabKey;
+
+            // Update tab buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Show tab data
+            showTabData(tabKey, currentData[tabKey]);
+        }
+
+        // Show data for selected tab
+        function showTabData(tabKey, data) {
+            const dataContent = document.getElementById('dataContent');
+
+            if (!data || !Array.isArray(data) || data.length === 0) {
+                dataContent.innerHTML = '<p class="text-center text-gray-500">No data available</p>';
+                return;
+            }
+
+            // Create table
+            const headers = Object.keys(data[0]);
+            let tableHTML = `
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                ${headers.map(h => `<th>${formatHeader(h)}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+            `;
+
+            data.forEach(row => {
+                tableHTML += '<tr>';
+                headers.forEach(header => {
+                    const value = row[header] || '-';
+                    tableHTML += `<td>${formatCellValue(value, header)}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+
+            tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            dataContent.innerHTML = tableHTML;
+        }
+
+        // Filter data based on search
+        function filterData() {
+            const searchValue = document.getElementById('searchBox').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchValue) ? '' : 'none';
+            });
+        }
+
+        // Update metrics cards
+        function updateMetrics() {
+            const metricsContainer = document.getElementById('metricsContainer');
+
+            const metrics = [
+                { title: 'Total Records', value: getTotalRecords(), icon: '📊', color: 'from-blue-500 to-blue-600' },
+                { title: 'Data Sources', value: Object.keys(currentData).length || 0, icon: '🗂️', color: 'from-green-500 to-green-600' },
+                { title: 'Last Updated', value: new Date().toLocaleTimeString(), icon: '🕐', color: 'from-purple-500 to-purple-600' },
+                { title: 'Active Tab', value: formatTabName(activeTab) || 'None', icon: '📍', color: 'from-pink-500 to-pink-600' }
+            ];
+
+            metricsContainer.innerHTML = metrics.map(metric => `
+                <div class="metric-card">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-3xl">${metric.icon}</span>
+                        <div class="text-right">
+                            <p class="text-sm opacity-80">${metric.title}</p>
+                            <p class="text-2xl font-bold">${metric.value}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update charts
+        function updateCharts(data) {
+            // Destroy existing charts
+            Object.values(charts).forEach(chart => chart.destroy());
+            charts = {};
+
+            // Create trend chart
+            const trendCtx = document.getElementById('trendChart');
+            if (trendCtx) {
+                const datasets = Object.keys(data).map((key, index) => ({
+                    label: formatTabName(key),
+                    data: Array.isArray(data[key]) ? [data[key].length] : [0],
+                    backgroundColor: `hsla(${index * 60}, 70%, 60%, 0.5)`,
+                    borderColor: `hsla(${index * 60}, 70%, 60%, 1)`,
+                    borderWidth: 2
+                }));
+
+                charts.trend = new Chart(trendCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Records Count'],
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Create distribution chart
+            const distCtx = document.getElementById('distributionChart');
+            if (distCtx) {
+                const labels = Object.keys(data).map(key => formatTabName(key));
+                const values = Object.keys(data).map(key =>
+                    Array.isArray(data[key]) ? data[key].length : 0
+                );
+
+                charts.distribution = new Chart(distCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.8)',
+                                'rgba(54, 162, 235, 0.8)',
+                                'rgba(255, 206, 86, 0.8)',
+                                'rgba(75, 192, 192, 0.8)',
+                                'rgba(153, 102, 255, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Utility functions
+        function getTotalRecords() {
+            let total = 0;
+            Object.values(currentData).forEach(dataArray => {
+                if (Array.isArray(dataArray)) {
+                    total += dataArray.length;
+                }
+            });
+            return total;
+        }
+
+        function formatTabName(key) {
+            if (!key) return '';
+            return key.replace(/([A-Z])/g, ' $1')
+                .replace(/_/g, ' ')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ')
+                .trim();
+        }
+
+        function formatHeader(header) {
+            return header.replace(/([A-Z])/g, ' $1')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ')
+                .trim();
+        }
+
+        function formatCellValue(value, header) {
+            if (value === null || value === undefined || value === '') return '-';
+
+            // Format dates
+            if (header.toLowerCase().includes('date') || header.toLowerCase().includes('tanggal')) {
+                const date = new Date(value);
+                if (!isNaN(date)) {
+                    return date.toLocaleDateString('id-ID');
+                }
+            }
+
+            // Format status
+            if (header.toLowerCase().includes('status')) {
+                const status = value.toString().toLowerCase();
+                if (status.includes('success') || status.includes('complete')) {
+                    return `<span class="status-badge success">${value}</span>`;
+                } else if (status.includes('pending')) {
+                    return `<span class="status-badge warning">${value}</span>`;
+                } else if (status.includes('fail') || status.includes('error')) {
+                    return `<span class="status-badge danger">${value}</span>`;
+                }
+            }
+
+            // Format numbers
+            if (typeof value === 'number') {
+                return value.toLocaleString('id-ID');
+            }
+
+            return value;
+        }
+
+        function showLoader() {
+            const dataContent = document.getElementById('dataContent');
+            dataContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-64">
+                    <div class="loader"></div>
+                    <p class="mt-4 text-gray-600">Loading data...</p>
+                </div>
+            `;
+        }
+
+        function hideLoader() {
+            // Loader is automatically hidden when data is displayed
+        }
+
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+
+            const colors = {
+                success: 'text-green-600',
+                error: 'text-red-600',
+                warning: 'text-yellow-600',
+                info: 'text-blue-600'
+            };
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <span class="text-2xl">${icons[type]}</span>
+                <span class="${colors[type]} font-medium">${message}</span>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
 </body>
 
 </html>
