@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-translate-key="pageTitle">Laporan Insiden - GAMITAS</title>
+    <title data-translate-key="pageTitle">Incident Report - GAMITAS</title>
 
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -99,6 +99,11 @@
             color: #94a3b8;
         }
 
+        .theme-dark .sidebar-link.active {
+            background-color: #5b21b6;
+            color: white;
+        }
+
         .theme-dark .tab-link.active {
             color: #a78bfa !important;
             border-color: #a78bfa !important;
@@ -110,6 +115,12 @@
 
         .theme-dark .bg-slate-900 {
             background-color: #020617 !important;
+        }
+
+        .sidebar-link.active {
+            background-color: #f3e8ff;
+            color: #9333ea;
+            font-weight: 600;
         }
 
         .tab-content {
@@ -278,49 +289,119 @@
             visibility: visible;
             opacity: 1;
         }
+
+        @media (max-width: 768px) {
+            main {
+                margin-left: 0 !important;
+            }
+
+            #sidebar {
+                transform: translateX(-100%);
+            }
+
+            #sidebar.show {
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 
 <body class="theme-light">
 
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+    <!-- Sidebar -->
+    <aside id="sidebar"
+        class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-50 transition-transform flex flex-col">
+        <div class="p-6 border-b">
+            <h1 id="company-name-sidebar" class="text-2xl font-bold text-gray-800">
+                <span class="text-purple-600">G</span>AMITAS
+            </h1>
+            <p class="text-xs text-gray-500">Integrated Safety System</p>
+        </div>
+        <nav class="mt-4 flex-1 overflow-y-auto">
+            <ul class="space-y-1 px-4">
+                <li>
+                    <a href="./index.html"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="dashboard">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./induksi.html"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="induksi">
+                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                        <span>Induksi</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="pelatihan" data-external-url="./pelatihan.html">
+                        <i data-lucide="award" class="w-5 h-5"></i>
+                        <span>Pelatihan Internal</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg"
+                        data-page="laporan_insiden">
+                        <i data-lucide="file-warning" class="w-5 h-5"></i>
+                        <span>Laporan Insiden</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="observasi">
+                        <i data-lucide="search-check" class="w-5 h-5"></i>
+                        <span>Laporan Observasi</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="./index.html"
+                class="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button id="mobile-menu-toggle" class="fixed top-4 left-4 z-[60] p-2 rounded-lg bg-white shadow-md md:hidden">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
+
+    <main class="md:ml-64 p-4 sm:p-6 lg:p-8">
+        <header class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800" data-translate-key="headerTitle"><span
-                        class="text-purple-600">G</span>AMITAS - Laporan
-                    Insiden</h1>
-                <p id="last-updated" class="text-xs text-gray-500" data-translate-key="loadingData">Memuat data...</p>
+                <h2 class="text-3xl font-bold text-gray-800" data-translate-key="headerTitle">Incident Report</h2>
+                <p id="last-updated" class="text-xs text-gray-500" data-translate-key="loadingData">Loading data...</p>
             </div>
             <div class="flex items-center space-x-2">
-                <a href="./index.html"
-                    class="text-purple-600 hover:text-purple-800 font-medium flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
-                    <i data-lucide="arrow-left-circle"></i>
-                    <span class="hidden sm:inline" data-translate-key="backButton">Kembali</span>
-                </a>
-                <button id="refresh-button" class="p-2 rounded-full hover:bg-gray-100" title="Muat Ulang Data"
+                <button id="refresh-button" class="p-2 rounded-full hover:bg-gray-100" title="Reload Data"
                     data-translate-title-key="refreshButtonTitle">
                     <i data-lucide="refresh-cw" class="w-5 h-5 text-gray-600"></i>
                 </button>
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100" title="Ganti Tema"
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100" title="Change Theme"
                     data-translate-title-key="themeButtonTitle">
                     <i data-lucide="sun" class="w-5 h-5 text-gray-600"></i>
                 </button>
-                <!-- Language Switcher -->
                 <div class="relative">
                     <select id="language-switcher" class="p-2 rounded-md border border-gray-300 bg-white text-gray-700">
-                        <option value="en">English</option>
+                        <option value="en" selected>English</option>
                         <option value="id">Indonesia</option>
                         <option value="ko">한국어</option>
                     </select>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="p-4 sm:p-6 lg:p-8">
         <div id="error-banner" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-            <p class="font-bold" data-translate-key="errorBannerTitle">Gagal Memuat Data</p>
-            <p id="error-message-content">Terjadi kesalahan.</p>
+            <p class="font-bold" data-translate-key="errorBannerTitle">Failed to Load Data</p>
+            <p id="error-message-content">An error occurred.</p>
         </div>
 
         <div id="laporan-page" class="page-content active">
@@ -329,10 +410,10 @@
                     <nav class="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs" id="laporan-tabs">
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-purple-500 px-1 pb-4 text-sm font-medium text-purple-600 active"
-                            data-tab="dashboard-laporan" data-translate-key="tabDashboard">Dashboard Insiden</a>
+                            data-tab="dashboard-laporan" data-translate-key="tabDashboard">Incident Dashboard</a>
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="data-laporan" data-translate-key="tabDataReport">Data Laporan</a>
+                            data-tab="data-laporan" data-translate-key="tabDataReport">Report Data</a>
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
                             data-tab="hse-performance" data-translate-key="tabHSEPerformance">HSE Performance</a>
@@ -346,23 +427,23 @@
                             <div class="bg-white p-6 rounded-lg card">
                                 <h3 class="text-md font-semibold text-gray-700 mb-4 flex items-center"><i
                                         data-lucide="filter" class="w-5 h-5 mr-2"></i><span
-                                        data-translate-key="dashboardFilterTitle">Filter Dashboard</span></h3>
+                                        data-translate-key="dashboardFilterTitle">Dashboard Filter</span></h3>
                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                                     <div>
                                         <label for="dashboard-filter-year" class="text-sm font-medium text-gray-600"
-                                            data-translate-key="yearLabel">Tahun</label>
+                                            data-translate-key="yearLabel">Year</label>
                                         <select id="dashboard-filter-year"
                                             class="w-full p-2 border rounded-md mt-1"></select>
                                     </div>
                                     <div>
                                         <label for="dashboard-filter-month" class="text-sm font-medium text-gray-600"
-                                            data-translate-key="monthLabel">Bulan</label>
+                                            data-translate-key="monthLabel">Month</label>
                                         <select id="dashboard-filter-month"
                                             class="w-full p-2 border rounded-md mt-1"></select>
                                     </div>
                                     <button id="dashboard-apply-filter"
                                         class="md:col-start-3 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 h-10"
-                                        data-translate-key="applyFilterButton">Terapkan Filter</button>
+                                        data-translate-key="applyFilterButton">Apply Filter</button>
                                     <button id="dashboard-reset-filter"
                                         class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 h-10"
                                         data-translate-key="resetFilterButton">Reset Filter</button>
@@ -373,12 +454,12 @@
                             <div class="bg-white p-6 rounded-lg card">
                                 <h3 class="text-md font-semibold text-gray-700 mb-4 flex items-center"><i
                                         data-lucide="calendar-days" class="w-5 h-5 mr-2"></i><span
-                                        data-translate-key="comparisonAnalysisTitle">Analisis Perbandingan
-                                        Periode</span></h3>
+                                        data-translate-key="comparisonAnalysisTitle">Period Comparison Analysis</span>
+                                </h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end mb-4">
                                     <div>
                                         <label class="text-sm font-medium text-gray-600"
-                                            data-translate-key="periodA">Periode A</label>
+                                            data-translate-key="periodA">Period A</label>
                                         <div class="flex gap-2 mt-1">
                                             <select id="compare-month-a" class="w-full p-2 border rounded-md"></select>
                                             <select id="compare-year-a" class="w-full p-2 border rounded-md"></select>
@@ -386,7 +467,7 @@
                                     </div>
                                     <div>
                                         <label class="text-sm font-medium text-gray-600"
-                                            data-translate-key="periodB">Periode B</label>
+                                            data-translate-key="periodB">Period B</label>
                                         <div class="flex gap-2 mt-1">
                                             <select id="compare-month-b" class="w-full p-2 border rounded-md"></select>
                                             <select id="compare-year-b" class="w-full p-2 border rounded-md"></select>
@@ -395,7 +476,7 @@
                                 </div>
                                 <button id="compare-button"
                                     class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-                                    data-translate-key="compareButton">Bandingkan</button>
+                                    data-translate-key="compareButton">Compare</button>
                                 <div id="comparison-results" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                                     <!-- Results will be injected here -->
                                 </div>
@@ -405,7 +486,7 @@
                             <!-- Summary Cards -->
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 <div class="bg-blue-50 p-4 rounded-lg card component-loading">
-                                    <p class="text-sm text-blue-700" data-translate-key="totalIncidents">Total Insiden
+                                    <p class="text-sm text-blue-700" data-translate-key="totalIncidents">Total Incidents
                                     </p>
                                     <p id="total-insiden" class="text-3xl font-bold text-blue-900">-</p>
                                 </div>
@@ -415,11 +496,11 @@
                                     <p id="total-property-damage" class="text-3xl font-bold text-red-900">-</p>
                                 </div>
                                 <div class="bg-orange-50 p-4 rounded-lg card component-loading">
-                                    <p class="text-sm text-orange-700" data-translate-key="injury">Cedera</p>
+                                    <p class="text-sm text-orange-700" data-translate-key="injury">Injury</p>
                                     <p id="total-injury" class="text-3xl font-bold text-orange-900">-</p>
                                 </div>
                                 <div class="bg-green-50 p-4 rounded-lg card component-loading">
-                                    <p class="text-sm text-green-700" data-translate-key="nearMiss">Nyaris Celaka</p>
+                                    <p class="text-sm text-green-700" data-translate-key="nearMiss">Near Miss</p>
                                     <p id="total-near-miss" class="text-3xl font-bold text-green-900">-</p>
                                 </div>
                             </div>
@@ -428,24 +509,24 @@
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3 class="text-md font-semibold text-gray-700 mb-4"
-                                        data-translate-key="monthlyTrendTitle">Tren Insiden Bulanan</h3>
+                                        data-translate-key="monthlyTrendTitle">Monthly Incident Trend</h3>
                                     <div class="h-[32rem]"><canvas id="trenInsidenChart"></canvas></div>
                                 </div>
                                 <div class="space-y-6">
                                     <div class="bg-white p-6 rounded-lg card component-loading">
                                         <h3 class="text-md font-semibold text-gray-700 mb-4"
-                                            data-translate-key="classificationTitle">Klasifikasi Insiden</h3>
+                                            data-translate-key="classificationTitle">Incident Classification</h3>
                                         <div class="h-80 flex items-center justify-center"><canvas
                                                 id="klasifikasiInsidenChart"></canvas></div>
                                     </div>
                                     <div id="rincian-biaya-card" class="bg-white p-6 rounded-lg card component-loading">
                                         <h3 class="text-md font-semibold text-gray-700 mb-4"
-                                            data-translate-key="costDetailsTitle">Rincian Biaya Insiden</h3>
+                                            data-translate-key="costDetailsTitle">Incident Cost Details</h3>
                                         <div class="space-y-3">
                                             <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                                 <div>
                                                     <p class="text-sm text-gray-500" data-translate-key="treatmentCost">
-                                                        Biaya Pengobatan</p>
+                                                        Treatment Cost</p>
                                                     <p id="biaya-pengobatan" class="font-bold text-gray-800 text-lg">-
                                                     </p>
                                                 </div>
@@ -456,7 +537,7 @@
                                             <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                                 <div>
                                                     <p class="text-sm text-gray-500" data-translate-key="repairCost">
-                                                        Biaya Perbaikan Unit</p>
+                                                        Unit Repair Cost</p>
                                                     <p id="biaya-perbaikan" class="font-bold text-gray-800 text-lg">-
                                                     </p>
                                                 </div>
@@ -467,7 +548,7 @@
                                             <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                                 <div>
                                                     <p class="text-sm text-gray-500" data-translate-key="indirectCost">
-                                                        Biaya Tidak Langsung</p>
+                                                        Indirect Cost</p>
                                                     <p id="biaya-tidak-langsung"
                                                         class="font-bold text-gray-800 text-lg">-</p>
                                                 </div>
@@ -480,7 +561,7 @@
                                             class="mt-4 flex justify-between items-center p-4 bg-slate-800 text-white rounded-lg">
                                             <div>
                                                 <p class="text-sm font-medium" data-translate-key="totalCost">Total
-                                                    Biaya</p>
+                                                    Cost</p>
                                                 <p id="total-biaya" class="font-bold text-xl">-</p>
                                             </div>
                                             <div class="text-slate-300">
@@ -497,11 +578,11 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitlePosition">Insiden Berdasarkan Jabatan</span>
+                                        <span data-translate-key="chartTitlePosition">Incidents by Position</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipPosition">Menampilkan
-                                                5 jabatan teratas dengan insiden terbanyak.</span>
+                                            <span class="tooltip-text" data-translate-key="tooltipPosition">Shows
+                                                the top 5 positions with the most incidents.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="jabatanChart"></canvas></div>
@@ -509,11 +590,11 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleDay">Insiden per Hari</span>
+                                        <span data-translate-key="chartTitleDay">Incidents by Day</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipDay">Distribusi
-                                                insiden berdasarkan hari dalam seminggu.</span>
+                                            <span class="tooltip-text" data-translate-key="tooltipDay">Distribution
+                                                of incidents by day of the week.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="hariChart"></canvas></div>
@@ -521,11 +602,11 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleCompany">Insiden per Perusahaan</span>
+                                        <span data-translate-key="chartTitleCompany">Incidents by Company</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipCompany">Jumlah
-                                                insiden yang terjadi di setiap perusahaan.</span>
+                                            <span class="tooltip-text" data-translate-key="tooltipCompany">Number
+                                                of incidents occurring in each company.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="perusahaanChart"></canvas></div>
@@ -533,11 +614,12 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleDirectCause">Penyebab Langsung</span>
+                                        <span data-translate-key="chartTitleDirectCause">Direct Cause</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipDirectCause">Kategori
-                                                penyebab langsung dari insiden.</span>
+                                            <span class="tooltip-text"
+                                                data-translate-key="tooltipDirectCause">Categories
+                                                of direct causes of incidents.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="penyebabLangsungChart"></canvas></div>
@@ -545,11 +627,11 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleRootCause">Penyebab Dasar</span>
+                                        <span data-translate-key="chartTitleRootCause">Root Cause</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipRootCause">Faktor
-                                                sistemik atau akar masalah yang mengarah pada penyebab langsung.</span>
+                                            <span class="tooltip-text" data-translate-key="tooltipRootCause">Systemic
+                                                factors or root problems leading to direct causes.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="penyebabDasarChart"></canvas></div>
@@ -557,11 +639,12 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleUnit">Unit Terlibat</span>
+                                        <span data-translate-key="chartTitleUnit">Unit Involved</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipUnit">Jenis unit atau
-                                                kendaraan yang paling sering terlibat dalam insiden.</span>
+                                            <span class="tooltip-text" data-translate-key="tooltipUnit">Types of units
+                                                or
+                                                vehicles most frequently involved in incidents.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="unitTerlibatChart"></canvas></div>
@@ -569,12 +652,12 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleWorkExperience">Masa Kerja</span>
+                                        <span data-translate-key="chartTitleWorkExperience">Work Experience</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
                                             <span class="tooltip-text"
-                                                data-translate-key="tooltipWorkExperience">Distribusi insiden
-                                                berdasarkan rentang masa kerja karyawan.</span>
+                                                data-translate-key="tooltipWorkExperience">Distribution of incidents
+                                                based on employee's length of service.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="masaKerjaChart"></canvas></div>
@@ -582,11 +665,11 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleInjuryType">Tipe Cedera</span>
+                                        <span data-translate-key="chartTitleInjuryType">Injury Type</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipInjuryType">Jenis
-                                                cedera yang paling sering terjadi.</span>
+                                            <span class="tooltip-text" data-translate-key="tooltipInjuryType">Most
+                                                common types of injuries.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="tipeCederaChart"></canvas></div>
@@ -594,11 +677,11 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleVictimAge">Usia Korban</span>
+                                        <span data-translate-key="chartTitleVictimAge">Victim Age</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipVictimAge">Distribusi
-                                                usia korban yang terlibat dalam insiden.</span>
+                                            <span class="tooltip-text" data-translate-key="tooltipVictimAge">Age
+                                                distribution of victims involved in incidents.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="usiaKorbanChart"></canvas></div>
@@ -606,11 +689,11 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleEmployeeStatus">Status Karyawan</span>
+                                        <span data-translate-key="chartTitleEmployeeStatus">Employee Status</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipEmployeeStatus">Jumlah
-                                                insiden berdasarkan status kepegawaian.</span>
+                                            <span class="tooltip-text" data-translate-key="tooltipEmployeeStatus">Number
+                                                of incidents by employment status.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="statusKaryawanChart"></canvas></div>
@@ -618,11 +701,12 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleResidence">Tempat Tinggal</span>
+                                        <span data-translate-key="chartTitleResidence">Residence</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipResidence">Distribusi
-                                                asal tempat tinggal karyawan yang terlibat insiden.</span>
+                                            <span class="tooltip-text"
+                                                data-translate-key="tooltipResidence">Distribution
+                                                of employees' places of origin involved in incidents.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="tempatTinggalChart"></canvas></div>
@@ -630,11 +714,12 @@
                                 <div class="bg-white p-6 rounded-lg card component-loading">
                                     <h3
                                         class="text-md font-semibold text-gray-700 mb-4 flex items-center justify-between">
-                                        <span data-translate-key="chartTitleShift">Insiden per Shift</span>
+                                        <span data-translate-key="chartTitleShift">Incidents per Shift</span>
                                         <div class="tooltip-container">
                                             <i data-lucide="info" class="w-4 h-4 text-gray-400"></i>
-                                            <span class="tooltip-text" data-translate-key="tooltipShift">Jumlah insiden
-                                                yang terjadi pada shift siang dan malam.</span>
+                                            <span class="tooltip-text" data-translate-key="tooltipShift">Number of
+                                                incidents
+                                                occurring on day and night shifts.</span>
                                         </div>
                                     </h3>
                                     <div class="h-80"><canvas id="shiftChart"></canvas></div>
@@ -645,7 +730,7 @@
                             <div class="bg-white p-6 rounded-lg card component-loading">
                                 <h3 class="text-md font-semibold text-gray-700 mb-4 flex items-center"><i
                                         data-lucide="map-pin" class="w-5 h-5 mr-2"></i><span
-                                        data-translate-key="mapTitle">Peta Sebaran Insiden</span></h3>
+                                        data-translate-key="mapTitle">Incident Distribution Map</span></h3>
                                 <div id="incident-map"></div>
                             </div>
                         </div>
@@ -655,8 +740,9 @@
                         <div
                             class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-center gap-4">
-                                <h3 class="text-lg font-semibold" data-translate-key="dataReportFilterTitle">Filter
-                                    Laporan</h3>
+                                <h3 class="text-lg font-semibold" data-translate-key="dataReportFilterTitle">Report
+                                    Filter
+                                </h3>
                                 <select id="filter-year" class="p-2 border rounded-md"></select>
                                 <button id="reset-filter-button"
                                     class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
@@ -665,11 +751,13 @@
                             <div class="flex items-center gap-2">
                                 <button id="export-csv-button"
                                     class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2"><i
-                                        data-lucide="file-spreadsheet"></i><span data-translate-key="downloadCSV">Unduh
+                                        data-lucide="file-spreadsheet"></i><span
+                                        data-translate-key="downloadCSV">Download
                                         Data (CSV)</span></button>
                                 <button id="export-pdf-button"
                                     class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"><i
-                                        data-lucide="file-text"></i><span data-translate-key="downloadPDF">Unduh Laporan
+                                        data-lucide="file-text"></i><span data-translate-key="downloadPDF">Download
+                                        Report
                                         (PDF)</span></button>
                             </div>
                         </div>
@@ -678,9 +766,10 @@
                                 <thead>
                                     <tr class="text-xs text-gray-500 uppercase border-b">
                                         <th class="py-3 px-4" data-translate-key="tableId">ID</th>
-                                        <th class="py-3 px-4" data-translate-key="tableDate">Tanggal</th>
-                                        <th class="py-3 px-4" data-translate-key="tableTitle">Judul Insiden</th>
-                                        <th class="py-3 px-4" data-translate-key="tableClassification">Klasifikasi</th>
+                                        <th class="py-3 px-4" data-translate-key="tableDate">Date</th>
+                                        <th class="py-3 px-4" data-translate-key="tableTitle">Incident Title</th>
+                                        <th class="py-3 px-4" data-translate-key="tableClassification">Classification
+                                        </th>
                                         <th class="py-3 px-4" data-translate-key="tableStatus">Status</th>
                                     </tr>
                                 </thead>
@@ -694,10 +783,11 @@
                             <div
                                 class="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-gray-50 rounded-lg">
                                 <div class="flex items-center gap-4">
-                                    <h3 class="text-lg font-semibold" data-translate-key="hseFilterTitle">Filter Kinerja
+                                    <h3 class="text-lg font-semibold" data-translate-key="hseFilterTitle">Performance
+                                        Filter
                                     </h3>
                                     <select id="hse-filter-year" class="p-2 border rounded-md"></select>
-                                    <input type="text" id="hse-search-input" placeholder="Cari Deskripsi..."
+                                    <input type="text" id="hse-search-input" placeholder="Search Description..."
                                         data-translate-placeholder-key="searchPlaceholder"
                                         class="p-2 border rounded-md">
                                     <button id="hse-reset-filter-button"
@@ -706,14 +796,14 @@
                                 </div>
                                 <button id="view-graph-button"
                                     class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2">
-                                    <i data-lucide="bar-chart-2"></i><span data-translate-key="viewGraphButton">Lihat
-                                        Grafik</span>
+                                    <i data-lucide="bar-chart-2"></i><span data-translate-key="viewGraphButton">View
+                                        Graph</span>
                                 </button>
                             </div>
 
                             <div class="overflow-x-auto bg-white rounded-lg shadow-md p-4">
                                 <h3 class="text-xl font-semibold mb-4 text-gray-800"
-                                    data-translate-key="safetyPerformanceTitle">Kinerja Keselamatan Pertambangan</h3>
+                                    data-translate-key="safetyPerformanceTitle">Mining Safety Performance</h3>
                                 <table class="w-full text-left text-sm">
                                     <thead id="hse-safety-table-head"></thead>
                                     <tbody id="hse-safety-table-body" class="text-gray-700"></tbody>
@@ -735,12 +825,40 @@
         </div>
     </main>
 
+    <!-- Password Modal -->
+    <div id="password-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[101] p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-bold text-lg">Akses Terbatas</h4>
+                <button class="modal-close-btn text-gray-500 hover:text-gray-800 p-2 rounded-full"><i data-lucide="x"
+                        class="w-5 h-5"></i></button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Silakan masukkan password untuk mengakses halaman ini.</p>
+            <form id="password-form">
+                <div>
+                    <label for="password-input" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password-input"
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        required>
+                    <p id="password-error" class="text-red-500 text-sm mt-1 hidden">Password salah!</p>
+                </div>
+                <div class="flex gap-2 pt-4">
+                    <button type="submit"
+                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">Buka</button>
+                    <button type="button"
+                        class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 modal-close-btn">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Incident Detail Modal -->
     <div id="incident-modal" class="modal-overlay">
         <div class="modal-container">
             <div class="flex justify-between items-center mb-4 border-b pb-4">
                 <h2 id="modal-title" class="text-xl font-bold text-gray-800"
-                    data-translate-key="modalIncidentDetailTitle">Detail Insiden</h2>
+                    data-translate-key="modalIncidentDetailTitle">Incident Detail</h2>
                 <button id="modal-close-button" class="p-2 rounded-full hover:bg-gray-200">
                     <i data-lucide="x" class="w-6 h-6 text-gray-600"></i>
                 </button>
@@ -754,7 +872,7 @@
         <div class="modal-container">
             <div class="flex justify-between items-center mb-4 border-b pb-4">
                 <h2 id="graph-modal-title" class="text-xl font-bold text-gray-800"
-                    data-translate-key="modalGraphViewTitle">Grafik View</h2>
+                    data-translate-key="modalGraphViewTitle">Graph View</h2>
                 <button id="graph-modal-close-button" class="p-2 rounded-full hover:bg-gray-200">
                     <i data-lucide="x" class="w-6 h-6 text-gray-600"></i>
                 </button>
@@ -762,12 +880,12 @@
             <div id="graph-modal-content" class="space-y-8">
                 <div class="bg-white p-4 rounded-lg">
                     <h3 class="text-md font-semibold text-gray-700 mb-4" data-translate-key="incidentEventsChartTitle">
-                        Insiden (Kejadian)</h3>
+                        Safety Performance (Events)</h3>
                     <div class="h-80"><canvas id="incident-events-chart"></canvas></div>
                 </div>
                 <div class="bg-white p-4 rounded-lg">
                     <h3 class="text-md font-semibold text-gray-700 mb-4"
-                        data-translate-key="performanceActualChartTitle">Performance (Actual)</h3>
+                        data-translate-key="performanceActualChartTitle">Performance Indicators (Rates)</h3>
                     <div class="h-80"><canvas id="performance-actual-chart"></canvas></div>
                 </div>
             </div>
@@ -780,22 +898,25 @@
         const appState = {
             data: {
                 dataDasbor: [],
-                performance: []
+                hsePerformance: []
             },
             currentTheme: localStorage.getItem('theme') || 'light',
-            currentLang: localStorage.getItem('language') || 'en',
+            currentLang: localStorage.getItem('language') || 'en', // PERUBAHAN: Default ke 'en'
             cache: {
-                key: 'insiden_data_cache_v9', // Changed cache key
+                key: 'insiden_data_cache_v10',
                 expiry: 30 * 60 * 1000
             },
             lastUpdated: null,
             map: null,
             heatLayer: null,
             allIncidents: [],
-            hsePerformanceData: {},
-            translations: {}
+            hsePerformanceData: [],
+            translations: {},
+            targetPage: null,
+            targetUrl: null,
         };
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLQpj9qzSFmLuO5-SUl1hHIfC86c4S7SfupeZ5PoQqD_D0soMDpISqL1G2MYpejAmU/exec';
+
+        const API_INSIDEN_URL = 'https://script.google.com/macros/s/AKfycbx9D4Dcb3G6OdaxduqS-po676WJVI-WTonTSrOAZasab55lguTW2bLAYinMHPzrYr141Q/exec';
 
         const { jsPDF } = window.jspdf;
 
@@ -854,12 +975,6 @@
         // ========== DATA FETCHING (JSONP METHOD) ==========
         function fetchAllData() {
             return new Promise((resolve, reject) => {
-                if (APPS_SCRIPT_URL === 'URL_APPS_SCRIPT_ANDA_DI_SINI') {
-                    const errorMsg = 'URL Apps Script belum dikonfigurasi.';
-                    showErrorBanner(errorMsg);
-                    return reject(new Error(errorMsg));
-                }
-
                 const callbackName = 'jsonp_callback_insiden_' + Math.round(100000 * Math.random());
 
                 window[callbackName] = function (data) {
@@ -870,7 +985,6 @@
                         return reject(new Error(`API Error: ${data.error}. Details: ${data.details || ''}`));
                     }
 
-                    // Map the data to the expected structure
                     const formattedData = {
                         dataDasbor: data.dataDasbor || [],
                         hsePerformance: data.hsePerformance || []
@@ -879,7 +993,7 @@
                 };
 
                 const script = document.createElement('script');
-                script.src = `${APPS_SCRIPT_URL}?source=insiden&callback=${callbackName}`;
+                script.src = `${API_INSIDEN_URL}?callback=${callbackName}`;
 
                 script.onerror = function () {
                     delete window[callbackName];
@@ -891,42 +1005,6 @@
 
                 document.body.appendChild(script);
             });
-        }
-
-        function generateHSEData(incidents) {
-            const hseData = {
-                safety: [{ Deskripsi: 'First Aid Injury', years: {} }, { Deskripsi: 'Lost Time Injury', years: {} }, { Deskripsi: 'Fatal', years: {} }, { Deskripsi: 'Property Damage', years: {} }, { Deskripsi: 'Near Miss', years: {} }, { Deskripsi: 'Medical & Treatment Injury', years: {} }, { Deskripsi: 'Fire Case', years: {} }, { Deskripsi: 'Penyakit Akibat Kerja (PAK)', years: {} }, { Deskripsi: 'Kejadian Akibat Penyakit Tenaga Kerja (KAPTK)', years: {} }, { Deskripsi: 'TOTAL CASE', years: {} }, { Deskripsi: 'Crude Morbidity Rate (CMR)', years: {} }, { Deskripsi: 'Morbidity Frequency Rate (MFR)', years: {} }],
-                performance: [{ Deskripsi: 'Threshold TIFR', years: {} }, { Deskripsi: 'Threshold PDPR', years: {} }, { Deskripsi: 'Threshold AFR', years: {} }, { Deskripsi: 'TIFR', years: {} }, { Deskripsi: 'PDPR', years: {} }, { Deskripsi: 'AFR', years: {} }]
-            };
-
-            let years = [...new Set(incidents.map(d => new Date(d.tanggalKejadian).getFullYear()))];
-            if (years.length === 0) {
-                years.push(new Date().getFullYear());
-            }
-
-            const months = ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'];
-
-            years.forEach(year => {
-                hseData.safety.forEach(item => item.years[year] = {});
-                hseData.performance.forEach(item => item.years[year] = {});
-                const yearIncidents = incidents.filter(d => new Date(d.tanggalKejadian).getFullYear() === year);
-
-                months.forEach((monthName, monthIndex) => {
-                    const monthIncidents = yearIncidents.filter(d => new Date(d.tanggalKejadian).getMonth() === monthIndex);
-                    const counts = {
-                        'Property Damage': monthIncidents.filter(d => d.kategoriKecelakaan === 'Property Damage').length,
-                        'Near Miss': monthIncidents.filter(d => d.kategoriKecelakaan === 'Near Miss').length,
-                        'Lost Time Injury': monthIncidents.filter(d => d.kategoriKecelakaan === 'LTI').length,
-                        'Medical & Treatment Injury': monthIncidents.filter(d => d.kategoriKecelakaan === 'Non-LTI').length,
-                    };
-                    hseData.safety.forEach(item => {
-                        item.years[year][monthName] = counts[item.Deskripsi] || 0;
-                    });
-                    hseData.performance.find(i => i.Deskripsi === 'TIFR').years[year][monthName] = (Math.random() * 15000).toFixed(0);
-                    hseData.performance.find(i => i.Deskripsi === 'AFR').years[year][monthName] = (Math.random() * 5000).toFixed(0);
-                });
-            });
-            return hseData;
         }
 
         // ========== CHART & MAP MANAGEMENT ==========
@@ -950,7 +1028,6 @@
             createChart('incident-events-chart', 'bar', defaultChartOptions({ scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }));
             createChart('performance-actual-chart', 'line', defaultChartOptions({ scales: { y: { beginAtZero: true } } }));
 
-            // Initialize new charts
             ['jabatanChart', 'hariChart', 'perusahaanChart', 'penyebabLangsungChart', 'penyebabDasarChart', 'unitTerlibatChart', 'masaKerjaChart', 'tipeCederaChart', 'usiaKorbanChart', 'statusKaryawanChart', 'tempatTinggalChart', 'shiftChart'].forEach(id => {
                 const type = id.includes('Chart') && (id.includes('perusahaan') || id.includes('Penyebab') || id.includes('tipe') || id.includes('status') || id.includes('shift')) ? 'doughnut' : 'bar';
                 createChart(id, type, defaultChartOptions({ plugins: { legend: { display: type === 'doughnut' } } }));
@@ -976,7 +1053,7 @@
             };
             appState.data = data;
             appState.allIncidents = data.dataDasbor || [];
-            appState.hsePerformanceData = data.hsePerformance || {};
+            appState.hsePerformanceData = data.hsePerformance || [];
 
             updateLaporanDashboard(data.dataDasbor);
             updateHSEPerformanceTab(data.hsePerformance);
@@ -994,8 +1071,11 @@
 
             const monthlyTrend = Array(12).fill(0);
             insidenData.forEach(d => {
-                const month = new Date(d.tanggalKejadian).getMonth();
-                if (month >= 0 && month < 12) monthlyTrend[month]++;
+                const date = new Date(d.tanggalKejadian);
+                if (date.getFullYear() === new Date().getFullYear()) {
+                    const month = date.getMonth();
+                    monthlyTrend[month]++;
+                }
             });
             if (chartInstances.trenInsidenChart) {
                 chartInstances.trenInsidenChart.data = {
@@ -1029,10 +1109,9 @@
             document.getElementById('total-biaya').textContent = formatRupiah(totalBiaya);
 
             renderTable(insidenData);
-            updateAdditionalCharts(insidenData); // Call the new function
+            updateAdditionalCharts(insidenData);
         }
 
-        // (NEW) Function to update the 12 additional charts
         function updateAdditionalCharts(insidenData) {
             const updateChart = (chartId, data, label) => {
                 if (chartInstances[chartId]) {
@@ -1065,9 +1144,15 @@
             updateChart('usiaKorbanChart', getTopN(insidenData, 'usia'), 'Usia Korban');
             updateChart('statusKaryawanChart', getTopN(insidenData, 'statusKaryawan'), 'Status Karyawan');
             updateChart('tempatTinggalChart', getTopN(insidenData, 'tempatTinggal'), 'Tempat Tinggal');
-            updateChart('shiftChart', getTopN(insidenData, 'shift'), 'Insiden per Shift');
 
-            // Special handling for 'hariChart' to maintain order
+            const shiftCounts = insidenData.reduce((acc, d) => {
+                const jam = new Date(d.tanggalKejadian).getHours();
+                const shift = (jam >= 6 && jam < 18) ? 'Shift Siang' : 'Shift Malam';
+                acc[shift] = (acc[shift] || 0) + 1;
+                return acc;
+            }, {});
+            updateChart('shiftChart', shiftCounts, 'Insiden per Shift');
+
             const hariOrder = appState.currentLang === 'en' ? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] : ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             const hariCounts = insidenData.reduce((acc, d) => {
                 const hari = d.hariKejadian || 'N/A';
@@ -1104,56 +1189,49 @@
             const perfTableHead = document.getElementById('hse-performance-table-head');
             const perfTableBody = document.getElementById('hse-performance-table-body');
 
-            if (!safetyTableHead || !hseData || !hseData.safety || !hseData.safety.length > 0) {
+            if (!safetyTableHead || !hseData || hseData.length === 0) {
                 const emptyHtml = `<tr><td colspan="14" class="text-center p-4">Tidak ada data kinerja untuk ditampilkan.</td></tr>`;
                 if (safetyTableBody) safetyTableBody.innerHTML = emptyHtml;
                 if (perfTableBody) perfTableBody.innerHTML = emptyHtml;
                 return;
             }
 
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const safetyMetrics = ['First Aid Injury', 'Lost Time Injury', 'Fatal', 'Property Damage', 'Near Miss', 'Medical & Treatment Injury', 'Fire Case', 'Penyakit Akibat Kerja (PAK)', 'Kejadian Akibat Penyakit Tenaga Kerja (KAPTK)', 'TOTAL CASE'];
+            const performanceMetrics = ['TIFR', 'PDPR', 'AFR', 'Threshold TIFR', 'Threshold PDPR', 'Threshold AFR'];
+
+            const yearsWithData = ['Semua', ...new Set(hseData.map(d => d.year))].sort((a, b) => b - a);
+            const selectedYear = (yearFilter === 'Semua' || !yearsWithData.includes(parseInt(yearFilter))) ? Math.max(...yearsWithData.filter(y => y !== 'Semua')) : parseInt(yearFilter);
+
+            const yearData = hseData.filter(d => d.year == selectedYear);
+            const safetyData = yearData.filter(d => safetyMetrics.includes(d.deskripsi) && d.deskripsi.toLowerCase().includes(searchTerm.toLowerCase()));
+            const performanceData = yearData.filter(d => performanceMetrics.includes(d.deskripsi) && d.deskripsi.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            const months = ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'];
             const tableHeaderHTML = `
                 <tr class="text-xs text-gray-500 uppercase bg-gray-100">
                     <th class="py-3 px-4 font-semibold">Deskripsi</th>
-                    ${months.map(m => `<th class="py-3 px-4 font-semibold text-center">${m}</th>`).join('')}
+                    ${months.map(m => `<th class="py-3 px-4 font-semibold text-center">${m.charAt(0).toUpperCase() + m.slice(1)}</th>`).join('')}
                     <th class="py-3 px-4 font-semibold text-center">YTD</th>
                 </tr>`;
 
             safetyTableHead.innerHTML = tableHeaderHTML;
             perfTableHead.innerHTML = tableHeaderHTML;
 
-            const renderTableRows = (data, year) => {
-                return data
-                    .filter(row => row.Deskripsi.toLowerCase().includes(searchTerm.toLowerCase()))
-                    .map(row => {
-                        const yearData = row.years[year] || {};
-                        const ytd = Object.values(yearData).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                        return `
+            const renderTableRows = (data) => {
+                if (data.length === 0) return `<tr><td colspan="14" class="text-center p-4">Tidak ada data untuk filter ini.</td></tr>`;
+                return data.map(row => {
+                    return `
                         <tr class="border-b">
-                            <td class="py-2 px-4 font-medium">${row.Deskripsi}</td>
-                            ${months.map(m => {
-                            const value = yearData[m.toLowerCase()] || 0;
-                            const isHighlight = (row.Deskripsi === 'Property Damage' || row.Deskripsi === 'Near Miss') && value > 0;
-                            return `<td class="py-2 px-4 text-center ${isHighlight ? 'table-cell-highlight font-bold' : ''}">${value}</td>`
-                        }).join('')}
-                            <td class="py-2 px-4 text-center font-bold">${row.Deskripsi.includes('Rate') || row.Deskripsi.includes('Frequency') ? ytd.toFixed(2) : ytd}</td>
+                            <td class="py-2 px-4 font-medium">${row.deskripsi}</td>
+                            ${months.map(m => `<td class="py-2 px-4 text-center">${row[m] || 0}</td>`).join('')}
+                            <td class="py-2 px-4 text-center font-bold">${row.ytd || 0}</td>
                         </tr>`;
-                    }).join('');
+                }).join('');
             };
 
-            const yearsWithData = Object.keys(hseData.safety[0].years);
-            const selectedYear = (yearFilter === 'Semua' || !yearsWithData.includes(yearFilter)) ? yearsWithData[0] : yearFilter;
-
-            if (!selectedYear) {
-                safetyTableBody.innerHTML = `<tr><td colspan="14" class="text-center p-4">Tidak ada data untuk tahun yang dipilih.</td></tr>`;
-                perfTableBody.innerHTML = `<tr><td colspan="14" class="text-center p-4">Tidak ada data untuk tahun yang dipilih.</td></tr>`;
-                return;
-            }
-
-            safetyTableBody.innerHTML = renderTableRows(hseData.safety, selectedYear);
-            perfTableBody.innerHTML = renderTableRows(hseData.performance, selectedYear);
+            safetyTableBody.innerHTML = renderTableRows(safetyData);
+            perfTableBody.innerHTML = renderTableRows(performanceData);
         }
-
 
         function updateMap(insidenData) {
             if (!appState.map) return;
@@ -1167,7 +1245,7 @@
                 }
 
                 const points = insidenData
-                    .map(d => ({ lat: parseFloat(d.lat), lon: parseFloat(d.lon) }))
+                    .map(d => ({ lat: parseFloat(d.latitude), lon: parseFloat(d.longitude) }))
                     .filter(p => !isNaN(p.lat) && !isNaN(p.lon))
                     .map(p => [p.lat, p.lon]);
 
@@ -1191,8 +1269,8 @@
                 }
             });
 
-            if (hseData && hseData.safety && hseData.safety.length > 0 && hseData.safety[0].years) {
-                const hseYears = ['Semua', ...Object.keys(hseData.safety[0].years)].sort((a, b) => b - a);
+            if (hseData && hseData.length > 0) {
+                const hseYears = ['Semua', ...new Set(hseData.map(d => d.year))].sort((a, b) => b - a);
                 const hseYearSelector = document.getElementById('hse-filter-year');
                 hseYearSelector.innerHTML = hseYears.map(y => `<option value="${y}">${y}</option>`).join('');
             }
@@ -1268,7 +1346,7 @@
                     <div>
                         <h4 class="font-semibold text-gray-700 mb-2">Waktu & Lokasi</h4>
                         <p><strong class="text-gray-600">Tanggal & Jam:</strong> ${formattedDate} Pukul ${formattedTime}</p>
-                        <p><strong class="text-gray-600">Lokasi:</strong> ${incident.lokasi || '-'}</p>
+                        <p><strong class="text-gray-600">Lokasi:</strong> ${incident.lokasiKejadian || '-'}</p>
                         <p><strong class="text-gray-600">Unit Terlibat:</strong> ${incident.unitTerlibat || '-'}</p>
                     </div>
                     <div>
@@ -1285,14 +1363,10 @@
                     </div>
                     <div>
                         <h4 class="font-semibold text-gray-700 mb-2">Karyawan</h4>
-                        <p><strong class="text-gray-600">Nama:</strong> ${incident.namaKaryawan || '-'}</p>
+                        <p><strong class="text-gray-600">Perusahaan:</strong> ${incident.perusahaan || '-'}</p>
                         <p><strong class="text-gray-600">Jabatan:</strong> ${incident.jabatan || '-'}</p>
                         <p><strong class="text-gray-600">Status:</strong> ${incident.statusKaryawan || '-'}</p>
                     </div>
-                </div>
-                <div class="border-t pt-4">
-                    <h4 class="font-semibold text-gray-700 mb-2">Kronologi Singkat</h4>
-                    <p>${incident.kronologi || '-'}</p>
                 </div>
             `;
 
@@ -1306,43 +1380,70 @@
         function showGraphModal() {
             const year = document.getElementById('hse-filter-year').value;
             const hseData = appState.hsePerformanceData;
-            const yearsWithData = (hseData.safety && hseData.safety.length > 0) ? Object.keys(hseData.safety[0].years) : [];
+            const yearsWithData = [...new Set(hseData.map(d => d.year))];
             if (yearsWithData.length === 0) return;
 
-            const selectedYear = (year === 'Semua' || !yearsWithData.includes(year)) ? yearsWithData[0] : year;
+            const selectedYear = (year === 'Semua' || !yearsWithData.includes(parseInt(year))) ? Math.max(...yearsWithData) : parseInt(year);
+            const yearData = hseData.filter(d => d.year == selectedYear);
 
             document.getElementById('graph-modal-title').textContent = `Grafik View - Tahun ${selectedYear}`;
 
             const months = ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'];
+            const monthLabels = months.map(m => m.charAt(0).toUpperCase() + m.slice(1));
 
-            const propDamageData = hseData.safety.find(d => d.Deskripsi === 'Property Damage')?.years[selectedYear] || {};
-            const nearMissData = hseData.safety.find(d => d.Deskripsi === 'Near Miss')?.years[selectedYear] || {};
+            const safetyMetrics = ['Lost Time Injury', 'Property Damage', 'Near Miss'];
+            const safetyChartData = safetyMetrics.map(metric => {
+                const row = yearData.find(d => d.deskripsi === metric);
+                return {
+                    label: metric,
+                    data: row ? months.map(m => row[m] || 0) : Array(12).fill(0),
+                    backgroundColor: metric === 'Lost Time Injury' ? '#ef4444' : metric === 'Property Damage' ? '#f97316' : '#22c55e'
+                };
+            });
 
             chartInstances['incident-events-chart'].data = {
-                labels: months.map(m => m.charAt(0).toUpperCase() + m.slice(1)),
-                datasets: [
-                    { label: 'Property Damage', data: months.map(m => propDamageData[m] || 0), backgroundColor: '#ef4444' },
-                    { label: 'Near Miss', data: months.map(m => nearMissData[m] || 0), backgroundColor: '#f97316' }
-                ]
+                labels: monthLabels,
+                datasets: safetyChartData
             };
             chartInstances['incident-events-chart'].update();
 
-            const tifrData = hseData.performance.find(d => d.Deskripsi === 'TIFR')?.years[selectedYear] || {};
-            const pdprData = hseData.performance.find(d => d.Deskripsi === 'PDPR')?.years[selectedYear] || {};
-            const afrData = hseData.performance.find(d => d.Deskripsi === 'AFR')?.years[selectedYear] || {};
+            const performanceMetrics = ['TIFR', 'PDPR', 'AFR'];
+            const thresholdMetrics = ['Threshold TIFR', 'Threshold PDPR', 'Threshold AFR'];
+            const colors = { TIFR: '#ec4899', PDPR: '#f59e0b', AFR: '#3b82f6' };
+
+            const performanceChartData = performanceMetrics.map(metric => {
+                const row = yearData.find(d => d.deskripsi === metric);
+                return {
+                    label: metric,
+                    data: row ? months.map(m => row[m] || 0) : Array(12).fill(0),
+                    borderColor: colors[metric],
+                    tension: 0.4,
+                    type: 'line'
+                };
+            });
+
+            const thresholdChartData = thresholdMetrics.map(metric => {
+                const row = yearData.find(d => d.deskripsi === metric);
+                const baseMetric = metric.replace('Threshold ', '');
+                return {
+                    label: metric,
+                    data: row ? months.map(m => row[m] || 0) : Array(12).fill(0),
+                    borderColor: colors[baseMetric],
+                    borderDash: [5, 5], // Dashed line
+                    tension: 0.4,
+                    type: 'line'
+                }
+            });
 
             chartInstances['performance-actual-chart'].data = {
-                labels: months.map(m => m.charAt(0).toUpperCase() + m.slice(1)),
-                datasets: [
-                    { label: 'TIFR', data: months.map(m => tifrData[m] || 0), borderColor: '#ec4899', tension: 0.4 },
-                    { label: 'PDPR', data: months.map(m => pdprData[m] || 0), borderColor: '#f59e0b', tension: 0.4 },
-                    { label: 'AFR', data: months.map(m => afrData[m] || 0), borderColor: '#3b82f6', tension: 0.4 }
-                ]
+                labels: monthLabels,
+                datasets: [...performanceChartData, ...thresholdChartData]
             };
             chartInstances['performance-actual-chart'].update();
 
             document.getElementById('graph-view-modal').classList.add('active');
         }
+
 
         function hideGraphModal() {
             document.getElementById('graph-view-modal').classList.remove('active');
@@ -1379,6 +1480,45 @@
             updateUI(appState.data);
         }
 
+        // ========== PASSWORD PROTECTION ==========
+        const CORRECT_PASSWORD = "gamitas2025";
+        function requestPasswordAndSwitchPage(pageId, externalUrl = null) {
+            if (sessionStorage.getItem('gamitas_access_granted') === 'true') {
+                if (externalUrl) { window.open(externalUrl, '_blank'); }
+            } else {
+                showPasswordModal(pageId, externalUrl);
+            }
+        }
+        function showPasswordModal(pageId, externalUrl = null) {
+            appState.targetPage = pageId;
+            appState.targetUrl = externalUrl;
+            const modal = document.getElementById('password-modal');
+            const passwordInput = document.getElementById('password-input');
+            const passwordError = document.getElementById('password-error');
+            passwordInput.value = '';
+            passwordError.classList.add('hidden');
+            modal.classList.remove('hidden');
+            passwordInput.focus();
+        }
+        function handlePasswordSubmit(e) {
+            e.preventDefault();
+            const passwordInput = document.getElementById('password-input');
+            const passwordError = document.getElementById('password-error');
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                sessionStorage.setItem('gamitas_access_granted', 'true');
+                document.getElementById('password-modal').classList.add('hidden');
+                if (appState.targetUrl) {
+                    window.open(appState.targetUrl, '_blank');
+                }
+                appState.targetPage = null;
+                appState.targetUrl = null;
+            } else {
+                passwordError.classList.remove('hidden');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
         // ========== EVENT LISTENERS & EXPORT ==========
         function applyDashboardFilters() {
             const year = document.getElementById('dashboard-filter-year').value;
@@ -1405,6 +1545,20 @@
         }
 
         function setupEventListeners() {
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                const pageId = link.dataset.page;
+                const externalUrl = link.dataset.externalUrl;
+                const isProtected = pageId === 'pelatihan' || pageId === 'observasi';
+
+                if (isProtected) {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        requestPasswordAndSwitchPage(pageId, externalUrl);
+                    });
+                }
+            });
+            document.querySelector('.sidebar-link[data-page="laporan_insiden"]')?.classList.add('active');
+
             setupTabs('laporan-tabs');
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('refresh-button').addEventListener('click', forceRefreshData);
@@ -1459,6 +1613,20 @@
             document.getElementById('language-switcher').addEventListener('change', (e) => {
                 setLanguage(e.target.value);
             });
+
+            // Password Modal Listeners
+            document.getElementById('password-form')?.addEventListener('submit', handlePasswordSubmit);
+            document.body.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn') || e.target.id === 'password-modal') {
+                    document.querySelectorAll('.fixed.inset-0').forEach(modal => modal.classList.add('hidden'));
+                }
+            });
+
+            // Sidebar mobile toggle
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            mobileMenuToggle.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('show'); });
+            document.addEventListener('click', (e) => { if (!sidebar.contains(e.target) && !mobileMenuToggle.contains(e.target)) { sidebar.classList.remove('show'); } });
         }
 
         function exportToCSV() {

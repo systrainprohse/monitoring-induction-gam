@@ -598,6 +598,12 @@
         <div id="page-container"></div>
     </main>
 
+    <footer class="md:ml-64 p-4 text-center text-xs text-gray-500">
+        <p>&copy; 2024 Copyright by HSE - TRAINING PROMOTION & SYSTEM DEVELOPMENT - PT. GANDA ALAM MAKMUR</p>
+        <p>Developed by <a href="https://ahmadfaqihdidin.github.io/" target="_blank" rel="noopener noreferrer"
+                class="text-purple-600 hover:underline">AHMAD FAQIH I</a></p>
+    </footer>
+
     <div id="password-modal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[101] p-4">
         <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm">
@@ -871,7 +877,7 @@
     </template>
 
     <script>
-        // ========== GLOBAL STATE MANAGEMENT ==========
+        // ========== GLOBAL STATE & UTILITIES ==========
         const appState = {
             data: {},
             loading: { global: true, components: new Set() },
@@ -892,7 +898,12 @@
             lastUpdated: null
         };
 
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLQpj9qzSFmLuO5-SUl1hHIfC86c4S7SfupeZ5PoQqD_D0soMDpISqL1G2MYpejAmU/exec';
+        // ========== PERUBAHAN: Definisikan URL untuk setiap API ==========
+        const API_URLS = {
+            pelatihan: "https://script.google.com/macros/s/AKfycbyJcIIUFiW7IKAX4FJN__eOvFMU6PE508Q465NZ-O0qwc0CGunG7SQui3X2P9K1XJAsuQ/exec",
+            induksi: "https://script.google.com/macros/s/AKfycbwCCaANsivS48PiOIMIMSexlnbM1-fc3mtuiCzFbrnjcGEw2IgipIqQrGxjPsDld7Ohkw/exec",
+            insiden: "https://script.google.com/macros/s/AKfycbx9D4Dcb3G6OdaxduqS-po676WJVI-WTonTSrOAZasab55lguTW2bLAYinMHPzrYr141Q/exec"
+        };
 
 
         // ========== UTILITY & UI FUNCTIONS ==========
@@ -949,52 +960,62 @@
         }
 
         // ========== DATA FETCHING (JSONP METHOD) ==========
-        function fetchJsonp(source) {
+        // PERUBAHAN: Fungsi fetchJsonp sekarang menerima URL lengkap
+        function fetchJsonp(url, sourceName) {
             return new Promise((resolve, reject) => {
-                const callbackName = `jsonp_callback_${source}_` + Math.round(100000 * Math.random());
+                const callbackName = `jsonp_callback_${sourceName}_` + Math.round(100000 * Math.random());
 
                 window[callbackName] = function (data) {
                     delete window[callbackName];
                     document.body.removeChild(script);
                     if (data.error) {
-                        reject(new Error(`API Error for '${source}': ${data.error}. Details: ${data.details || ''}`));
+                        reject(new Error(`API Error for '${sourceName}': ${data.error}. Details: ${data.details || ''}`));
                     } else {
-                        resolve({ source, data });
+                        // Kembalikan data bersama dengan nama sumbernya untuk identifikasi
+                        resolve({ source: sourceName, data });
                     }
                 };
 
                 const script = document.createElement('script');
-                script.src = `${APPS_SCRIPT_URL}?source=${source}&callback=${callbackName}`;
+                script.src = `${url}?callback=${callbackName}`;
 
                 script.onerror = function () {
                     delete window[callbackName];
                     document.body.removeChild(script);
-                    reject(new Error(`Request failed for '${source}'. Server not responding or network error.`));
+                    reject(new Error(`Request failed for '${sourceName}'. Server not responding or network error.`));
                 };
 
                 document.body.appendChild(script);
             });
         }
 
+        // PERUBAHAN: Fungsi fetchAllDashboardData diubah total untuk memanggil 3 API terpisah
         async function fetchAllDashboardData() {
-            const sources = ['dashboard', 'pelatihan'];
-            const promises = sources.map(source => fetchJsonp(source));
+            // Definisikan panggilan ke setiap API
+            const promises = [
+                fetchJsonp(API_URLS.induksi, 'induksi'),
+                fetchJsonp(API_URLS.insiden, 'insiden'),
+                fetchJsonp(API_URLS.pelatihan, 'pelatihan')
+            ];
 
             const results = await Promise.allSettled(promises);
             const combinedData = {};
             const errors = [];
 
+            // Proses hasil dari setiap panggilan API
             results.forEach(result => {
                 if (result.status === 'fulfilled') {
-                    Object.assign(combinedData, result.value.data);
-                    console.log(`Successfully fetched data for source: ${result.value.source}`);
+                    const { source, data } = result.value;
+                    // Gabungkan data ke dalam objek utama
+                    Object.assign(combinedData, data);
+                    console.log(`Successfully fetched data for source: ${source}`);
                 } else {
                     errors.push(result.reason.message);
                     console.error(`Fetch failed for a data source:`, result.reason);
                 }
             });
 
-            // Always add dummy observasi data
+            // Selalu tambahkan data observasi dummy seperti sebelumnya
             combinedData.observasi = generateDummyObservasiData(123);
 
             if (errors.length > 0) {
@@ -1003,13 +1024,15 @@
                 addNotification("Peringatan Pengambilan Data", errorMessage, "warning");
             }
 
-            if (Object.keys(combinedData).length > 1) { // Check if at least one remote source + dummy data is present
+            // Cek jika ada data yang berhasil diambil (selain observasi dummy)
+            if (Object.keys(combinedData).length > 1) {
                 return combinedData;
             } else {
                 console.error("All remote data fetches failed.");
                 return null;
             }
         }
+
 
         function generateDummyObservasiData(count) {
             const data = [];

@@ -89,6 +89,11 @@
             color: #94a3b8;
         }
 
+        .theme-dark .sidebar-link.active {
+            background-color: #5b21b6;
+            color: white;
+        }
+
         .theme-dark .tab-link.active {
             color: #a78bfa !important;
             border-color: #a78bfa !important;
@@ -98,6 +103,13 @@
             background-color: #a78bfa;
             color: #1e293b;
             border-color: #a78bfa;
+        }
+
+        /* General Styles from index.html */
+        .sidebar-link.active {
+            background-color: #f3e8ff;
+            color: #9333ea;
+            font-weight: 600;
         }
 
         .tab-content {
@@ -234,24 +246,100 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Responsive Styles from index.html */
+        @media (max-width: 768px) {
+            main {
+                margin-left: 0 !important;
+            }
+
+            #sidebar {
+                transform: translateX(-100%);
+            }
+
+            #sidebar.show {
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 
 <body class="theme-light">
 
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+    <!-- Sidebar from index.html -->
+    <aside id="sidebar"
+        class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-50 transition-transform flex flex-col">
+        <div class="p-6 border-b">
+            <h1 id="company-name-sidebar" class="text-2xl font-bold text-gray-800">
+                <span class="text-purple-600">G</span>AMITAS
+            </h1>
+            <p class="text-xs text-gray-500">Integrated Safety System</p>
+        </div>
+        <nav class="mt-4 flex-1 overflow-y-auto">
+            <ul class="space-y-1 px-4">
+                <li>
+                    <a href="./index.html"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="dashboard">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg"
+                        data-page="induksi">
+                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                        <span>Induksi</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="pelatihan" data-external-url="./pelatihan.html">
+                        <i data-lucide="award" class="w-5 h-5"></i>
+                        <span>Pelatihan Internal</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="laporan_insiden" data-external-url="./laporan_insiden.html">
+                        <i data-lucide="file-warning" class="w-5 h-5"></i>
+                        <span>Laporan Insiden</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="observasi">
+                        <i data-lucide="search-check" class="w-5 h-5"></i>
+                        <span>Laporan Observasi</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="./index.html"
+                class="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Mobile Menu Toggle from index.html -->
+    <button id="mobile-menu-toggle" class="fixed top-4 left-4 z-[60] p-2 rounded-lg bg-white shadow-md md:hidden">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
+
+    <!-- Main content adjusted for sidebar -->
+    <main class="md:ml-64 p-4 sm:p-6 lg:p-8">
+        <header class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800"><span class="text-purple-600">G</span>AMITAS - Induksi &
-                    Izin Tambang</h1>
-                <p id="last-updated" class="text-xs text-gray-500">Memuat data...</p>
+                <h2 class="text-3xl font-bold text-gray-800">Induksi & Izin Tambang</h2>
+                <p id="last-updated" class="text-gray-500 text-sm">Memuat data...</p>
             </div>
             <div class="flex items-center space-x-2">
-                <a href="./index.html"
-                    class="text-purple-600 hover:text-purple-800 font-medium flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
-                    <i data-lucide="arrow-left-circle"></i>
-                    <span class="hidden sm:inline">Kembali</span>
-                </a>
                 <button id="refresh-button" class="p-2 rounded-full hover:bg-gray-100" title="Muat Ulang Data">
                     <i data-lucide="refresh-cw" class="w-5 h-5 text-gray-600"></i>
                 </button>
@@ -259,10 +347,8 @@
                     <i data-lucide="sun" class="w-5 h-5 text-gray-600"></i>
                 </button>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="p-4 sm:p-6 lg:p-8">
         <div id="error-banner" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
             <p class="font-bold">Gagal Memuat Data</p>
             <p id="error-message-content">Terjadi kesalahan.</p>
@@ -598,6 +684,34 @@
         </div>
     </main>
 
+    <!-- Password Modal from index.html -->
+    <div id="password-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[101] p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-bold text-lg">Akses Terbatas</h4>
+                <button class="modal-close-btn text-gray-500 hover:text-gray-800 p-2 rounded-full"><i data-lucide="x"
+                        class="w-5 h-5"></i></button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Silakan masukkan password untuk mengakses halaman ini.</p>
+            <form id="password-form">
+                <div>
+                    <label for="password-input" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password-input"
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        required>
+                    <p id="password-error" class="text-red-500 text-sm mt-1 hidden">Password salah!</p>
+                </div>
+                <div class="flex gap-2 pt-4">
+                    <button type="submit"
+                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">Buka</button>
+                    <button type="button"
+                        class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 modal-close-btn">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="detail-modal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[100] p-4">
         <div
@@ -663,9 +777,13 @@
                 expiry: 30 * 60 * 1000 // 30 minutes
             },
             tables: {},
-            lastUpdated: null
+            lastUpdated: null,
+            // Tambahan dari index.html untuk password
+            targetPage: null,
+            targetUrl: null
         };
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLQpj9qzSFmLuO5-SUl1hHIfC86c4S7SfupeZ5PoQqD_D0soMDpISqL1G2MYpejAmU/exec';
+
+        const API_INDUKSI_URL = 'https://script.google.com/macros/s/AKfycbwCCaANsivS48PiOIMIMSexlnbM1-fc3mtuiCzFbrnjcGEw2IgipIqQrGxjPsDld7Ohkw/exec';
 
         const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
 
@@ -721,12 +839,6 @@
         // ========== DATA FETCHING (JSONP METHOD) ==========
         function fetchAllInduksiData() {
             return new Promise((resolve, reject) => {
-                if (APPS_SCRIPT_URL === 'URL_APPS_SCRIPT_ANDA_DI_SINI') {
-                    const errorMsg = 'URL Apps Script belum dikonfigurasi.';
-                    showErrorBanner(errorMsg);
-                    return reject(new Error(errorMsg));
-                }
-
                 const callbackName = 'jsonp_callback_induksi_' + Math.round(100000 * Math.random());
 
                 window[callbackName] = function (data) {
@@ -741,7 +853,7 @@
                 };
 
                 const script = document.createElement('script');
-                script.src = `${APPS_SCRIPT_URL}?source=induksi&callback=${callbackName}`;
+                script.src = `${API_INDUKSI_URL}?callback=${callbackName}`;
 
                 script.onerror = function () {
                     delete window[callbackName];
@@ -762,6 +874,11 @@
             updateInduksiDashboard(data);
             initializeTables(data);
             document.querySelectorAll('.component-loading').forEach(el => el.classList.remove('component-loading'));
+            const companyName = data.setting?.[0]?.namaPerusahaan;
+            if (companyName) {
+                const initial = companyName.charAt(0);
+                document.getElementById('company-name-sidebar').innerHTML = `<span class="text-purple-600">${initial}</span>${companyName.slice(1)}`;
+            }
         }
 
         function updateInduksiDashboard(data) {
@@ -1018,8 +1135,68 @@
             lucide.createIcons();
         }
 
+        // ========== PASSWORD PROTECTION (Tambahan dari index.html) ==========
+        const CORRECT_PASSWORD = "gamitas2025";
+        function requestPasswordAndSwitchPage(pageId, externalUrl = null) {
+            if (sessionStorage.getItem('gamitas_access_granted') === 'true') {
+                if (externalUrl) { window.open(externalUrl, '_blank'); }
+                // Since this is not an SPA, we don't switch pages, we just allow the link to work
+            } else {
+                showPasswordModal(pageId, externalUrl);
+            }
+        }
+        function showPasswordModal(pageId, externalUrl = null) {
+            appState.targetPage = pageId;
+            appState.targetUrl = externalUrl;
+            const modal = document.getElementById('password-modal');
+            const passwordInput = document.getElementById('password-input');
+            const passwordError = document.getElementById('password-error');
+            passwordInput.value = '';
+            passwordError.classList.add('hidden');
+            modal.classList.remove('hidden');
+            passwordInput.focus();
+        }
+        function handlePasswordSubmit(e) {
+            e.preventDefault();
+            const passwordInput = document.getElementById('password-input');
+            const passwordError = document.getElementById('password-error');
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                sessionStorage.setItem('gamitas_access_granted', 'true');
+                document.getElementById('password-modal').classList.add('hidden');
+                if (appState.targetUrl) {
+                    window.open(appState.targetUrl, '_blank');
+                }
+                appState.targetPage = null;
+                appState.targetUrl = null;
+            } else {
+                passwordError.classList.remove('hidden');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+
         // ========== EVENT LISTENERS ==========
         function setupEventListeners() {
+            // PERUBAHAN: Menambahkan fungsionalitas password ke sidebar
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                const pageId = link.dataset.page;
+                const externalUrl = link.dataset.externalUrl;
+                // Hanya link yang dilindungi yang perlu event listener khusus
+                const isProtected = pageId === 'pelatihan' || pageId === 'laporan_insiden' || pageId === 'observasi';
+
+                if (isProtected) {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault(); // Mencegah navigasi langsung
+                        requestPasswordAndSwitchPage(pageId, externalUrl);
+                    });
+                }
+                // Link lain (seperti Dashboard) akan berfungsi sebagai link biasa (href)
+            });
+
+            // Tandai link Induksi sebagai aktif
+            document.querySelector('.sidebar-link[data-page="induksi"]')?.classList.add('active');
+
             setupTabs('induksi-tabs');
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('refresh-button').addEventListener('click', forceRefreshData);
@@ -1046,12 +1223,21 @@
             });
 
             document.body.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn') || e.target.id === 'detail-modal' || e.target.id === 'add-data-modal') {
+                if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn') || e.target.id === 'detail-modal' || e.target.id === 'add-data-modal' || e.target.id === 'password-modal') {
                     document.querySelectorAll('.fixed.inset-0').forEach(modal => modal.classList.add('hidden'));
                 }
             });
 
             document.getElementById('add-new-hire-btn')?.addEventListener('click', () => document.getElementById('add-data-modal').classList.remove('hidden'));
+
+            // Sidebar mobile toggle
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            mobileMenuToggle.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('show'); });
+            document.addEventListener('click', (e) => { if (!sidebar.contains(e.target) && !mobileMenuToggle.contains(e.target)) { sidebar.classList.remove('show'); } });
+
+            // Event listener untuk form password
+            document.getElementById('password-form')?.addEventListener('submit', handlePasswordSubmit);
         }
 
         async function forceRefreshData() {

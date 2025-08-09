@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dasbor Pelatihan - GAMITAS</title>
+    <title data-translate-key="pageTitle">Training Dashboard - GAMITAS</title>
 
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -105,6 +105,11 @@
             color: #94a3b8;
         }
 
+        .theme-dark .sidebar-link.active {
+            background-color: #5b21b6;
+            color: white;
+        }
+
         .theme-dark .tab-link.active {
             color: #a78bfa !important;
             border-color: #a78bfa !important;
@@ -114,6 +119,12 @@
             background-color: #a78bfa;
             color: #1e293b;
             border-color: #a78bfa;
+        }
+
+        .sidebar-link.active {
+            background-color: #f3e8ff;
+            color: #9333ea;
+            font-weight: 600;
         }
 
         .tab-content {
@@ -347,38 +358,119 @@
         .theme-dark .modal-container {
             background-color: var(--bg-dark);
         }
+
+        @media (max-width: 768px) {
+            main {
+                margin-left: 0 !important;
+            }
+
+            #sidebar {
+                transform: translateX(-100%);
+            }
+
+            #sidebar.show {
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 
 <body class="theme-light">
 
-    <header class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+    <!-- Sidebar -->
+    <aside id="sidebar"
+        class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-50 transition-transform flex flex-col">
+        <div class="p-6 border-b">
+            <h1 id="company-name-sidebar" class="text-2xl font-bold text-gray-800">
+                <span class="text-purple-600">G</span>AMITAS
+            </h1>
+            <p class="text-xs text-gray-500">Integrated Safety System</p>
+        </div>
+        <nav class="mt-4 flex-1 overflow-y-auto">
+            <ul class="space-y-1 px-4">
+                <li>
+                    <a href="./index.html"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="dashboard">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span data-translate-key="sidebar_dashboard">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./induksi.html"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="induksi">
+                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                        <span data-translate-key="sidebar_induksi">Induction</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg"
+                        data-page="pelatihan">
+                        <i data-lucide="award" class="w-5 h-5"></i>
+                        <span data-translate-key="sidebar_pelatihan">Internal Training</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./laporan_insiden.html"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="laporan_insiden">
+                        <i data-lucide="file-warning" class="w-5 h-5"></i>
+                        <span data-translate-key="sidebar_laporan_insiden">Incident Report</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
+                        data-page="observasi">
+                        <i data-lucide="search-check" class="w-5 h-5"></i>
+                        <span data-translate-key="sidebar_laporan_observasi">Observation Report</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="./index.html"
+                class="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                <span data-translate-key="sidebar_logout">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button id="mobile-menu-toggle" class="fixed top-4 left-4 z-[60] p-2 rounded-lg bg-white shadow-md md:hidden">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
+
+    <main class="md:ml-64 p-4 sm:p-6 lg:p-8">
+        <header class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800"><span class="text-purple-600">G</span>AMITAS - Pelatihan
-                </h1>
-                <p id="last-updated" class="text-xs text-gray-500">Memuat data...</p>
+                <h2 class="text-3xl font-bold text-gray-800" data-translate-key="headerTitle">Training Dashboard</h2>
+                <p id="last-updated" class="text-xs text-gray-500" data-translate-key="loadingData">Loading data...</p>
             </div>
             <div class="flex items-center space-x-2">
-                <a href="./index.html"
-                    class="text-purple-600 hover:text-purple-800 font-medium flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
-                    <i data-lucide="arrow-left-circle"></i>
-                    <span class="hidden sm:inline">Kembali</span>
-                </a>
-                <button id="refresh-button" class="p-2 rounded-full hover:bg-gray-100" title="Muat Ulang Data">
+                <button id="refresh-button" class="p-2 rounded-full hover:bg-gray-100" title="Reload Data"
+                    data-translate-title-key="refreshButtonTitle">
                     <i data-lucide="refresh-cw" class="w-5 h-5 text-gray-600"></i>
                 </button>
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100" title="Ganti Tema">
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100" title="Change Theme"
+                    data-translate-title-key="themeButtonTitle">
                     <i data-lucide="sun" class="w-5 h-5 text-gray-600"></i>
                 </button>
+                <div class="relative">
+                    <select id="language-switcher" class="p-2 rounded-md border border-gray-300 bg-white text-gray-700">
+                        <option value="en" selected>English</option>
+                        <option value="id">Indonesia</option>
+                        <option value="ko">한국어</option>
+                    </select>
+                </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="p-4 sm:p-6 lg:p-8">
         <div id="error-banner" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-            <p class="font-bold">Gagal Memuat Data</p>
-            <p id="error-message-content">Terjadi kesalahan.</p>
+            <p class="font-bold" data-translate-key="errorBannerTitle">Failed to Load Data</p>
+            <p id="error-message-content">An error occurred.</p>
         </div>
 
         <div id="pelatihan-page" class="page-content active">
@@ -387,22 +479,22 @@
                     <nav class="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs" id="pelatihan-tabs">
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-purple-500 px-1 pb-4 text-sm font-medium text-purple-600"
-                            data-tab="dashboard-pelatihan">Dashboard Pelatihan</a>
+                            data-tab="dashboard-pelatihan" data-translate-key="tabDashboard">Training Dashboard</a>
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="pelatihan-manpower">Pelatihan Manpower</a>
+                            data-tab="pelatihan-manpower" data-translate-key="tabManpower">Manpower Training</a>
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="competency-lx">List Competency LX</a>
+                            data-tab="competency-lx" data-translate-key="tabCompetencyLX">Competency LX List</a>
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="matrix-kompetensi">Matrix Kompetensi</a>
+                            data-tab="matrix-kompetensi" data-translate-key="tabCompetencyMatrix">Competency Matrix</a>
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="jadwal-pelatihan">Jadwal Pelatihan</a>
+                            data-tab="jadwal-pelatihan" data-translate-key="tabSchedule">Training Schedule</a>
                         <a href="#"
                             class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="atmp">ATMP</a>
+                            data-tab="atmp" data-translate-key="tabATMP">ATMP</a>
                     </nav>
                 </div>
                 <div class="mt-6">
@@ -410,26 +502,31 @@
                         <div class="space-y-6">
                             <div id="pelatihan-stats-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                                 <div class="bg-white p-4 rounded-lg card component-loading">
-                                    <p class="text-sm text-gray-500">Total Kompetensi Tercatat</p>
+                                    <p class="text-sm text-gray-500" data-translate-key="cardTotalCompetencies">Total
+                                        Registered Competencies</p>
                                     <p class="text-3xl font-bold text-gray-800">-</p>
                                 </div>
                                 <div class="bg-white p-4 rounded-lg card component-loading">
-                                    <p class="text-sm text-gray-500">Total Manpower Terlatih</p>
+                                    <p class="text-sm text-gray-500" data-translate-key="cardTotalManpower">Total
+                                        Trained Manpower</p>
                                     <p class="text-3xl font-bold text-gray-800">-</p>
                                 </div>
                                 <div class="bg-white p-4 rounded-lg card component-loading">
-                                    <p class="text-sm text-gray-500">Total Kebutuhan Pelatihan</p>
+                                    <p class="text-sm text-gray-500" data-translate-key="cardTrainingNeeds">Total
+                                        Training Needs</p>
                                     <p class="text-3xl font-bold text-gray-800">-</p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div class="lg:col-span-2 bg-white p-6 rounded-lg card component-loading">
-                                    <h3 class="text-md font-semibold text-gray-700 mb-4">Grafik Sebaran Kompetensi POP,
-                                        POM, POU</h3>
+                                    <h3 class="text-md font-semibold text-gray-700 mb-4"
+                                        data-translate-key="chartTitleDistribution">POP, POM, POU Competency
+                                        Distribution Graph</h3>
                                     <div class="h-64"><canvas id="kompetensiChart"></canvas></div>
                                 </div>
                                 <div class="bg-white p-6 rounded-lg card component-loading">
-                                    <h3 class="text-md font-semibold text-gray-700 mb-4">Progress Pelatihan Keseluruhan
+                                    <h3 class="text-md font-semibold text-gray-700 mb-4"
+                                        data-translate-key="chartTitleProgress">Overall Training Progress
                                     </h3>
                                     <div class="h-64 flex items-center justify-center"><canvas
                                             id="progressPelatihanChart"></canvas></div>
@@ -437,23 +534,26 @@
                             </div>
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div class="lg:col-span-2 bg-white p-6 rounded-lg card component-loading">
-                                    <h3 class="text-md font-semibold text-gray-700 mb-4">Top 5 Pelatihan yang Paling
-                                        Dibutuhkan</h3>
+                                    <h3 class="text-md font-semibold text-gray-700 mb-4"
+                                        data-translate-key="chartTitleTopNeeds">Top 5 Most Needed Trainings</h3>
                                     <div class="h-64"><canvas id="topPelatihanChart"></canvas></div>
                                 </div>
                                 <div class="bg-white p-6 rounded-lg card component-loading">
-                                    <h3 class="text-md font-semibold text-gray-700 mb-4">Jadwal Mendatang</h3>
+                                    <h3 class="text-md font-semibold text-gray-700 mb-4"
+                                        data-translate-key="cardUpcomingSchedule">Upcoming Schedule</h3>
                                     <ul id="jadwal-mendatang-list" class="space-y-4"></ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div id="pelatihan-manpower-content" class="tab-content">
-                        <h3 class="text-lg font-semibold mb-4">Detail Kompetensi Manpower</h3>
+                        <h3 class="text-lg font-semibold mb-4" data-translate-key="manpowerDetailTitle">Manpower
+                            Competency Details</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="md:col-span-1">
                                 <div class="mb-4"><input type="text" id="manpower-search"
-                                        placeholder="Cari nama manpower..."
+                                        placeholder="Search manpower name..."
+                                        data-translate-placeholder-key="manpowerSearchPlaceholder"
                                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
                                 </div>
                                 <div class="max-h-96 overflow-y-auto bg-gray-50 p-2 rounded-lg border">
@@ -462,31 +562,39 @@
                             </div>
                             <div id="manpower-detail-placeholder"
                                 class="md:col-span-2 p-4 border rounded-lg bg-white flex items-center justify-center">
-                                <p class="text-gray-500">Pilih nama dari daftar untuk melihat detail kompetensi.</p>
+                                <p class="text-gray-500" data-translate-key="manpowerDetailPlaceholder">Select a name
+                                    from the list to see competency details.</p>
                             </div>
                         </div>
                     </div>
                     <div id="competency-lx-content" class="tab-content">
-                        <h3 class="text-lg font-semibold mb-4">Daftar Competency LX</h3>
+                        <h3 class="text-lg font-semibold mb-4" data-translate-key="competencyLXTitle">Competency LX List
+                        </h3>
                         <div class="table-controls">
-                            <input type="text" id="competency-lx-search" placeholder="Cari dalam tabel..."
+                            <input type="text" id="competency-lx-search" placeholder="Search in table..."
+                                data-translate-placeholder-key="tableSearchPlaceholder"
                                 class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
                             <select id="competency-lx-per-page"
                                 class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="10">10 per halaman</option>
-                                <option value="25">25 per halaman</option>
-                                <option value="50" selected>50 per halaman</option>
+                                <option value="10">10 per page</option>
+                                <option value="25">25 per page</option>
+                                <option value="50" selected>50 per page</option>
                             </select>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left">
                                 <thead>
                                     <tr class="text-xs text-gray-500 uppercase border-b">
-                                        <th class="py-3 px-4 sortable" data-column="competency">Competency</th>
-                                        <th class="py-3 px-4 sortable" data-column="competencyCode">Code</th>
-                                        <th class="py-3 px-4 sortable" data-column="jenisCompetency">Jenis</th>
-                                        <th class="py-3 px-4 sortable" data-column="kelompokCompetency">Kelompok</th>
-                                        <th class="py-3 px-4 sortable" data-column="peraturan">Peraturan</th>
+                                        <th class="py-3 px-4 sortable" data-column="competency"
+                                            data-translate-key="tableHeaderCompetency">Competency</th>
+                                        <th class="py-3 px-4 sortable" data-column="competencyCode"
+                                            data-translate-key="tableHeaderCode">Code</th>
+                                        <th class="py-3 px-4 sortable" data-column="jenisCompetency"
+                                            data-translate-key="tableHeaderType">Type</th>
+                                        <th class="py-3 px-4 sortable" data-column="kelompokCompetency"
+                                            data-translate-key="tableHeaderGroup">Group</th>
+                                        <th class="py-3 px-4 sortable" data-column="peraturan"
+                                            data-translate-key="tableHeaderRegulation">Regulation</th>
                                     </tr>
                                 </thead>
                                 <tbody id="competency-lx-table-body" class="text-sm text-gray-700"></tbody>
@@ -498,7 +606,8 @@
                         </div>
                     </div>
                     <div id="matrix-kompetensi-content" class="tab-content">
-                        <h3 class="text-lg font-semibold mb-4">Matrix Kompetensi Jabatan</h3>
+                        <h3 class="text-lg font-semibold mb-4" data-translate-key="matrixTitle">Job Competency Matrix
+                        </h3>
                         <div class="bg-gray-50 p-4 rounded-lg mb-4">
                             <div class="flex flex-wrap items-center gap-4">
                                 <select id="matrix-dept-filter" class="w-full md:w-auto p-2 border rounded-md"></select>
@@ -509,16 +618,16 @@
                                 <div class="flex flex-wrap gap-x-4 gap-y-2 items-center text-xs ml-auto">
                                     <span
                                         class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full font-medium bg-green-100 text-green-800">N2:
-                                        Cukup Perlu</span>
+                                        Sufficiently Needed</span>
                                     <span
                                         class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full font-medium bg-blue-100 text-blue-800">N3:
-                                        Mampu Mandiri</span>
+                                        Independently Capable</span>
                                     <span
                                         class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full font-medium bg-orange-100 text-orange-800">N4:
-                                        Perlu Supervisi</span>
+                                        Needs Supervision</span>
                                     <span
                                         class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full font-medium bg-red-100 text-red-800">N5:
-                                        Sangat Perlu</span>
+                                        Critically Needed</span>
                                 </div>
                             </div>
                         </div>
@@ -531,7 +640,8 @@
                     </div>
                     <div id="jadwal-pelatihan-content" class="tab-content">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-                            <h3 class="text-lg font-semibold">Jadwal Pelatihan - <span id="calendar-month-year"></span>
+                            <h3 class="text-lg font-semibold" data-translate-key="scheduleTitle">Training Schedule -
+                                <span id="calendar-month-year"></span>
                             </h3>
                             <div><button id="prev-month" class="p-2 rounded-md hover:bg-gray-100"><i
                                         data-lucide="chevron-left" class="pointer-events-none"></i></button><button
@@ -548,9 +658,11 @@
                                 <div class="flex-shrink-0"><i data-lucide="calendar"
                                         class="h-5 w-5 text-yellow-400"></i></div>
                                 <div class="ml-3">
-                                    <p class="text-sm text-yellow-700"><strong>Annual Training Master Plan
-                                            (ATMP)</strong> - Fitur ini sedang dalam pengembangan. ATMP akan menampilkan
-                                        rencana pelatihan tahunan yang komprehensif untuk semua karyawan.</p>
+                                    <p class="text-sm text-yellow-700"><strong data-translate-key="atmpTitle">Annual
+                                            Training Master Plan
+                                            (ATMP)</strong> - <span data-translate-key="atmpDescription">This feature is
+                                            under development. The ATMP will display a comprehensive annual training
+                                            plan for all employees.</span></p>
                                 </div>
                             </div>
                         </div>
@@ -560,11 +672,44 @@
         </div>
     </main>
 
+    <!-- Password Modal -->
+    <div id="password-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[101] p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-bold text-lg" data-translate-key="passwordModalTitle">Restricted Access</h4>
+                <button class="modal-close-btn text-gray-500 hover:text-gray-800 p-2 rounded-full"><i data-lucide="x"
+                        class="w-5 h-5"></i></button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4" data-translate-key="passwordModalPrompt">Please enter the password to
+                access this page.</p>
+            <form id="password-form">
+                <div>
+                    <label for="password-input" class="block text-sm font-medium text-gray-700 mb-1"
+                        data-translate-key="passwordModalLabel">Password</label>
+                    <input type="password" id="password-input"
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        required>
+                    <p id="password-error" class="text-red-500 text-sm mt-1 hidden"
+                        data-translate-key="passwordModalError">Incorrect password!</p>
+                </div>
+                <div class="flex gap-2 pt-4">
+                    <button type="submit"
+                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+                        data-translate-key="passwordModalUnlock">Unlock</button>
+                    <button type="button"
+                        class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 modal-close-btn"
+                        data-translate-key="passwordModalCancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL CONTAINER -->
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-container">
             <div class="flex justify-between items-center mb-4 border-b pb-4">
-                <h2 id="modal-title" class="text-xl font-bold">Detail</h2>
+                <h2 id="modal-title" class="text-xl font-bold" data-translate-key="modalDetailTitle">Detail</h2>
                 <button id="modal-close-button" class="p-2 rounded-full hover:bg-gray-200">
                     <i data-lucide="x" class="w-6 h-6 text-gray-600"></i>
                 </button>
@@ -579,16 +724,20 @@
         const appState = {
             data: {},
             currentTheme: localStorage.getItem('theme') || 'light',
+            currentLang: localStorage.getItem('language') || 'en',
             cache: {
                 key: 'pelatihan_data_cache_v2',
                 expiry: 30 * 60 * 1000 // 30 minutes
             },
             tables: {}, // Object to hold all table managers
-            lastUpdated: null
+            lastUpdated: null,
+            targetPage: null,
+            targetUrl: null,
+            translations: {}
         };
         const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
 
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLQpj9qzSFmLuO5-SUl1hHIfC86c4S7SfupeZ5PoQqD_D0soMDpISqL1G2MYpejAmU/exec';
+        const API_PELATIHAN_URL = 'https://script.google.com/macros/s/AKfycbyJcIIUFiW7IKAX4FJN__eOvFMU6PE508Q465NZ-O0qwc0CGunG7SQui3X2P9K1XJAsuQ/exec';
 
 
         function showErrorBanner(message) {
@@ -606,9 +755,10 @@
             if (timestamp) {
                 appState.lastUpdated = timestamp;
                 const date = new Date(timestamp);
-                el.textContent = `Terakhir diperbarui: ${date.toLocaleDateString('id-ID')} ${date.toLocaleTimeString('id-ID')}`;
+                const translatedText = appState.translations[appState.currentLang]?.lastUpdatedText || "Last updated:";
+                el.textContent = `${translatedText} ${date.toLocaleDateString(appState.currentLang === 'id' ? 'id-ID' : 'en-US')} ${date.toLocaleTimeString(appState.currentLang === 'id' ? 'id-ID' : 'en-US')}`;
             } else {
-                el.textContent = 'Memperbarui data...';
+                el.textContent = appState.translations[appState.currentLang]?.loadingData || 'Loading data...';
             }
         }
 
@@ -666,13 +816,13 @@
                 };
 
                 const script = document.createElement('script');
-                script.src = `${APPS_SCRIPT_URL}?source=pelatihan&callback=${callbackName}`;
+                script.src = `${API_PELATIHAN_URL}?callback=${callbackName}`;
 
                 script.onerror = function () {
                     delete window[callbackName];
                     document.body.removeChild(script);
-                    const error = new Error('Permintaan data gagal. Server tidak merespons atau terjadi kesalahan jaringan.');
-                    showErrorBanner(`Gagal mengambil data dari server. Data yang ditampilkan mungkin usang. Silakan periksa koneksi internet Anda dan coba lagi.`);
+                    const error = new Error('Data request failed. The server is not responding or a network error occurred.');
+                    showErrorBanner(`Failed to retrieve data from the server. The data displayed may be outdated. Please check your internet connection and try again.`);
                     reject(error);
                 };
 
@@ -747,7 +897,7 @@
                 const start = (this.currentPage - 1) * this.itemsPerPage;
                 const end = start + this.itemsPerPage;
                 const pageData = this.filteredData.slice(start, end);
-                if (pageData.length === 0) { tbody.innerHTML = `<tr><td colspan="${this.headers.length}" class="text-center py-4 text-gray-500">Tidak ada data.</td></tr>`; return; }
+                if (pageData.length === 0) { tbody.innerHTML = `<tr><td colspan="${this.headers.length}" class="text-center py-4 text-gray-500">No data available.</td></tr>`; return; }
 
                 tbody.innerHTML = pageData.map(row => {
                     const cells = this.headers.map(header => {
@@ -775,7 +925,7 @@
                 const endEntry = Math.min(start + this.itemsPerPage, totalEntries);
 
                 if (summaryContainer) {
-                    summaryContainer.textContent = totalEntries > 0 ? `Menampilkan ${startEntry} sampai ${endEntry} dari ${totalEntries} data` : 'Tidak ada data';
+                    summaryContainer.textContent = totalEntries > 0 ? `Showing ${startEntry} to ${endEntry} of ${totalEntries} entries` : 'No data';
                 }
                 if (totalPages <= 1) { paginationContainer.innerHTML = ''; return; }
                 let html = `<button class="pagination-btn" ${this.currentPage === 1 ? 'disabled' : ''} data-page="${this.currentPage - 1}">‹</button>`;
@@ -823,11 +973,11 @@
             cards.children[1].querySelector('p.text-3xl').textContent = totalManpower;
             cards.children[2].querySelector('p.text-3xl').textContent = totalKebutuhan;
             const kompetensiCounts = data.kompetensiManpower.reduce((acc, item) => { const komp = item.kompetensi || ""; if (komp.includes('POP')) acc.pop++; if (komp.includes('POM')) acc.pom++; if (komp.includes('POU')) acc.pou++; return acc; }, { pop: 0, pom: 0, pou: 0 });
-            if (chartInstances.kompetensiChart) { chartInstances.kompetensiChart.data = { labels: ['POP', 'POM', 'POU'], datasets: [{ label: 'Jumlah Kompetensi', data: [kompetensiCounts.pop, kompetensiCounts.pom, kompetensiCounts.pou], backgroundColor: ['#8b5cf6', '#06b6d4', '#10b981'] }] }; chartInstances.kompetensiChart.update(); }
+            if (chartInstances.kompetensiChart) { chartInstances.kompetensiChart.data = { labels: ['POP', 'POM', 'POU'], datasets: [{ label: 'Number of Competencies', data: [kompetensiCounts.pop, kompetensiCounts.pom, kompetensiCounts.pou], backgroundColor: ['#8b5cf6', '#06b6d4', '#10b981'] }] }; chartInstances.kompetensiChart.update(); }
             const totalDone = data.monitoringInternal.reduce((sum, item) => sum + (parseInt(item.done) || 0), 0);
-            if (chartInstances.progressPelatihanChart) { chartInstances.progressPelatihanChart.data = { labels: ['Selesai', 'Belum Selesai'], datasets: [{ data: [totalDone, totalKebutuhan > totalDone ? totalKebutuhan - totalDone : 0], backgroundColor: ['#10b981', '#e5e7eb'], borderWidth: 0 }] }; chartInstances.progressPelatihanChart.update(); }
+            if (chartInstances.progressPelatihanChart) { chartInstances.progressPelatihanChart.data = { labels: ['Completed', 'Pending'], datasets: [{ data: [totalDone, totalKebutuhan > totalDone ? totalKebutuhan - totalDone : 0], backgroundColor: ['#10b981', '#e5e7eb'], borderWidth: 0 }] }; chartInstances.progressPelatihanChart.update(); }
             const top5 = data.monitoringInternal.filter(item => item.needTraining).sort((a, b) => parseInt(b.needTraining) - parseInt(a.needTraining)).slice(0, 5);
-            if (chartInstances.topPelatihanChart) { chartInstances.topPelatihanChart.data = { labels: top5.map(item => item.internalTraining), datasets: [{ label: 'Kebutuhan', data: top5.map(item => parseInt(item.needTraining)), backgroundColor: '#8b5cf6' }] }; chartInstances.topPelatihanChart.update(); }
+            if (chartInstances.topPelatihanChart) { chartInstances.topPelatihanChart.data = { labels: top5.map(item => item.internalTraining), datasets: [{ label: 'Needs', data: top5.map(item => parseInt(item.needTraining)), backgroundColor: '#8b5cf6' }] }; chartInstances.topPelatihanChart.update(); }
             const jadwalList = document.getElementById('jadwal-mendatang-list');
             if (jadwalList) { jadwalList.innerHTML = data.jadwalTraining.slice(0, 3).map(item => `<li class="flex items-center space-x-3"><div class="bg-purple-100 p-2 rounded-lg"><i data-lucide="calendar" class="w-5 h-5 text-purple-600"></i></div><div><p class="font-semibold text-gray-800 text-sm">${item.namaKegiatan}</p><p class="text-xs text-gray-500">${item.tanggalMulai} - ${item.tanggalSelesai}</p></div></li>`).join(''); lucide.createIcons(); }
         }
@@ -848,10 +998,10 @@
             if (competencies.length === 0) return;
             const man = competencies[0];
 
-            modalTitle.textContent = `Detail Kompetensi: ${man.nama}`;
+            modalTitle.textContent = `Competency Details: ${man.nama}`;
             modalContent.innerHTML = `
                 <p class="text-sm text-gray-500 mb-4">NIK: ${man.nik} | ${man.jabatan}</p>
-                <h5 class="font-semibold text-md text-gray-700 mt-4 mb-2">Daftar Kompetensi:</h5>
+                <h5 class="font-semibold text-md text-gray-700 mt-4 mb-2">Competency List:</h5>
                 <div class="grid grid-cols-1 gap-2">
                     ${competencies.map(comp => `
                         <div class="p-2 rounded-lg border ${comp.status === 'VALID' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}">
@@ -867,8 +1017,8 @@
             if (!grid || !monthYearEl) return;
             grid.innerHTML = '';
             const firstDay = new Date(year, month, 1), lastDay = new Date(year, month + 1, 0);
-            monthYearEl.textContent = firstDay.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-            const dayHeaders = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+            monthYearEl.textContent = firstDay.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             dayHeaders.forEach(day => { grid.innerHTML += `<div class="text-center font-semibold py-2 bg-gray-100 text-gray-600 text-sm">${day}</div>`; });
             for (let i = 0; i < firstDay.getDay(); i++) { grid.innerHTML += `<div class="bg-gray-50"></div>`; }
             for (let day = 1; day <= lastDay.getDate(); day++) {
@@ -894,7 +1044,7 @@
             const competencyHeaders = Object.keys(matrixData[0]).filter(key => !['departement', 'section', 'jabatan'].includes(key));
 
             const populateFilter = (element, data, key) => {
-                const options = ['Semua', ...new Set(data.map(item => item[key]))];
+                const options = ['All', ...new Set(data.map(item => item[key]))];
                 element.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
             };
 
@@ -908,12 +1058,12 @@
                 const selectedJabatan = jabatanFilter.value;
 
                 const filteredData = matrixData.filter(row =>
-                    (selectedDept === 'Semua' || row.departement === selectedDept) &&
-                    (selectedSection === 'Semua' || row.section === selectedSection) &&
-                    (selectedJabatan === 'Semua' || row.jabatan === selectedJabatan)
+                    (selectedDept === 'All' || row.departement === selectedDept) &&
+                    (selectedSection === 'All' || row.section === selectedSection) &&
+                    (selectedJabatan === 'All' || row.jabatan === selectedJabatan)
                 );
 
-                let headerHtml = '<tr><th class="sticky-col">Departemen</th><th class="sticky-col" style="left: 100px;">Section</th><th class="sticky-col" style="left: 200px;">Jabatan</th>';
+                let headerHtml = '<tr><th class="sticky-col">Department</th><th class="sticky-col" style="left: 100px;">Section</th><th class="sticky-col" style="left: 200px;">Position</th>';
                 headerHtml += competencyHeaders.map(h => `<th class="th-vertical">${h.replace(/([A-Z])/g, ' $1').trim()}</th>`).join('');
                 headerHtml += '</tr>';
                 tableHead.innerHTML = headerHtml;
@@ -927,19 +1077,19 @@
                             let bgColor, textColor, icon, label;
                             switch (level) {
                                 case 'N2':
-                                    bgColor = 'bg-green-100'; textColor = 'text-green-800'; label = 'Cukup Perlu';
+                                    bgColor = 'bg-green-100'; textColor = 'text-green-800'; label = 'Sufficiently Needed';
                                     icon = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
                                     break;
                                 case 'N3':
-                                    bgColor = 'bg-blue-100'; textColor = 'text-blue-800'; label = 'Mampu Mandiri';
+                                    bgColor = 'bg-blue-100'; textColor = 'text-blue-800'; label = 'Independently Capable';
                                     icon = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
                                     break;
                                 case 'N4':
-                                    bgColor = 'bg-orange-100'; textColor = 'text-orange-800'; label = 'Perlu Supervisi';
+                                    bgColor = 'bg-orange-100'; textColor = 'text-orange-800'; label = 'Needs Supervision';
                                     icon = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
                                     break;
                                 case 'N5':
-                                    bgColor = 'bg-red-100'; textColor = 'text-red-800'; label = 'Sangat Perlu';
+                                    bgColor = 'bg-red-100'; textColor = 'text-red-800'; label = 'Critically Needed';
                                     icon = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
                                     break;
                                 default:
@@ -991,8 +1141,263 @@
             updateUI(appState.data);
         }
 
+        // ========== PASSWORD PROTECTION ==========
+        const CORRECT_PASSWORD = "gamitas2025";
+        function requestPasswordAndSwitchPage(pageId, externalUrl = null) {
+            if (sessionStorage.getItem('gamitas_access_granted') === 'true') {
+                if (externalUrl) { window.open(externalUrl, '_self'); }
+            } else {
+                showPasswordModal(pageId, externalUrl);
+            }
+        }
+        function showPasswordModal(pageId, externalUrl = null) {
+            appState.targetPage = pageId;
+            appState.targetUrl = externalUrl;
+            const modal = document.getElementById('password-modal');
+            const passwordInput = document.getElementById('password-input');
+            const passwordError = document.getElementById('password-error');
+            passwordInput.value = '';
+            passwordError.classList.add('hidden');
+            modal.classList.add('active');
+            passwordInput.focus();
+        }
+        function handlePasswordSubmit(e) {
+            e.preventDefault();
+            const passwordInput = document.getElementById('password-input');
+            const passwordError = document.getElementById('password-error');
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                sessionStorage.setItem('gamitas_access_granted', 'true');
+                document.getElementById('password-modal').classList.remove('active');
+                if (appState.targetUrl) {
+                    window.open(appState.targetUrl, '_self');
+                }
+                appState.targetPage = null;
+                appState.targetUrl = null;
+            } else {
+                passwordError.classList.remove('hidden');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        // ========== LANGUAGE FUNCTIONS ==========
+        async function loadTranslations() {
+            appState.translations = {
+                en: {
+                    pageTitle: "Training Dashboard - GAMITAS",
+                    headerTitle: "GAMITAS - Training",
+                    loadingData: "Loading data...",
+                    lastUpdatedText: "Last updated:",
+                    refreshButtonTitle: "Reload Data",
+                    themeButtonTitle: "Change Theme",
+                    errorBannerTitle: "Failed to Load Data",
+                    sidebar_dashboard: "Dashboard",
+                    sidebar_induksi: "Induction",
+                    sidebar_pelatihan: "Internal Training",
+                    sidebar_laporan_insiden: "Incident Report",
+                    sidebar_laporan_observasi: "Observation Report",
+                    sidebar_logout: "Logout",
+                    tabDashboard: "Training Dashboard",
+                    tabManpower: "Manpower Training",
+                    tabCompetencyLX: "Competency LX List",
+                    tabCompetencyMatrix: "Competency Matrix",
+                    tabSchedule: "Training Schedule",
+                    tabATMP: "ATMP",
+                    cardTotalCompetencies: "Total Registered Competencies",
+                    cardTotalManpower: "Total Trained Manpower",
+                    cardTrainingNeeds: "Total Training Needs",
+                    chartTitleDistribution: "POP, POM, POU Competency Distribution Graph",
+                    chartTitleProgress: "Overall Training Progress",
+                    chartLabelCompleted: "Completed",
+                    chartLabelPending: "Pending",
+                    chartTitleTopNeeds: "Top 5 Most Needed Trainings",
+                    cardUpcomingSchedule: "Upcoming Schedule",
+                    manpowerDetailTitle: "Manpower Competency Details",
+                    manpowerSearchPlaceholder: "Search manpower name...",
+                    manpowerDetailPlaceholder: "Select a name from the list to see competency details.",
+                    competencyLXTitle: "Competency LX List",
+                    tableSearchPlaceholder: "Search in table...",
+                    itemsPerPage: "per page",
+                    tableHeaderCompetency: "Competency",
+                    tableHeaderCode: "Code",
+                    tableHeaderType: "Type",
+                    tableHeaderGroup: "Group",
+                    tableHeaderRegulation: "Regulation",
+                    matrixTitle: "Job Competency Matrix",
+                    matrixFilterAll: "All",
+                    scheduleTitle: "Training Schedule",
+                    atmpTitle: "Annual Training Master Plan (ATMP)",
+                    atmpDescription: "This feature is under development. The ATMP will display a comprehensive annual training plan for all employees.",
+                    modalDetailTitle: "Detail",
+                    passwordModalTitle: "Restricted Access",
+                    passwordModalPrompt: "Please enter the password to access this page.",
+                    passwordModalLabel: "Password",
+                    passwordModalError: "Incorrect password!",
+                    passwordModalUnlock: "Unlock",
+                    passwordModalCancel: "Cancel",
+                },
+                id: {
+                    pageTitle: "Dasbor Pelatihan - GAMITAS",
+                    headerTitle: "GAMITAS - Pelatihan",
+                    loadingData: "Memuat data...",
+                    lastUpdatedText: "Terakhir diperbarui:",
+                    refreshButtonTitle: "Muat Ulang Data",
+                    themeButtonTitle: "Ganti Tema",
+                    errorBannerTitle: "Gagal Memuat Data",
+                    sidebar_dashboard: "Dasbor",
+                    sidebar_induksi: "Induksi",
+                    sidebar_pelatihan: "Pelatihan Internal",
+                    sidebar_laporan_insiden: "Laporan Insiden",
+                    sidebar_laporan_observasi: "Laporan Observasi",
+                    sidebar_logout: "Keluar",
+                    tabDashboard: "Dasbor Pelatihan",
+                    tabManpower: "Pelatihan Tenaga Kerja",
+                    tabCompetencyLX: "Daftar Kompetensi LX",
+                    tabCompetencyMatrix: "Matriks Kompetensi",
+                    tabSchedule: "Jadwal Pelatihan",
+                    tabATMP: "ATMP",
+                    cardTotalCompetencies: "Total Kompetensi Terdaftar",
+                    cardTotalManpower: "Total Tenaga Kerja Terlatih",
+                    cardTrainingNeeds: "Total Kebutuhan Pelatihan",
+                    chartTitleDistribution: "Grafik Distribusi Kompetensi POP, POM, POU",
+                    chartTitleProgress: "Progres Pelatihan Keseluruhan",
+                    chartLabelCompleted: "Selesai",
+                    chartLabelPending: "Tertunda",
+                    chartTitleTopNeeds: "5 Pelatihan Paling Dibutuhkan",
+                    cardUpcomingSchedule: "Jadwal Mendatang",
+                    manpowerDetailTitle: "Detail Kompetensi Tenaga Kerja",
+                    manpowerSearchPlaceholder: "Cari nama tenaga kerja...",
+                    manpowerDetailPlaceholder: "Pilih nama dari daftar untuk melihat detail.",
+                    competencyLXTitle: "Daftar Kompetensi LX",
+                    tableSearchPlaceholder: "Cari di tabel...",
+                    itemsPerPage: "per halaman",
+                    tableHeaderCompetency: "Kompetensi",
+                    tableHeaderCode: "Kode",
+                    tableHeaderType: "Jenis",
+                    tableHeaderGroup: "Kelompok",
+                    tableHeaderRegulation: "Peraturan",
+                    matrixTitle: "Matriks Kompetensi Jabatan",
+                    matrixFilterAll: "Semua",
+                    scheduleTitle: "Jadwal Pelatihan",
+                    atmpTitle: "Rencana Induk Pelatihan Tahunan (ATMP)",
+                    atmpDescription: "Fitur ini sedang dalam pengembangan. ATMP akan menampilkan rencana pelatihan tahunan yang komprehensif untuk semua karyawan.",
+                    modalDetailTitle: "Detail",
+                    passwordModalTitle: "Akses Terbatas",
+                    passwordModalPrompt: "Silakan masukkan kata sandi untuk mengakses halaman ini.",
+                    passwordModalLabel: "Kata Sandi",
+                    passwordModalError: "Kata sandi salah!",
+                    passwordModalUnlock: "Buka",
+                    passwordModalCancel: "Batal",
+                },
+                ko: {
+                    pageTitle: "교육 대시보드 - GAMITAS",
+                    headerTitle: "GAMITAS - 교육",
+                    loadingData: "데이터 로딩 중...",
+                    lastUpdatedText: "마지막 업데이트:",
+                    refreshButtonTitle: "데이터 새로고침",
+                    themeButtonTitle: "테마 변경",
+                    errorBannerTitle: "데이터 로드 실패",
+                    sidebar_dashboard: "대시보드",
+                    sidebar_induksi: "입문 교육",
+                    sidebar_pelatihan: "내부 교육",
+                    sidebar_laporan_insiden: "사고 보고서",
+                    sidebar_laporan_observasi: "관찰 보고서",
+                    sidebar_logout: "로그아웃",
+                    tabDashboard: "교육 대시보드",
+                    tabManpower: "인력 교육",
+                    tabCompetencyLX: "역량 LX 목록",
+                    tabCompetencyMatrix: "역량 매트릭스",
+                    tabSchedule: "교육 일정",
+                    tabATMP: "ATMP",
+                    cardTotalCompetencies: "총 등록된 역량",
+                    cardTotalManpower: "총 교육받은 인력",
+                    cardTrainingNeeds: "총 교육 필요",
+                    chartTitleDistribution: "POP, POM, POU 역량 분포 그래프",
+                    chartTitleProgress: "전체 교육 진행률",
+                    chartLabelCompleted: "완료",
+                    chartLabelPending: "보류 중",
+                    chartTitleTopNeeds: "가장 필요한 교육 Top 5",
+                    cardUpcomingSchedule: "예정된 일정",
+                    manpowerDetailTitle: "인력 역량 세부 정보",
+                    manpowerSearchPlaceholder: "인력 이름 검색...",
+                    manpowerDetailPlaceholder: "목록에서 이름을 선택하여 역량 세부 정보를 확인하세요.",
+                    competencyLXTitle: "역량 LX 목록",
+                    tableSearchPlaceholder: "표에서 검색...",
+                    itemsPerPage: "페이지당",
+                    tableHeaderCompetency: "역량",
+                    tableHeaderCode: "코드",
+                    tableHeaderType: "유형",
+                    tableHeaderGroup: "그룹",
+                    tableHeaderRegulation: "규정",
+                    matrixTitle: "직무 역량 매트릭스",
+                    matrixFilterAll: "전체",
+                    scheduleTitle: "교육 일정",
+                    atmpTitle: "연간 교육 마스터 플랜 (ATMP)",
+                    atmpDescription: "이 기능은 개발 중입니다. ATMP는 모든 직원을 위한 포괄적인 연간 교육 계획을 표시합니다.",
+                    modalDetailTitle: "세부 정보",
+                    passwordModalTitle: "접근 제한",
+                    passwordModalPrompt: "이 페이지에 액세스하려면 비밀번호를 입력하십시오.",
+                    passwordModalLabel: "비밀번호",
+                    passwordModalError: "비밀번호가 잘못되었습니다!",
+                    passwordModalUnlock: "잠금 해제",
+                    passwordModalCancel: "취소",
+                }
+            };
+        }
+
+        function setLanguage(lang) {
+            appState.currentLang = lang;
+            localStorage.setItem('language', lang);
+            document.documentElement.lang = lang;
+
+            const translations = appState.translations[lang];
+            if (!translations) return;
+
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.dataset.translateKey;
+                if (translations[key]) {
+                    el.textContent = translations[key];
+                }
+            });
+
+            document.querySelectorAll('[data-translate-placeholder-key]').forEach(el => {
+                const key = el.dataset.translatePlaceholderKey;
+                if (translations[key]) {
+                    el.placeholder = translations[key];
+                }
+            });
+
+            document.querySelectorAll('[data-translate-title-key]').forEach(el => {
+                const key = el.dataset.translateTitleKey;
+                if (translations[key]) {
+                    el.title = translations[key];
+                }
+            });
+
+            // Re-render dynamic parts that depend on language
+            updateLastUpdatedTimestamp(appState.lastUpdated);
+            if (appState.data && Object.keys(appState.data).length > 0) {
+                generateCalendar(currentDate.getFullYear(), currentDate.getMonth(), appState.data.jadwalTraining);
+            }
+        }
+
+
         // ========== EVENT LISTENERS ==========
         function setupEventListeners() {
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                const pageId = link.dataset.page;
+                const externalUrl = link.dataset.externalUrl;
+                const isProtected = pageId === 'laporan_insiden' || pageId === 'observasi';
+
+                if (isProtected) {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        requestPasswordAndSwitchPage(pageId, externalUrl || link.href);
+                    });
+                }
+            });
+            document.querySelector('.sidebar-link[data-page="pelatihan"]')?.classList.add('active');
+
             setupTabs('pelatihan-tabs');
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('refresh-button').addEventListener('click', forceRefreshData);
@@ -1004,6 +1409,25 @@
             const modal = document.getElementById('detail-modal');
             modal.addEventListener('click', (e) => { if (e.target.id === 'detail-modal') modal.classList.remove('active'); });
             document.getElementById('modal-close-button').addEventListener('click', () => modal.classList.remove('active'));
+
+            // Password Modal Listeners
+            document.getElementById('password-form')?.addEventListener('submit', handlePasswordSubmit);
+            document.body.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn') || e.target.matches('.modal-overlay')) {
+                    document.querySelectorAll('.modal-overlay').forEach(modalEl => modalEl.classList.remove('active'));
+                }
+            });
+
+            // Sidebar mobile toggle
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            mobileMenuToggle.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('show'); });
+            document.addEventListener('click', (e) => { if (!sidebar.contains(e.target) && !mobileMenuToggle.contains(e.target)) { sidebar.classList.remove('show'); } });
+
+            // Language Switcher
+            document.getElementById('language-switcher').addEventListener('change', (e) => {
+                setLanguage(e.target.value);
+            });
         }
 
         async function forceRefreshData() {
@@ -1035,6 +1459,10 @@
 
         // ========== MAIN INITIALIZATION ==========
         async function initializePage() {
+            await loadTranslations();
+            document.getElementById('language-switcher').value = appState.currentLang;
+            setLanguage(appState.currentLang);
+
             const cached = getCachedData();
 
             if (cached) {
