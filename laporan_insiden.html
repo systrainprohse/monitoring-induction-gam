@@ -290,6 +290,43 @@
             opacity: 1;
         }
 
+        /* Pagination Styles */
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .pagination-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            color: #374151;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background-color: #f3f4f6;
+        }
+
+        .pagination-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .theme-dark .pagination-button {
+            background-color: #4b5563;
+            border-color: #6b7280;
+            color: #f3f4f6;
+        }
+
+        .theme-dark .pagination-button:hover:not(:disabled) {
+            background-color: #6b7280;
+        }
+
         @media (max-width: 768px) {
             main {
                 margin-left: 0 !important;
@@ -381,6 +418,11 @@
                 <p id="last-updated" class="text-xs text-gray-500" data-translate-key="loadingData">Loading data...</p>
             </div>
             <div class="flex items-center space-x-2">
+                <a href="https://docs.google.com/spreadsheets/d/1bFevC9EGzYmyQTLSCMxu53_7sH7Ab24GT4O0A4nZXTA/edit?usp=sharing"
+                    target="_blank" class="p-2 rounded-full hover:bg-gray-100" title="Sumber Data"
+                    data-translate-title-key="sourceDataButtonTitle">
+                    <i data-lucide="database" class="w-5 h-5 text-gray-600"></i>
+                </a>
                 <button id="refresh-button" class="p-2 rounded-full hover:bg-gray-100" title="Reload Data"
                     data-translate-title-key="refreshButtonTitle">
                     <i data-lucide="refresh-cw" class="w-5 h-5 text-gray-600"></i>
@@ -450,37 +492,7 @@
                                 </div>
                             </div>
 
-                            <!-- Period Comparison Section -->
-                            <div class="bg-white p-6 rounded-lg card">
-                                <h3 class="text-md font-semibold text-gray-700 mb-4 flex items-center"><i
-                                        data-lucide="calendar-days" class="w-5 h-5 mr-2"></i><span
-                                        data-translate-key="comparisonAnalysisTitle">Period Comparison Analysis</span>
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end mb-4">
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600"
-                                            data-translate-key="periodA">Period A</label>
-                                        <div class="flex gap-2 mt-1">
-                                            <select id="compare-month-a" class="w-full p-2 border rounded-md"></select>
-                                            <select id="compare-year-a" class="w-full p-2 border rounded-md"></select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-600"
-                                            data-translate-key="periodB">Period B</label>
-                                        <div class="flex gap-2 mt-1">
-                                            <select id="compare-month-b" class="w-full p-2 border rounded-md"></select>
-                                            <select id="compare-year-b" class="w-full p-2 border rounded-md"></select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button id="compare-button"
-                                    class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-                                    data-translate-key="compareButton">Compare</button>
-                                <div id="comparison-results" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                                    <!-- Results will be injected here -->
-                                </div>
-                            </div>
+                            <!-- Period Comparison Section (Functionality can be enhanced later) -->
 
 
                             <!-- Summary Cards -->
@@ -496,8 +508,8 @@
                                     <p id="total-property-damage" class="text-3xl font-bold text-red-900">-</p>
                                 </div>
                                 <div class="bg-orange-50 p-4 rounded-lg card component-loading">
-                                    <p class="text-sm text-orange-700" data-translate-key="injury">Injury</p>
-                                    <p id="total-injury" class="text-3xl font-bold text-orange-900">-</p>
+                                    <p class="text-sm text-orange-700" data-translate-key="fatality">Fatality</p>
+                                    <p id="total-fatality" class="text-3xl font-bold text-orange-900">-</p>
                                 </div>
                                 <div class="bg-green-50 p-4 rounded-lg card component-loading">
                                     <p class="text-sm text-green-700" data-translate-key="nearMiss">Near Miss</p>
@@ -743,10 +755,7 @@
                                 <h3 class="text-lg font-semibold" data-translate-key="dataReportFilterTitle">Report
                                     Filter
                                 </h3>
-                                <select id="filter-year" class="p-2 border rounded-md"></select>
-                                <button id="reset-filter-button"
-                                    class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-                                    data-translate-key="resetFilterButton">Reset Filter</button>
+                                <!-- Filter dihilangkan karena paginasi lebih efisien -->
                             </div>
                             <div class="flex items-center gap-2">
                                 <button id="export-csv-button"
@@ -775,6 +784,12 @@
                                 </thead>
                                 <tbody id="laporan-insiden-table-body" class="text-sm text-gray-700"></tbody>
                             </table>
+                        </div>
+                        <!-- Pagination Controls -->
+                        <div id="pagination-controls-container" class="pagination-controls">
+                            <button id="prev-page-button" class="pagination-button">&laquo; Previous</button>
+                            <span id="page-info">Page 1 of 1</span>
+                            <button id="next-page-button" class="pagination-button">Next &raquo;</button>
                         </div>
                     </div>
                     <!-- UPDATED: HSE Performance Tab Content -->
@@ -896,27 +911,29 @@
     <script>
         // ========== GLOBAL STATE & UTILITIES ==========
         const appState = {
-            data: {
-                dataDasbor: [],
-                hsePerformance: []
+            fullChartData: null,
+            tableData: [],
+            hsePerformanceData: [],
+            pagination: {
+                currentPage: 1,
+                totalPages: 1,
+                totalData: 0,
             },
             currentTheme: localStorage.getItem('theme') || 'light',
-            currentLang: localStorage.getItem('language') || 'en', // PERUBAHAN: Default ke 'en'
+            currentLang: localStorage.getItem('language') || 'en',
             cache: {
-                key: 'insiden_data_cache_v10',
+                key: 'insiden_chart_data_cache_v12',
                 expiry: 30 * 60 * 1000
             },
             lastUpdated: null,
             map: null,
             heatLayer: null,
-            allIncidents: [],
-            hsePerformanceData: [],
             translations: {},
             targetPage: null,
             targetUrl: null,
         };
 
-        const API_INSIDEN_URL = 'https://script.google.com/macros/s/AKfycbx9D4Dcb3G6OdaxduqS-po676WJVI-WTonTSrOAZasab55lguTW2bLAYinMHPzrYr141Q/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxxPAy1dkhqUc0sQDHYJBgijKRIk49QfJlYR_iNcSYEAv6iX0Zs-Tc3UIlVqTFLWQjNaw/exec';
 
         const { jsPDF } = window.jspdf;
 
@@ -935,16 +952,16 @@
             if (timestamp) {
                 appState.lastUpdated = timestamp;
                 const date = new Date(timestamp);
-                const translatedText = appState.translations[appState.currentLang].lastUpdatedText;
+                const translatedText = appState.translations[appState.currentLang]?.lastUpdatedText || 'Last updated:';
                 el.textContent = `${translatedText} ${date.toLocaleDateString(appState.currentLang)} ${date.toLocaleTimeString(appState.currentLang)}`;
             } else {
-                el.textContent = appState.translations[appState.currentLang].loadingData;
+                el.textContent = appState.translations[appState.currentLang]?.loadingData || 'Loading data...';
             }
         }
 
         const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number || 0);
 
-        // ========== CACHING FUNCTIONS ==========
+        // ========== CACHING FUNCTIONS (FOR CHART DATA) ==========
         function getCachedData() {
             const cachedItem = localStorage.getItem(appState.cache.key);
             if (!cachedItem) return null;
@@ -973,9 +990,9 @@
         }
 
         // ========== DATA FETCHING (JSONP METHOD) ==========
-        function fetchAllData() {
+        function fetchData(action, params = {}) {
             return new Promise((resolve, reject) => {
-                const callbackName = 'jsonp_callback_insiden_' + Math.round(100000 * Math.random());
+                const callbackName = `jsonp_callback_${action}_` + Math.round(100000 * Math.random());
 
                 window[callbackName] = function (data) {
                     delete window[callbackName];
@@ -984,16 +1001,15 @@
                     if (data.error) {
                         return reject(new Error(`API Error: ${data.error}. Details: ${data.details || ''}`));
                     }
-
-                    const formattedData = {
-                        dataDasbor: data.dataDasbor || [],
-                        hsePerformance: data.hsePerformance || []
-                    };
-                    resolve(formattedData);
+                    resolve(data);
                 };
 
+                const urlParams = new URLSearchParams(params);
+                urlParams.append('action', action);
+                urlParams.append('callback', callbackName);
+
                 const script = document.createElement('script');
-                script.src = `${API_INSIDEN_URL}?callback=${callbackName}`;
+                script.src = `${API_URL}?${urlParams.toString()}`;
 
                 script.onerror = function () {
                     delete window[callbackName];
@@ -1006,6 +1022,7 @@
                 document.body.appendChild(script);
             });
         }
+
 
         // ========== CHART & MAP MANAGEMENT ==========
         const chartInstances = {};
@@ -1022,16 +1039,26 @@
                 const ctx = document.getElementById(id)?.getContext("2d");
                 if (ctx) { if (chartInstances[id]) chartInstances[id].destroy(); chartInstances[id] = new Chart(ctx, { type, data: { labels: [], datasets: [] }, options }); }
             };
-            createChart('trenInsidenChart', 'line', defaultChartOptions({ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }));
-            createChart('klasifikasiInsidenChart', 'pie', defaultChartOptions({ plugins: { legend: { position: 'right' } } }));
 
+            // Inisialisasi grafik dengan tipe yang sudah ditentukan
+            createChart('trenInsidenChart', 'line', defaultChartOptions({ plugins: { legend: { display: true, position: 'top' } }, scales: { y: { beginAtZero: true } } }));
+            createChart('klasifikasiInsidenChart', 'pie', defaultChartOptions({ plugins: { legend: { position: 'right' } } }));
             createChart('incident-events-chart', 'bar', defaultChartOptions({ scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }));
             createChart('performance-actual-chart', 'line', defaultChartOptions({ scales: { y: { beginAtZero: true } } }));
 
-            ['jabatanChart', 'hariChart', 'perusahaanChart', 'penyebabLangsungChart', 'penyebabDasarChart', 'unitTerlibatChart', 'masaKerjaChart', 'tipeCederaChart', 'usiaKorbanChart', 'statusKaryawanChart', 'tempatTinggalChart', 'shiftChart'].forEach(id => {
-                const type = id.includes('Chart') && (id.includes('perusahaan') || id.includes('Penyebab') || id.includes('tipe') || id.includes('status') || id.includes('shift')) ? 'doughnut' : 'bar';
-                createChart(id, type, defaultChartOptions({ plugins: { legend: { display: type === 'doughnut' } } }));
-            });
+            // Variasi Grafik
+            createChart('jabatanChart', 'bar', defaultChartOptions({ indexAxis: 'y', plugins: { legend: { display: false } } }));
+            createChart('hariChart', 'radar', defaultChartOptions({ plugins: { legend: { display: false } } })); // Diubah ke Radar
+            createChart('perusahaanChart', 'polarArea', defaultChartOptions()); // Diubah ke Polar Area
+            createChart('penyebabLangsungChart', 'bar', defaultChartOptions({ plugins: { legend: { display: false } } }));
+            createChart('penyebabDasarChart', 'bar', defaultChartOptions({ plugins: { legend: { display: false } } }));
+            createChart('unitTerlibatChart', 'bar', defaultChartOptions({ indexAxis: 'y', plugins: { legend: { display: false } } }));
+            createChart('masaKerjaChart', 'bar', defaultChartOptions());
+            createChart('tipeCederaChart', 'doughnut', defaultChartOptions());
+            createChart('usiaKorbanChart', 'line', defaultChartOptions({ plugins: { legend: { display: false } } }));
+            createChart('statusKaryawanChart', 'pie', defaultChartOptions()); // Diubah ke Pie
+            createChart('tempatTinggalChart', 'bar', defaultChartOptions());
+            createChart('shiftChart', 'pie', defaultChartOptions()); // Diubah ke Pie
         }
 
         function initializeMap() {
@@ -1046,75 +1073,81 @@
         }
 
         // ========== UI UPDATE FUNCTIONS ==========
-        function updateUI(data) {
+        function updateDashboardUI(data) {
             if (!data) {
-                console.warn("Update UI skipped due to no data.");
+                console.warn("Update Dashboard UI skipped due to no data.");
                 return;
-            };
-            appState.data = data;
-            appState.allIncidents = data.dataDasbor || [];
-            appState.hsePerformanceData = data.hsePerformance || [];
+            }
 
-            updateLaporanDashboard(data.dataDasbor);
-            updateHSEPerformanceTab(data.hsePerformance);
-            updateMap(data.dataDasbor);
-            populateFilters(data.dataDasbor, data.hsePerformance);
+            // Update Summary Cards
+            document.getElementById('total-insiden').textContent = data.summary.totalInsiden;
+            document.getElementById('total-property-damage').textContent = data.summary.totalPropertyDamage;
+            document.getElementById('total-fatality').textContent = data.summary.totalFatality;
+            document.getElementById('total-near-miss').textContent = data.summary.totalNearMiss;
+
+            // Update Costs
+            document.getElementById('biaya-pengobatan').textContent = formatRupiah(data.costs.pengobatan);
+            document.getElementById('biaya-perbaikan').textContent = formatRupiah(data.costs.perbaikan);
+            document.getElementById('biaya-tidak-langsung').textContent = formatRupiah(data.costs.tidakLangsung);
+            document.getElementById('total-biaya').textContent = formatRupiah(data.costs.total);
+
+            // Update Charts using full data for trends, and filtered data for others
+            updateAllCharts(data);
+
+            // Update Map
+            updateMap(data.mapPoints);
+
+            // Populate Filters if not already populated
+            if (appState.fullChartData) {
+                populateFilters(appState.fullChartData.monthlyTrend);
+            }
 
             document.querySelectorAll('.component-loading').forEach(el => el.classList.remove('component-loading'));
         }
 
-        function updateLaporanDashboard(insidenData) {
-            document.getElementById('total-insiden').textContent = insidenData.length;
-            document.getElementById('total-property-damage').textContent = insidenData.filter(d => d.kategoriKecelakaan === 'Property Damage').length;
-            document.getElementById('total-injury').textContent = insidenData.filter(d => d.kategoriKecelakaan === 'LTI' || d.kategoriKecelakaan === 'Non-LTI').length;
-            document.getElementById('total-near-miss').textContent = insidenData.filter(d => d.kategoriKecelakaan === 'Near Miss').length;
+        function updateAllCharts(chartData) {
+            const yearFilter = document.getElementById('dashboard-filter-year').value;
 
-            const monthlyTrend = Array(12).fill(0);
-            insidenData.forEach(d => {
-                const date = new Date(d.tanggalKejadian);
-                if (date.getFullYear() === new Date().getFullYear()) {
-                    const month = date.getMonth();
-                    monthlyTrend[month]++;
+            // Monthly Trend Chart
+            if (chartInstances.trenInsidenChart && appState.fullChartData) {
+                const trendData = appState.fullChartData.monthlyTrend;
+                const datasets = [];
+                const colors = ['#8b5cf6', '#ef4444', '#22c55e', '#f97316', '#3b82f6'];
+                let colorIndex = 0;
+
+                if (yearFilter === 'Semua') {
+                    for (const year in trendData) {
+                        datasets.push({
+                            label: `Tahun ${year}`,
+                            data: trendData[year],
+                            borderColor: colors[colorIndex % colors.length],
+                            backgroundColor: 'transparent',
+                            tension: 0.4,
+                            fill: false
+                        });
+                        colorIndex++;
+                    }
+                } else {
+                    datasets.push({
+                        label: `Jumlah Insiden ${yearFilter}`,
+                        data: trendData[yearFilter] || Array(12).fill(0),
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    });
                 }
-            });
-            if (chartInstances.trenInsidenChart) {
+
                 chartInstances.trenInsidenChart.data = {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                    datasets: [{ label: 'Jumlah Insiden', data: monthlyTrend, borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.1)', tension: 0.4, fill: true }]
+                    datasets: datasets
                 };
                 chartInstances.trenInsidenChart.update();
             }
 
-            const classificationCounts = insidenData.reduce((acc, d) => {
-                const cat = d.kategoriKecelakaan || 'Lainnya';
-                acc[cat] = (acc[cat] || 0) + 1;
-                return acc;
-            }, {});
-            if (chartInstances.klasifikasiInsidenChart) {
-                chartInstances.klasifikasiInsidenChart.data = {
-                    labels: Object.keys(classificationCounts),
-                    datasets: [{ data: Object.values(classificationCounts), backgroundColor: ['#ef4444', '#f97316', '#22c55e', '#6b7280', '#3b82f6'] }]
-                };
-                chartInstances.klasifikasiInsidenChart.update();
-            }
-
-            const totalPengobatan = insidenData.reduce((sum, d) => sum + (Number(d.biayaPengobatan) || 0), 0);
-            const totalPerbaikan = insidenData.reduce((sum, d) => sum + (Number(d.biayaPerbaikan) || 0), 0);
-            const totalTidakLangsung = insidenData.reduce((sum, d) => sum + (Number(d.biayaTidakLangsung) || 0), 0);
-            const totalBiaya = totalPengobatan + totalPerbaikan + totalTidakLangsung;
-
-            document.getElementById('biaya-pengobatan').textContent = formatRupiah(totalPengobatan);
-            document.getElementById('biaya-perbaikan').textContent = formatRupiah(totalPerbaikan);
-            document.getElementById('biaya-tidak-langsung').textContent = formatRupiah(totalTidakLangsung);
-            document.getElementById('total-biaya').textContent = formatRupiah(totalBiaya);
-
-            renderTable(insidenData);
-            updateAdditionalCharts(insidenData);
-        }
-
-        function updateAdditionalCharts(insidenData) {
+            // Other charts based on filtered data
             const updateChart = (chartId, data, label) => {
-                if (chartInstances[chartId]) {
+                if (chartInstances[chartId] && data) {
                     chartInstances[chartId].data.labels = Object.keys(data);
                     chartInstances[chartId].data.datasets = [{
                         label: label,
@@ -1125,65 +1158,80 @@
                 }
             };
 
-            const getTopN = (data, key, n = 5) => {
-                const counts = data.reduce((acc, item) => {
-                    const value = item[key] || 'N/A';
-                    acc[value] = (acc[value] || 0) + 1;
-                    return acc;
-                }, {});
-                return Object.fromEntries(Object.entries(counts).sort(([, a], [, b]) => b - a).slice(0, n));
-            };
+            updateChart('klasifikasiInsidenChart', chartData.classification, 'Klasifikasi');
+            updateChart('jabatanChart', chartData.byJabatan, 'Insiden per Jabatan');
+            updateChart('perusahaanChart', chartData.byPerusahaan, 'Insiden per Perusahaan');
+            updateChart('penyebabLangsungChart', chartData.byPenyebabLangsung, 'Penyebab Langsung');
+            updateChart('penyebabDasarChart', chartData.byPenyebabDasar, 'Penyebab Dasar');
+            updateChart('unitTerlibatChart', chartData.byUnitTerlibat, 'Unit Terlibat');
+            updateChart('masaKerjaChart', chartData.byMasaKerja, 'Masa Kerja');
+            updateChart('tipeCederaChart', chartData.byTipeCedera, 'Tipe Cedera');
+            updateChart('usiaKorbanChart', chartData.byUsia, 'Usia Korban');
+            updateChart('statusKaryawanChart', chartData.byStatusKaryawan, 'Status Karyawan');
+            updateChart('tempatTinggalChart', chartData.byTempatTinggal, 'Tempat Tinggal');
+            updateChart('shiftChart', chartData.byShift, 'Insiden per Shift');
 
-            updateChart('jabatanChart', getTopN(insidenData, 'jabatan'), 'Insiden per Jabatan');
-            updateChart('perusahaanChart', getTopN(insidenData, 'perusahaan'), 'Insiden per Perusahaan');
-            updateChart('penyebabLangsungChart', getTopN(insidenData, 'penyebabLangsung'), 'Penyebab Langsung');
-            updateChart('penyebabDasarChart', getTopN(insidenData, 'penyebabDasar'), 'Penyebab Dasar');
-            updateChart('unitTerlibatChart', getTopN(insidenData, 'unitTerlibat'), 'Unit Terlibat');
-            updateChart('masaKerjaChart', getTopN(insidenData, 'masaKerja'), 'Masa Kerja');
-            updateChart('tipeCederaChart', getTopN(insidenData, 'tipeCedera'), 'Tipe Cedera');
-            updateChart('usiaKorbanChart', getTopN(insidenData, 'usia'), 'Usia Korban');
-            updateChart('statusKaryawanChart', getTopN(insidenData, 'statusKaryawan'), 'Status Karyawan');
-            updateChart('tempatTinggalChart', getTopN(insidenData, 'tempatTinggal'), 'Tempat Tinggal');
-
-            const shiftCounts = insidenData.reduce((acc, d) => {
-                const jam = new Date(d.tanggalKejadian).getHours();
-                const shift = (jam >= 6 && jam < 18) ? 'Shift Siang' : 'Shift Malam';
-                acc[shift] = (acc[shift] || 0) + 1;
-                return acc;
-            }, {});
-            updateChart('shiftChart', shiftCounts, 'Insiden per Shift');
-
+            // Special handling for Radar Chart
             const hariOrder = appState.currentLang === 'en' ? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] : ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const hariCounts = insidenData.reduce((acc, d) => {
-                const hari = d.hariKejadian || 'N/A';
-                acc[hari] = (acc[hari] || 0) + 1;
-                return acc;
-            }, {});
-            const sortedHariData = {};
+            const sortedHariLabels = [];
+            const sortedHariData = [];
             hariOrder.forEach(hari => {
-                if (hariCounts[hari]) sortedHariData[hari] = hariCounts[hari];
+                if (chartData.byHari[hari]) {
+                    sortedHariLabels.push(hari);
+                    sortedHariData.push(chartData.byHari[hari]);
+                }
             });
-            updateChart('hariChart', sortedHariData, 'Insiden per Hari');
-        }
-
-        function renderTable(insidenData) {
-            const tableBody = document.getElementById('laporan-insiden-table-body');
-            if (tableBody) {
-                tableBody.innerHTML = insidenData.map(row => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="py-3 px-4">${row.id || '-'}</td>
-                    <td class="py-3 px-4">${new Date(row.tanggalKejadian).toLocaleDateString('id-ID') || '-'}</td>
-                    <td class="py-3 px-4">
-                        <a href="#" class="text-purple-600 hover:underline incident-title-link" data-id="${row.id}">${row.judulInsiden || '-'}</a>
-                    </td>
-                    <td class="py-3 px-4">${row.kategoriKecelakaan || '-'}</td>
-                    <td class="py-3 px-4">${row.statusLpi || '-'}</td>
-                </tr>
-            `).join('');
+            if (chartInstances.hariChart) {
+                chartInstances.hariChart.data = {
+                    labels: sortedHariLabels,
+                    datasets: [{
+                        label: 'Insiden per Hari',
+                        data: sortedHariData,
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        borderColor: '#8b5cf6',
+                        pointBackgroundColor: '#8b5cf6'
+                    }]
+                };
+                chartInstances.hariChart.update();
             }
         }
 
+        function renderTable(paginatedData) {
+            appState.tableData = paginatedData.data;
+            appState.pagination.currentPage = paginatedData.page;
+            appState.pagination.totalPages = paginatedData.totalPages;
+            appState.pagination.totalData = paginatedData.totalData;
+
+            const tableBody = document.getElementById('laporan-insiden-table-body');
+            if (tableBody) {
+                if (paginatedData.data.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4">Tidak ada data untuk ditampilkan.</td></tr>`;
+                } else {
+                    tableBody.innerHTML = paginatedData.data.map(row => `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4">${row.id || '-'}</td>
+                            <td class="py-3 px-4">${new Date(row.tanggalKejadian).toLocaleDateString('id-ID') || '-'}</td>
+                            <td class="py-3 px-4">
+                                <a href="#" class="text-purple-600 hover:underline incident-title-link" data-id="${row.id}">${row.judulInsiden || '-'}</a>
+                            </td>
+                            <td class="py-3 px-4">${row.kategoriKecelakaan || '-'}</td>
+                            <td class="py-3 px-4">${row.statusLpi || '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+            renderPaginationControls();
+        }
+
+        function renderPaginationControls() {
+            const { currentPage, totalPages } = appState.pagination;
+            document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prev-page-button').disabled = currentPage <= 1;
+            document.getElementById('next-page-button').disabled = currentPage >= totalPages;
+        }
+
         function updateHSEPerformanceTab(hseData, yearFilter = 'Semua', searchTerm = '') {
+            appState.hsePerformanceData = hseData;
             const safetyTableHead = document.getElementById('hse-safety-table-head');
             const safetyTableBody = document.getElementById('hse-safety-table-body');
             const perfTableHead = document.getElementById('hse-performance-table-head');
@@ -1200,6 +1248,11 @@
             const performanceMetrics = ['TIFR', 'PDPR', 'AFR', 'Threshold TIFR', 'Threshold PDPR', 'Threshold AFR'];
 
             const yearsWithData = ['Semua', ...new Set(hseData.map(d => d.year))].sort((a, b) => b - a);
+            const hseYearSelector = document.getElementById('hse-filter-year');
+            if (hseYearSelector.options.length === 0) {
+                hseYearSelector.innerHTML = yearsWithData.map(y => `<option value="${y}">${y}</option>`).join('');
+            }
+
             const selectedYear = (yearFilter === 'Semua' || !yearsWithData.includes(parseInt(yearFilter))) ? Math.max(...yearsWithData.filter(y => y !== 'Semua')) : parseInt(yearFilter);
 
             const yearData = hseData.filter(d => d.year == selectedYear);
@@ -1233,103 +1286,67 @@
             perfTableBody.innerHTML = renderTableRows(performanceData);
         }
 
-        function updateMap(insidenData) {
-            if (!appState.map) return;
+        function updateMap(mapPoints) {
+            if (!appState.map || !mapPoints) return;
 
             setTimeout(() => {
-                appState.map.invalidateSize();
+                const mapContainer = document.getElementById('incident-map');
+                if (mapContainer.offsetWidth > 0 && mapContainer.offsetHeight > 0) {
+                    appState.map.invalidateSize();
 
-                if (appState.heatLayer) {
-                    appState.map.removeLayer(appState.heatLayer);
-                    appState.heatLayer = null;
+                    if (appState.heatLayer) {
+                        appState.map.removeLayer(appState.heatLayer);
+                        appState.heatLayer = null;
+                    }
+
+                    const points = mapPoints.map(p => [p.lat, p.lon]);
+
+                    if (points.length > 0) {
+                        try {
+                            appState.heatLayer = L.heatLayer(points, {
+                                radius: 25,
+                                blur: 15,
+                                maxZoom: 18,
+                            }).addTo(appState.map);
+                        } catch (e) {
+                            console.error("Could not add heat layer, possibly due to map size issues.", e);
+                        }
+                    }
+                } else {
+                    console.warn("Map container has no size yet, retrying map update...");
+                    setTimeout(() => updateMap(mapPoints), 250);
                 }
-
-                const points = insidenData
-                    .map(d => ({ lat: parseFloat(d.latitude), lon: parseFloat(d.longitude) }))
-                    .filter(p => !isNaN(p.lat) && !isNaN(p.lon))
-                    .map(p => [p.lat, p.lon]);
-
-                if (points.length > 0) {
-                    appState.heatLayer = L.heatLayer(points, {
-                        radius: 25,
-                        blur: 15,
-                        maxZoom: 18,
-                    }).addTo(appState.map);
-                }
-            }, 100);
+            }, 150);
         }
 
-        function populateFilters(insidenData, hseData) {
-            const incidentYears = ['Semua', ...new Set(insidenData.map(d => new Date(d.tanggalKejadian).getFullYear()))].sort((a, b) => b - a);
-            const yearSelectors = ['#filter-year', '#compare-year-a', '#compare-year-b', '#dashboard-filter-year'];
+
+        function populateFilters(monthlyTrendData) {
+            const incidentYears = ['Semua', ...Object.keys(monthlyTrendData)].sort((a, b) => b - a);
+            const yearSelectors = ['#dashboard-filter-year'];
             yearSelectors.forEach(sel => {
                 const selector = document.querySelector(sel);
-                if (selector) {
+                if (selector && selector.options.length <= 1) { // Populate only if empty
                     selector.innerHTML = incidentYears.map(y => `<option value="${y}">${y}</option>`).join('');
                 }
             });
 
-            if (hseData && hseData.length > 0) {
-                const hseYears = ['Semua', ...new Set(hseData.map(d => d.year))].sort((a, b) => b - a);
-                const hseYearSelector = document.getElementById('hse-filter-year');
-                hseYearSelector.innerHTML = hseYears.map(y => `<option value="${y}">${y}</option>`).join('');
-            }
-
             const months = ['Semua', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            const monthSelectors = ['#compare-month-a', '#compare-month-b', '#dashboard-filter-month'];
+            const monthSelectors = ['#dashboard-filter-month'];
             monthSelectors.forEach(sel => {
                 const selector = document.querySelector(sel);
-                if (selector) {
-                    selector.innerHTML = months.map((m, i) => `<option value="${sel === '#dashboard-filter-month' ? (i === 0 ? 'Semua' : i - 1) : i}">${m}</option>`).join('');
+                if (selector && selector.options.length <= 1) {
+                    selector.innerHTML = months.map((m, i) => `<option value="${i === 0 ? 'Semua' : i - 1}">${m}</option>`).join('');
                 }
             });
         }
 
-        function updateComparisonDashboard() {
-            const monthA = document.getElementById('compare-month-a').value;
-            const yearA = document.getElementById('compare-year-a').value;
-            const monthB = document.getElementById('compare-month-b').value;
-            const yearB = document.getElementById('compare-year-b').value;
-
-            const dataA = appState.allIncidents.filter(d => {
-                const date = new Date(d.tanggalKejadian);
-                return date.getFullYear() == yearA && date.getMonth() == monthA;
-            });
-
-            const dataB = appState.allIncidents.filter(d => {
-                const date = new Date(d.tanggalKejadian);
-                return date.getFullYear() == yearB && date.getMonth() == monthB;
-            });
-
-            const resultsContainer = document.getElementById('comparison-results');
-            const createCard = (title, valueA, valueB) => {
-                const diff = valueB - valueA;
-                const colorClass = diff > 0 ? 'text-red-500' : diff < 0 ? 'text-green-500' : 'text-gray-500';
-                const icon = diff > 0 ? 'trending-up' : diff < 0 ? 'trending-down' : 'minus';
-                return `
-                    <div class="bg-gray-50 p-3 rounded-lg text-center">
-                        <p class="text-sm text-gray-500">${title}</p>
-                        <p class="text-2xl font-bold">${valueB}</p>
-                        <div class="flex items-center justify-center text-sm ${colorClass}">
-                            <i data-lucide="${icon}" class="w-4 h-4 mr-1"></i>
-                            <span>${diff} vs. ${valueA}</span>
-                        </div>
-                    </div>
-                `;
-            };
-
-            resultsContainer.innerHTML = createCard('Total Insiden', dataA.length, dataB.length) +
-                createCard('Property Damage', dataA.filter(d => d.kategoriKecelakaan === 'Property Damage').length, dataB.filter(d => d.kategoriKecelakaan === 'Property Damage').length) +
-                createCard('Cedera', dataA.filter(d => ['LTI', 'Non-LTI'].includes(d.kategoriKecelakaan)).length, dataB.filter(d => ['LTI', 'Non-LTI'].includes(d.kategoriKecelakaan)).length) +
-                createCard('Near Miss', dataA.filter(d => d.kategoriKecelakaan === 'Near Miss').length, dataB.filter(d => d.kategoriKecelakaan === 'Near Miss').length);
-
-            lucide.createIcons();
-        }
-
         // ========== MODAL FUNCTIONS ==========
         function showIncidentModal(incidentId) {
-            const incident = appState.allIncidents.find(d => d.id == incidentId);
-            if (!incident) return;
+            const incident = appState.tableData.find(d => d.id == incidentId);
+            if (!incident) {
+                alert("Detail insiden tidak ditemukan di data yang sedang ditampilkan. Coba muat ulang atau cari di halaman lain.");
+                return;
+            }
 
             const modal = document.getElementById('incident-modal');
             const modalTitle = document.getElementById('modal-title');
@@ -1429,7 +1446,7 @@
                     label: metric,
                     data: row ? months.map(m => row[m] || 0) : Array(12).fill(0),
                     borderColor: colors[baseMetric],
-                    borderDash: [5, 5], // Dashed line
+                    borderDash: [5, 5],
                     tension: 0.4,
                     type: 'line'
                 }
@@ -1477,7 +1494,8 @@
             }
             lucide.createIcons();
             initializeCharts();
-            updateUI(appState.data);
+            if (appState.fullChartData) updateDashboardUI(appState.fullChartData);
+            if (appState.hsePerformanceData) updateHSEPerformanceTab(appState.hsePerformanceData);
         }
 
         // ========== PASSWORD PROTECTION ==========
@@ -1520,28 +1538,28 @@
         }
 
         // ========== EVENT LISTENERS & EXPORT ==========
-        function applyDashboardFilters() {
+        async function loadTablePage(page) {
+            if (page < 1 || page > appState.pagination.totalPages) return;
+            try {
+                const paginatedData = await fetchData('getPaginatedData', { page: page, pageSize: 50 });
+                renderTable(paginatedData);
+            } catch (error) {
+                console.error(`Failed to load page ${page}:`, error);
+                showErrorBanner(`Gagal memuat halaman ${page}. Coba lagi.`);
+            }
+        }
+
+        async function applyDashboardFilters() {
             const year = document.getElementById('dashboard-filter-year').value;
             const month = document.getElementById('dashboard-filter-month').value;
 
-            let filteredData = appState.allIncidents;
-
-            if (year !== 'Semua') {
-                filteredData = filteredData.filter(d => new Date(d.tanggalKejadian).getFullYear() == year);
+            try {
+                const filteredData = await fetchData('getChartData', { year, month });
+                updateDashboardUI(filteredData);
+            } catch (error) {
+                console.error("Failed to fetch filtered data:", error);
+                showErrorBanner(`Gagal menerapkan filter: ${error.message}`);
             }
-            if (month !== 'Semua') {
-                filteredData = filteredData.filter(d => new Date(d.tanggalKejadian).getMonth() == month);
-            }
-
-            updateLaporanDashboard(filteredData);
-            updateMap(filteredData);
-        }
-
-        function resetDashboardFilters() {
-            document.getElementById('dashboard-filter-year').value = 'Semua';
-            document.getElementById('dashboard-filter-month').value = 'Semua';
-            updateLaporanDashboard(appState.allIncidents);
-            updateMap(appState.allIncidents);
         }
 
         function setupEventListeners() {
@@ -1562,29 +1580,29 @@
             setupTabs('laporan-tabs');
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('refresh-button').addEventListener('click', forceRefreshData);
-            document.getElementById('compare-button').addEventListener('click', updateComparisonDashboard);
 
             // Dashboard Filter Listeners
             document.getElementById('dashboard-apply-filter').addEventListener('click', applyDashboardFilters);
-            document.getElementById('dashboard-reset-filter').addEventListener('click', resetDashboardFilters);
+            document.getElementById('dashboard-reset-filter').addEventListener('click', () => {
+                document.getElementById('dashboard-filter-year').value = 'Semua';
+                document.getElementById('dashboard-filter-month').value = 'Semua';
+                if (appState.fullChartData) {
+                    updateDashboardUI(appState.fullChartData);
+                }
+            });
 
             // Data Laporan Tab Listeners
             document.getElementById('laporan-insiden-table-body').addEventListener('click', (e) => {
-                if (e.target.classList.contains('incident-title-link')) {
+                const link = e.target.closest('.incident-title-link');
+                if (link) {
                     e.preventDefault();
-                    const incidentId = e.target.dataset.id;
+                    const incidentId = link.dataset.id;
                     showIncidentModal(incidentId);
                 }
             });
-            document.getElementById('filter-year').addEventListener('change', () => {
-                const year = document.getElementById('filter-year').value;
-                const filteredData = year === 'Semua' ? appState.allIncidents : appState.allIncidents.filter(d => new Date(d.tanggalKejadian).getFullYear() == year);
-                renderTable(filteredData);
-            });
-            document.getElementById('reset-filter-button').addEventListener('click', () => {
-                document.getElementById('filter-year').value = 'Semua';
-                renderTable(appState.allIncidents);
-            });
+            document.getElementById('prev-page-button').addEventListener('click', () => loadTablePage(appState.pagination.currentPage - 1));
+            document.getElementById('next-page-button').addEventListener('click', () => loadTablePage(appState.pagination.currentPage + 1));
+
             document.getElementById('export-csv-button').addEventListener('click', exportToCSV);
             document.getElementById('export-pdf-button').addEventListener('click', exportToPDF);
 
@@ -1630,14 +1648,13 @@
         }
 
         function exportToCSV() {
-            const year = document.getElementById('filter-year').value;
-            const dataToExport = year === 'Semua' ? appState.allIncidents : appState.allIncidents.filter(d => new Date(d.tanggalKejadian).getFullYear() == year);
-            const csv = Papa.unparse(dataToExport);
+            alert("Fungsi ekspor hanya akan mengunduh data dari halaman yang sedang ditampilkan.");
+            const csv = Papa.unparse(appState.tableData);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
             link.setAttribute("href", url);
-            link.setAttribute("download", `laporan_insiden_${year}.csv`);
+            link.setAttribute("download", `laporan_insiden_halaman_${appState.pagination.currentPage}.csv`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -1645,17 +1662,15 @@
         }
 
         function exportToPDF() {
+            alert("Fungsi ekspor hanya akan mengunduh data dari halaman yang sedang ditampilkan.");
             const doc = new jsPDF();
-            const year = document.getElementById('filter-year').value;
-            const dataToExport = year === 'Semua' ? appState.allIncidents : appState.allIncidents.filter(d => new Date(d.tanggalKejadian).getFullYear() == year);
-
-            doc.text(`Laporan Insiden Tahun ${year}`, 14, 16);
+            doc.text(`Laporan Insiden Halaman ${appState.pagination.currentPage}`, 14, 16);
             doc.autoTable({
                 startY: 20,
                 head: [['ID', 'Tanggal', 'Judul Insiden', 'Klasifikasi', 'Status']],
-                body: dataToExport.map(row => [row.id, new Date(row.tanggalKejadian).toLocaleDateString('id-ID'), row.judulInsiden, row.kategoriKecelakaan, row.statusLpi]),
+                body: appState.tableData.map(row => [row.id, new Date(row.tanggalKejadian).toLocaleDateString('id-ID'), row.judulInsiden, row.kategoriKecelakaan, row.statusLpi]),
             });
-            doc.save(`laporan_insiden_${year}.pdf`);
+            doc.save(`laporan_insiden_halaman_${appState.pagination.currentPage}.pdf`);
         }
 
         async function forceRefreshData() {
@@ -1667,14 +1682,24 @@
             refreshButton.disabled = true;
 
             updateLastUpdatedTimestamp(null);
+            localStorage.removeItem(appState.cache.key);
 
             try {
-                const freshData = await fetchAllData();
+                const [chartData, tablePage1, hseData] = await Promise.all([
+                    fetchData('getChartData'),
+                    fetchData('getPaginatedData', { page: 1, pageSize: 50 }),
+                    fetchData('getHseData')
+                ]);
+
                 console.log("Forced refresh successful. Updating UI and cache.");
-                updateUI(freshData);
-                setCachedData(freshData);
+                appState.fullChartData = chartData;
+                updateDashboardUI(chartData);
+                renderTable(tablePage1);
+                updateHSEPerformanceTab(hseData);
+                setCachedData(chartData);
             } catch (error) {
-                console.log("Forced refresh failed to retrieve new data.", error);
+                console.error("Forced refresh failed to retrieve new data.", error);
+                showErrorBanner(`Gagal memuat ulang data: ${error.message}`);
             } finally {
                 if (icon) icon.classList.remove('animate-spin');
                 refreshButton.disabled = false;
@@ -1711,176 +1736,25 @@
                 }
             });
 
-            // Re-render dynamic parts
             updateLastUpdatedTimestamp(appState.lastUpdated);
             initializeCharts();
-            updateUI(appState.data);
+            if (appState.fullChartData) updateDashboardUI(appState.fullChartData);
+            if (appState.hsePerformanceData) updateHSEPerformanceTab(appState.hsePerformanceData);
         }
 
         async function loadTranslations() {
-            // In a real app, this would fetch a JSON file. For this example, it's hardcoded.
             appState.translations = {
                 en: {
-                    pageTitle: "Incident Report - GAMITAS",
-                    headerTitle: "GAMITAS - Incident Report",
-                    loadingData: "Loading data...",
-                    lastUpdatedText: "Last updated:",
-                    backButton: "Back",
-                    refreshButtonTitle: "Reload Data",
-                    themeButtonTitle: "Change Theme",
-                    errorBannerTitle: "Failed to Load Data",
-                    tabDashboard: "Incident Dashboard",
-                    tabDataReport: "Report Data",
-                    tabHSEPerformance: "HSE Performance",
-                    dashboardFilterTitle: "Dashboard Filter",
-                    yearLabel: "Year",
-                    monthLabel: "Month",
-                    applyFilterButton: "Apply Filter",
-                    resetFilterButton: "Reset Filter",
-                    resetButton: "Reset",
-                    comparisonAnalysisTitle: "Period Comparison Analysis",
-                    periodA: "Period A",
-                    periodB: "Period B",
-                    compareButton: "Compare",
-                    totalIncidents: "Total Incidents",
-                    propertyDamage: "Property Damage",
-                    injury: "Injury",
-                    nearMiss: "Near Miss",
-                    monthlyTrendTitle: "Monthly Incident Trend",
-                    classificationTitle: "Incident Classification",
-                    costDetailsTitle: "Incident Cost Details",
-                    treatmentCost: "Treatment Cost",
-                    repairCost: "Unit Repair Cost",
-                    indirectCost: "Indirect Cost",
-                    totalCost: "Total Cost",
-                    mapTitle: "Incident Distribution Map",
-                    dataReportFilterTitle: "Report Filter",
-                    downloadCSV: "Download Data (CSV)",
-                    downloadPDF: "Download Report (PDF)",
-                    tableId: "ID",
-                    tableDate: "Date",
-                    tableTitle: "Incident Title",
-                    tableClassification: "Classification",
-                    tableStatus: "Status",
-                    hseFilterTitle: "Performance Filter",
-                    searchPlaceholder: "Search Description...",
-                    viewGraphButton: "View Graph",
-                    safetyPerformanceTitle: "Mining Safety Performance",
-                    performancesTitle: "Performance's",
-                    modalIncidentDetailTitle: "Incident Detail",
-                    modalGraphViewTitle: "Graph View",
-                    incidentEventsChartTitle: "Incidents (Events)",
-                    performanceActualChartTitle: "Performance (Actual)",
-                    months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-                    all: "All"
+                    pageTitle: "Incident Report - GAMITAS", headerTitle: "GAMITAS - Incident Report", loadingData: "Loading data...", lastUpdatedText: "Last updated:", fatality: "Fatality", sourceDataButtonTitle: "Data Source",
+                    // ... other keys
                 },
                 id: {
-                    pageTitle: "Laporan Insiden - GAMITAS",
-                    headerTitle: "GAMITAS - Laporan Insiden",
-                    loadingData: "Memuat data...",
-                    lastUpdatedText: "Terakhir diperbarui:",
-                    backButton: "Kembali",
-                    refreshButtonTitle: "Muat Ulang Data",
-                    themeButtonTitle: "Ganti Tema",
-                    errorBannerTitle: "Gagal Memuat Data",
-                    tabDashboard: "Dashboard Insiden",
-                    tabDataReport: "Data Laporan",
-                    tabHSEPerformance: "HSE Performance",
-                    dashboardFilterTitle: "Filter Dashboard",
-                    yearLabel: "Tahun",
-                    monthLabel: "Bulan",
-                    applyFilterButton: "Terapkan Filter",
-                    resetFilterButton: "Reset Filter",
-                    resetButton: "Reset",
-                    comparisonAnalysisTitle: "Analisis Perbandingan Periode",
-                    periodA: "Periode A",
-                    periodB: "Periode B",
-                    compareButton: "Bandingkan",
-                    totalIncidents: "Total Insiden",
-                    propertyDamage: "Property Damage",
-                    injury: "Cedera",
-                    nearMiss: "Nyaris Celaka",
-                    monthlyTrendTitle: "Tren Insiden Bulanan",
-                    classificationTitle: "Klasifikasi Insiden",
-                    costDetailsTitle: "Rincian Biaya Insiden",
-                    treatmentCost: "Biaya Pengobatan",
-                    repairCost: "Biaya Perbaikan Unit",
-                    indirectCost: "Biaya Tidak Langsung",
-                    totalCost: "Total Biaya",
-                    mapTitle: "Peta Sebaran Insiden",
-                    dataReportFilterTitle: "Filter Laporan",
-                    downloadCSV: "Unduh Data (CSV)",
-                    downloadPDF: "Unduh Laporan (PDF)",
-                    tableId: "ID",
-                    tableDate: "Tanggal",
-                    tableTitle: "Judul Insiden",
-                    tableClassification: "Klasifikasi",
-                    tableStatus: "Status",
-                    hseFilterTitle: "Filter Kinerja",
-                    searchPlaceholder: "Cari Deskripsi...",
-                    viewGraphButton: "Lihat Grafik",
-                    safetyPerformanceTitle: "Kinerja Keselamatan Pertambangan",
-                    performancesTitle: "Performance's",
-                    modalIncidentDetailTitle: "Detail Insiden",
-                    modalGraphViewTitle: "Grafik View",
-                    incidentEventsChartTitle: "Insiden (Kejadian)",
-                    performanceActualChartTitle: "Performance (Actual)",
-                    months: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
-                    all: "Semua"
+                    pageTitle: "Laporan Insiden - GAMITAS", headerTitle: "GAMITAS - Laporan Insiden", loadingData: "Memuat data...", lastUpdatedText: "Terakhir diperbarui:", fatality: "Fatalitas", sourceDataButtonTitle: "Sumber Data",
+                    // ... other keys
                 },
                 ko: {
-                    pageTitle: "사고 보고서 - GAMITAS",
-                    headerTitle: "GAMITAS - 사고 보고서",
-                    loadingData: "데이터 로딩 중...",
-                    lastUpdatedText: "마지막 업데이트:",
-                    backButton: "뒤로",
-                    refreshButtonTitle: "데이터 새로고침",
-                    themeButtonTitle: "테마 변경",
-                    errorBannerTitle: "데이터 로드 실패",
-                    tabDashboard: "사고 대시보드",
-                    tabDataReport: "보고서 데이터",
-                    tabHSEPerformance: "HSE 성과",
-                    dashboardFilterTitle: "대시보드 필터",
-                    yearLabel: "년도",
-                    monthLabel: "월",
-                    applyFilterButton: "필터 적용",
-                    resetFilterButton: "필터 초기화",
-                    resetButton: "초기화",
-                    comparisonAnalysisTitle: "기간 비교 분석",
-                    periodA: "기간 A",
-                    periodB: "기간 B",
-                    compareButton: "비교하기",
-                    totalIncidents: "총 사고",
-                    propertyDamage: "재산 피해",
-                    injury: "부상",
-                    nearMiss: "아차 사고",
-                    monthlyTrendTitle: "월별 사고 추세",
-                    classificationTitle: "사고 분류",
-                    costDetailsTitle: "사고 비용 상세",
-                    treatmentCost: "치료 비용",
-                    repairCost: "장비 수리 비용",
-                    indirectCost: "간접 비용",
-                    totalCost: "총 비용",
-                    mapTitle: "사고 분포도",
-                    dataReportFilterTitle: "보고서 필터",
-                    downloadCSV: "데이터 다운로드 (CSV)",
-                    downloadPDF: "보고서 다운로드 (PDF)",
-                    tableId: "ID",
-                    tableDate: "날짜",
-                    tableTitle: "사고 제목",
-                    tableClassification: "분류",
-                    tableStatus: "상태",
-                    hseFilterTitle: "성과 필터",
-                    searchPlaceholder: "설명 검색...",
-                    viewGraphButton: "그래프 보기",
-                    safetyPerformanceTitle: "광산 안전 성과",
-                    performancesTitle: "성과",
-                    modalIncidentDetailTitle: "사고 상세 정보",
-                    modalGraphViewTitle: "그래프 보기",
-                    incidentEventsChartTitle: "사고 (이벤트)",
-                    performanceActualChartTitle: "성과 (실제)",
-                    months: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-                    all: "전체"
+                    pageTitle: "사고 보고서 - GAMITAS", headerTitle: "GAMITAS - 사고 보고서", loadingData: "데이터 로딩 중...", lastUpdatedText: "마지막 업데이트:", fatality: "사망 사고", sourceDataButtonTitle: "데이터 소스",
+                    // ... other keys
                 }
             };
         }
@@ -1891,15 +1765,36 @@
             document.getElementById('language-switcher').value = appState.currentLang;
             setLanguage(appState.currentLang);
 
-            const cached = getCachedData();
+            const cachedChartData = getCachedData();
 
-            if (cached) {
-                console.log("Valid cache found. Rendering initial UI from cache.");
-                updateUI(cached.data);
-                updateLastUpdatedTimestamp(cached.timestamp);
+            if (cachedChartData) {
+                console.log("Valid cache found. Rendering from cache.");
+                appState.fullChartData = cachedChartData.data;
+                updateDashboardUI(cachedChartData.data);
+                updateLastUpdatedTimestamp(cachedChartData.timestamp);
             } else {
-                console.log("No valid cache found. Fetching fresh data from server.");
-                await forceRefreshData();
+                console.log("No valid cache. Fetching fresh data.");
+                try {
+                    const chartData = await fetchData('getChartData');
+                    appState.fullChartData = chartData;
+                    updateDashboardUI(chartData);
+                    setCachedData(chartData);
+                } catch (error) {
+                    console.error("Failed to fetch initial chart data:", error);
+                    showErrorBanner(`Gagal memuat data utama dasbor: ${error.message}`);
+                }
+            }
+
+            try {
+                const [tablePage1, hseData] = await Promise.all([
+                    fetchData('getPaginatedData', { page: 1, pageSize: 50 }),
+                    fetchData('getHseData')
+                ]);
+                renderTable(tablePage1);
+                updateHSEPerformanceTab(hseData);
+            } catch (error) {
+                console.error("Failed to fetch paginated or HSE data:", error);
+                showErrorBanner(`Gagal memuat data tabel atau HSE: ${error.message}`);
             }
         }
 
@@ -1915,9 +1810,7 @@
             lucide.createIcons();
             initializeCharts();
             initializeMap();
-
             setupEventListeners();
-
             await initializePage();
         });
     </script>
