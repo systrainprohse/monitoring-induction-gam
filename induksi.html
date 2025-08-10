@@ -5,11 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Induksi & Izin Tambang - GAMITAS</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -24,10 +22,8 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-light);
             color: var(--text-light);
-            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Dark Theme Styles */
         .theme-dark {
             background-color: var(--bg-dark);
             color: var(--text-dark);
@@ -43,20 +39,11 @@
         }
 
         .theme-dark .text-gray-800,
-        .theme-dark .text-gray-900 {
-            color: #f1f5f9 !important;
-        }
-
-        .theme-dark .text-gray-700 {
-            color: #e2e8f0 !important;
-        }
-
-        .theme-dark .text-gray-600 {
-            color: #cbd5e1 !important;
-        }
-
+        .theme-dark .text-gray-900,
+        .theme-dark .text-gray-700,
+        .theme-dark .text-gray-600,
         .theme-dark .text-gray-500 {
-            color: #94a3b8 !important;
+            color: #f1f5f9 !important;
         }
 
         .theme-dark .border-gray-200,
@@ -65,10 +52,7 @@
             border-color: #475569 !important;
         }
 
-        .theme-dark .hover\:bg-gray-100:hover {
-            background-color: #475569 !important;
-        }
-
+        .theme-dark .hover\:bg-gray-100:hover,
         .theme-dark .hover\:bg-gray-50:hover {
             background-color: #4b5a70 !important;
         }
@@ -102,10 +86,8 @@
         .theme-dark .pagination button.active {
             background-color: #a78bfa;
             color: #1e293b;
-            border-color: #a78bfa;
         }
 
-        /* General Styles from index.html */
         .sidebar-link.active {
             background-color: #f3e8ff;
             color: #9333ea;
@@ -118,40 +100,32 @@
 
         .tab-content.active {
             display: block;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.5s;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
             }
-        }
-
-        .card {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
 
         .card:hover {
             transform: translateY(-2px);
         }
 
-        .table-controls {
+        .table-controls,
+        .pagination {
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
             align-items: center;
-            margin-bottom: 1rem;
         }
 
         .pagination {
-            display: flex;
-            align-items: center;
             gap: 0.5rem;
         }
 
@@ -192,7 +166,7 @@
             content: '↕';
             position: absolute;
             right: 0.5rem;
-            opacity: 0.5;
+            opacity: 0.3;
         }
 
         th.sortable.sort-asc::after {
@@ -247,7 +221,6 @@
             }
         }
 
-        /* Responsive Styles from index.html */
         @media (max-width: 768px) {
             main {
                 margin-left: 0 !important;
@@ -265,461 +238,377 @@
 </head>
 
 <body class="theme-light">
-
-    <!-- Sidebar from index.html -->
     <aside id="sidebar"
         class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-50 transition-transform flex flex-col">
         <div class="p-6 border-b">
-            <h1 id="company-name-sidebar" class="text-2xl font-bold text-gray-800">
-                <span class="text-purple-600">G</span>AMITAS
-            </h1>
+            <h1 id="company-name-sidebar" class="text-2xl font-bold text-gray-800"><span
+                    class="text-purple-600">G</span>AMITAS</h1>
             <p class="text-xs text-gray-500">Integrated Safety System</p>
         </div>
         <nav class="mt-4 flex-1 overflow-y-auto">
             <ul class="space-y-1 px-4">
-                <li>
-                    <a href="./index.html"
+                <li><a href="./index.html"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"><i
+                            data-lucide="layout-dashboard"></i><span>Dashboard</span></a></li>
+                <li><a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg active"><i
+                            data-lucide="user-check"></i><span>Induksi</span></a></li>
+                <li><a href="#"
                         class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
-                        data-page="dashboard">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg"
-                        data-page="induksi">
-                        <i data-lucide="user-check" class="w-5 h-5"></i>
-                        <span>Induksi</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#"
+                        data-external-url="./pelatihan.html"><i data-lucide="award"></i><span>Pelatihan</span></a></li>
+                <li><a href="#"
                         class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
-                        data-page="pelatihan" data-external-url="./pelatihan.html">
-                        <i data-lucide="award" class="w-5 h-5"></i>
-                        <span>Pelatihan Internal</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#"
-                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
-                        data-page="laporan_insiden" data-external-url="./laporan_insiden.html">
-                        <i data-lucide="file-warning" class="w-5 h-5"></i>
-                        <span>Laporan Insiden</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#"
-                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
-                        data-page="observasi">
-                        <i data-lucide="search-check" class="w-5 h-5"></i>
-                        <span>Laporan Observasi</span>
-                    </a>
-                </li>
+                        data-external-url="./laporan_insiden.html"><i
+                            data-lucide="file-warning"></i><span>Insiden</span></a></li>
+                <li><a href="#"
+                        class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"><i
+                            data-lucide="search-check"></i><span>Observasi</span></a></li>
             </ul>
         </nav>
-        <div class="p-4 border-t">
-            <a href="./index.html"
-                class="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
-                <i data-lucide="log-out" class="w-5 h-5"></i>
-                <span>Logout</span>
-            </a>
-        </div>
+        <div class="p-4 border-t"><a href="./index.html"
+                class="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100"><i
+                    data-lucide="log-out"></i><span>Logout</span></a></div>
     </aside>
-
-    <!-- Mobile Menu Toggle from index.html -->
-    <button id="mobile-menu-toggle" class="fixed top-4 left-4 z-[60] p-2 rounded-lg bg-white shadow-md md:hidden">
-        <i data-lucide="menu" class="w-6 h-6"></i>
-    </button>
-
-    <!-- Main content adjusted for sidebar -->
+    <button id="mobile-menu-toggle" class="fixed top-4 left-4 z-[60] p-2 rounded-lg bg-white shadow-md md:hidden"><i
+            data-lucide="menu"></i></button>
     <main class="md:ml-64 p-4 sm:p-6 lg:p-8">
         <header class="flex justify-between items-center mb-6">
             <div>
                 <h2 class="text-3xl font-bold text-gray-800">Induksi & Izin Tambang</h2>
                 <p id="last-updated" class="text-gray-500 text-sm">Memuat data...</p>
             </div>
-            <div class="flex items-center space-x-2">
-                <button id="refresh-button" class="p-2 rounded-full hover:bg-gray-100" title="Muat Ulang Data">
-                    <i data-lucide="refresh-cw" class="w-5 h-5 text-gray-600"></i>
-                </button>
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100" title="Ganti Tema">
-                    <i data-lucide="sun" class="w-5 h-5 text-gray-600"></i>
-                </button>
+            <div class="flex items-center space-x-2"><button id="refresh-button"
+                    class="p-2 rounded-full hover:bg-gray-100" title="Muat Ulang"><i
+                        data-lucide="refresh-cw"></i></button><button id="theme-toggle"
+                    class="p-2 rounded-full hover:bg-gray-100" title="Ganti Tema"><i data-lucide="sun"></i></button>
             </div>
         </header>
-
-        <div id="error-banner" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+        <div id="error-banner" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
             <p class="font-bold">Gagal Memuat Data</p>
-            <p id="error-message-content">Terjadi kesalahan.</p>
+            <p id="error-message-content"></p>
         </div>
-
-        <div id="induksi-page" class="page-content active">
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <div class="border-b border-gray-200">
-                    <nav class="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs" id="induksi-tabs">
-                        <a href="#"
-                            class="tab-link shrink-0 border-b-2 border-purple-500 px-1 pb-4 text-sm font-medium text-purple-600"
-                            data-tab="dashboard-induksi">Dashboard Induksi</a>
-                        <a href="#"
-                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="new-hire">Induksi New Hire</a>
-                        <a href="#"
-                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="pasca-cuti">Induksi Pasca Cuti</a>
-                        <a href="#"
-                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="temporary">Temporary</a>
-                        <a href="#"
-                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="visitor">Visitor</a>
-                        <a href="#"
-                            class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            data-tab="absensi">Absensi</a>
-                    </nav>
+        <div class="bg-white p-6 rounded-xl shadow-md">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-6 overflow-x-auto" id="induksi-tabs">
+                    <a href="#"
+                        class="tab-link shrink-0 border-b-2 border-purple-500 px-1 pb-4 text-sm font-medium text-purple-600 active"
+                        data-tab="dashboard-induksi">Dashboard Induksi</a>
+                    <a href="#"
+                        class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300"
+                        data-tab="new-hire">Induksi New Hire</a>
+                    <a href="#"
+                        class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300"
+                        data-tab="pasca-cuti">Induksi Pasca Cuti</a>
+                    <a href="#"
+                        class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300"
+                        data-tab="temporary">Temporary</a>
+                    <a href="#"
+                        class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300"
+                        data-tab="visitor">Visitor</a>
+                    <a href="#"
+                        class="tab-link shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300"
+                        data-tab="absensi">Absensi</a>
+                </nav>
+            </div>
+            <div class="mt-6">
+                <div id="dashboard-induksi-content" class="tab-content active">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                            <div class="flex items-center"><i data-lucide="building-2"
+                                    class="w-8 h-8 text-purple-500 mr-4"></i>
+                                <div>
+                                    <p id="induksi-core-today" class="text-2xl font-bold">0</p>
+                                    <p class="text-sm text-gray-500">Induksi Hari Ini (Core)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                            <div class="flex items-center"><i data-lucide="users"
+                                    class="w-8 h-8 text-green-500 mr-4"></i>
+                                <div>
+                                    <p id="induksi-mitra-today" class="text-2xl font-bold">0</p>
+                                    <p class="text-sm text-gray-500">Induksi Hari Ini (Mitra)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                            <div class="flex items-center"><i data-lucide="user" class="w-8 h-8 text-blue-500 mr-4"></i>
+                                <div>
+                                    <p id="induksi-visitor-today" class="text-2xl font-bold">0</p>
+                                    <p class="text-sm text-gray-500">Induksi Hari Ini (Visitor)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                            <div class="flex items-center mb-2"><i data-lucide="calendar-check"
+                                    class="w-8 h-8 text-orange-500 mr-4"></i>
+                                <p class="text-sm text-gray-500">Status Hari Ini</p>
+                            </div>
+                            <div class="flex justify-around">
+                                <div class="text-center">
+                                    <p id="status-new-hire" class="text-xl font-bold">0</p>
+                                    <p class="text-xs">New Hire</p>
+                                </div>
+                                <div class="text-center">
+                                    <p id="status-cuti" class="text-xl font-bold">0</p>
+                                    <p class="text-xs">Cuti</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                        <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                            <h3 class="font-semibold mb-2">Total Induksi per Tipe</h3>
+                            <div class="component-loading" style="height: 250px;"><canvas id="chartByType"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                            <h3 class="font-semibold mb-2">Total Induksi per Perusahaan</h3>
+                            <div class="component-loading" style="height: 250px;"><canvas id="chartByCompany"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                                <h3 class="font-semibold mb-2">Skor Hari Ini</h3>
+                                <div id="score-stats-container" class="flex justify-between text-center">...</div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg shadow card flex items-center"><i
+                                    data-lucide="key-round" class="w-10 h-10 text-orange-500 mr-4"></i>
+                                <div>
+                                    <h3 class="font-semibold">Password Hari Ini</h3>
+                                    <p id="kode-akses-value" class="text-2xl font-bold">...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-4 rounded-lg shadow card flex flex-col items-center justify-center text-center">
+                            <p id="day-name" class="font-bold text-lg"></p>
+                            <p id="date-number" class="text-5xl font-bold"></p>
+                            <p id="month-year" class="text-sm"></p>
+                            <p id="clock" class="mt-2 text-lg bg-black bg-opacity-20 px-3 py-1 rounded-full"></p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-6 mt-6">
+                        <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                            <h3 class="font-semibold mb-2">Pendaftaran: <span id="total-pendaftaran"
+                                    class="font-bold">0</span></h3>
+                            <div id="pendaftaran-breakdown" class="overflow-x-auto">
+                                <div class="flex gap-4 text-xs"></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                            <h3 class="font-semibold mb-2">Approval Permit: <span id="total-approval"
+                                    class="font-bold">0</span></h3>
+                            <div id="approval-breakdown" class="overflow-x-auto">
+                                <div class="flex gap-4 text-xs"></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg shadow card">
+                            <h3 class="font-semibold mb-2">Temporary Aktif: <span id="total-temporary"
+                                    class="font-bold">0</span></h3>
+                            <div id="temporary-breakdown" class="overflow-x-auto">
+                                <div class="flex gap-4 text-xs"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mt-6">
-                    <div id="dashboard-induksi-content" class="tab-content active">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
-                                <div class="flex items-center"><i data-lucide="building-2"
-                                        class="w-8 h-8 text-purple-500 mr-4"></i>
-                                    <div>
-                                        <p id="induksi-core-today" class="text-2xl font-bold">0</p>
-                                        <p class="text-sm text-gray-500">Induksi Hari Ini (Core)</p>
-                                    </div>
-                                </div>
-                                <div id="induksi-core-detail" class="text-xs text-gray-500 mt-2 space-y-1"></div>
-                            </div>
-                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
-                                <div class="flex items-center"><i data-lucide="users"
-                                        class="w-8 h-8 text-green-500 mr-4"></i>
-                                    <div>
-                                        <p id="induksi-mitra-today" class="text-2xl font-bold">0</p>
-                                        <p class="text-sm text-gray-500">Induksi Hari Ini (Mitra)</p>
-                                    </div>
-                                </div>
-                                <div id="induksi-mitra-detail" class="text-xs text-gray-500 mt-2 space-y-1"></div>
-                            </div>
-                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
-                                <div class="flex items-center"><i data-lucide="user"
-                                        class="w-8 h-8 text-blue-500 mr-4"></i>
-                                    <div>
-                                        <p id="induksi-visitor-today" class="text-2xl font-bold">0</p>
-                                        <p class="text-sm text-gray-500">Induksi Hari Ini (Visitor)</p>
-                                    </div>
-                                </div>
-                                <div id="induksi-visitor-detail" class="text-xs text-gray-500 mt-2 space-y-1"></div>
-                            </div>
-                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
-                                <div class="flex items-center mb-2"><i data-lucide="calendar-check"
-                                        class="w-8 h-8 text-orange-500 mr-4"></i>
-                                    <p class="text-sm text-gray-500">Status Hari Ini</p>
-                                </div>
-                                <div class="flex justify-around">
-                                    <div class="text-center">
-                                        <p id="status-new-hire" class="text-xl font-bold">0</p>
-                                        <p class="text-xs">New Hire</p>
-                                    </div>
-                                    <div class="text-center">
-                                        <p id="status-cuti" class="text-xl font-bold">0</p>
-                                        <p class="text-xs">Cuti</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                            <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="bg-gray-50 p-4 rounded-lg shadow card">
-                                    <h3 class="font-semibold mb-2">Statistik Skor Hari Ini</h3>
-                                    <div class="flex justify-between text-center">
-                                        <div id="skor-terendah">...</div>
-                                        <div id="skor-tertinggi">...</div>
-                                        <div id="skor-rata">...</div>
-                                    </div>
-                                </div>
-                                <div class="bg-gray-50 p-4 rounded-lg shadow card flex items-center"><i
-                                        data-lucide="key-round" class="w-10 h-10 text-orange-500 mr-4"></i>
-                                    <div>
-                                        <h3 class="font-semibold">Password Hari Ini</h3>
-                                        <p id="kode-akses-value" class="text-2xl font-bold">...</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                class="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-4 rounded-lg shadow card flex flex-col items-center justify-center text-center">
-                                <p class="font-bold text-lg" id="day-name">-</p>
-                                <p class="text-5xl font-bold" id="date-number">-</p>
-                                <p class="text-sm" id="month-year">-</p>
-                                <p id="clock" class="mt-2 text-lg bg-black bg-opacity-20 px-3 py-1 rounded-full">
-                                    00:00:00</p>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 gap-6 mt-6">
-                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
-                                <h3 class="font-semibold mb-2">Total Pendaftaran: <span id="total-pendaftaran"
-                                        class="font-bold">0</span></h3>
-                                <div id="pendaftaran-breakdown" class="overflow-x-auto">
-                                    <div class="flex gap-x-4 gap-y-1 text-xs whitespace-nowrap"></div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
-                                <h3 class="font-semibold mb-2">Total Approval Permit: <span id="total-approval"
-                                        class="font-bold">0</span></h3>
-                                <div id="approval-breakdown" class="overflow-x-auto">
-                                    <div class="flex gap-x-4 gap-y-1 text-xs whitespace-nowrap"></div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 p-4 rounded-lg shadow card">
-                                <h3 class="font-semibold mb-2">Permit Temporary Aktif: <span id="total-temporary"
-                                        class="font-bold">0</span></h3>
-                                <div id="temporary-breakdown" class="overflow-x-auto">
-                                    <div class="flex gap-x-4 gap-y-1 text-xs whitespace-nowrap"></div>
-                                </div>
-                            </div>
-                        </div>
+                <div id="new-hire-content" class="tab-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Data Induksi Karyawan Baru</h3><button id="add-new-hire-btn"
+                            class="bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"><i
+                                data-lucide="plus"></i><span>Tambah</span></button>
                     </div>
-                    <div id="new-hire-content" class="tab-content">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-                            <h3 class="text-lg font-semibold">Data Induksi Karyawan Baru</h3><button
-                                id="add-new-hire-btn"
-                                class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2"><i
-                                    data-lucide="plus"></i><span>Tambah Data</span></button>
-                        </div>
-                        <div class="table-controls mobile-stack"><input type="text" id="new-hire-search"
-                                placeholder="Cari dalam tabel..."
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full"><select
-                                id="new-hire-filter"
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="">Semua Status</option>
-                                <option value="ok">OK</option>
-                                <option value="hold">Hold</option>
-                                <option value="need">Need</option>
-                            </select><select id="new-hire-per-page"
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="10">10 per halaman</option>
-                                <option value="25">25 per halaman</option>
-                                <option value="50" selected>50 per halaman</option>
-                            </select></div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead>
-                                    <tr class="text-xs text-gray-500 uppercase border-b">
-                                        <th class="py-3 px-4 sortable" data-column="date">Tanggal</th>
-                                        <th class="py-3 px-4 sortable" data-column="nik">NIK</th>
-                                        <th class="py-3 px-4 sortable" data-column="nama">Nama</th>
-                                        <th class="py-3 px-4 sortable" data-column="jabatan">Jabatan</th>
-                                        <th class="py-3 px-4 sortable" data-column="perusahaan">Perusahaan</th>
-                                        <th class="py-3 px-4 sortable" data-column="status">Status</th>
-                                        <th class="py-3 px-4 sortable" data-column="score">Skor</th>
-                                        <th class="py-3 px-4">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="new-hire-table-body" class="text-sm text-gray-700"></tbody>
-                            </table>
-                        </div>
-                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
-                            <div id="new-hire-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
-                            <div id="new-hire-pagination" class="pagination"></div>
-                        </div>
+                    <div class="table-controls"><input id="new-hire-search" placeholder="Cari..."
+                            class="px-3 py-2 border rounded-md"><select id="new-hire-filter">
+                            <option value="">Status</option>
+                            <option value="ok">OK</option>
+                            <option value="hold">Hold</option>
+                            <option value="need">Need</option>
+                        </select><select id="new-hire-per-page">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                        </select></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-xs uppercase border-b">
+                                    <th class="p-3 sortable" data-column="date">Tanggal</th>
+                                    <th class="p-3 sortable" data-column="nik">NIK</th>
+                                    <th class="p-3 sortable" data-column="nama">Nama</th>
+                                    <th class="p-3 sortable" data-column="jabatan">Jabatan</th>
+                                    <th class="p-3 sortable" data-column="perusahaan">Perusahaan</th>
+                                    <th class="p-3 sortable" data-column="status">Status</th>
+                                    <th class="p-3 sortable" data-column="score">Skor</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="new-hire-table-body"></tbody>
+                        </table>
                     </div>
-                    <div id="pasca-cuti-content" class="tab-content">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold">Data Induksi Pasca Cuti</h3>
-                        </div>
-                        <div class="table-controls mobile-stack"><input type="text" id="pasca-cuti-search"
-                                placeholder="Cari dalam tabel..."
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full"><select
-                                id="pasca-cuti-filter"
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="">Semua Status</option>
-                                <option value="ok">OK</option>
-                                <option value="hold">Hold</option>
-                                <option value="need">Need</option>
-                            </select><select id="pasca-cuti-per-page"
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="10">10 per halaman</option>
-                                <option value="25">25 per halaman</option>
-                                <option value="50" selected>50 per halaman</option>
-                            </select></div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead>
-                                    <tr class="text-xs text-gray-500 uppercase border-b">
-                                        <th class="py-3 px-4 sortable" data-column="date">Tanggal</th>
-                                        <th class="py-3 px-4 sortable" data-column="nik">NIK</th>
-                                        <th class="py-3 px-4 sortable" data-column="nama">Nama</th>
-                                        <th class="py-3 px-4 sortable" data-column="jabatan">Jabatan</th>
-                                        <th class="py-3 px-4 sortable" data-column="perusahaan">Perusahaan</th>
-                                        <th class="py-3 px-4 sortable" data-column="statusInduksi">Status</th>
-                                        <th class="py-3 px-4 sortable" data-column="score">Skor</th>
-                                        <th class="py-3 px-4">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="pasca-cuti-table-body" class="text-sm text-gray-700"></tbody>
-                            </table>
-                        </div>
-                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
-                            <div id="pasca-cuti-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
-                            <div id="pasca-cuti-pagination" class="pagination"></div>
-                        </div>
+                    <div class="flex justify-between items-center mt-4">
+                        <div id="new-hire-summary"></div>
+                        <div id="new-hire-pagination" class="pagination"></div>
                     </div>
-                    <div id="temporary-content" class="tab-content">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold">Data Induksi Temporary</h3>
-                        </div>
-                        <div class="table-controls mobile-stack"><input type="text" id="temporary-search"
-                                placeholder="Cari dalam tabel..."
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full"><select
-                                id="temporary-filter"
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="">Semua Status</option>
-                                <option value="ok">OK</option>
-                                <option value="hold">Hold</option>
-                                <option value="need">Need</option>
-                            </select><select id="temporary-per-page"
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="10">10 per halaman</option>
-                                <option value="25">25 per halaman</option>
-                                <option value="50" selected>50 per halaman</option>
-                            </select></div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead>
-                                    <tr class="text-xs text-gray-500 uppercase border-b">
-                                        <th class="py-3 px-4 sortable" data-column="date">Tanggal</th>
-                                        <th class="py-3 px-4 sortable" data-column="nik">NIK</th>
-                                        <th class="py-3 px-4 sortable" data-column="nama">Nama</th>
-                                        <th class="py-3 px-4 sortable" data-column="jabatan">Jabatan</th>
-                                        <th class="py-3 px-4 sortable" data-column="perusahaan">Perusahaan</th>
-                                        <th class="py-3 px-4 sortable" data-column="status">Status</th>
-                                        <th class="py-3 px-4 sortable" data-column="score">Skor</th>
-                                        <th class="py-3 px-4">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="temporary-table-body" class="text-sm text-gray-700"></tbody>
-                            </table>
-                        </div>
-                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
-                            <div id="temporary-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
-                            <div id="temporary-pagination" class="pagination"></div>
-                        </div>
+                </div>
+                <div id="pasca-cuti-content" class="tab-content">
+                    <div class="table-controls"><input id="pasca-cuti-search" placeholder="Cari..."
+                            class="px-3 py-2 border rounded-md"><select id="pasca-cuti-filter">
+                            <option value="">Status</option>
+                            <option value="ok">OK</option>
+                            <option value="hold">Hold</option>
+                            <option value="need">Need</option>
+                        </select><select id="pasca-cuti-per-page">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                        </select></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-xs uppercase border-b">
+                                    <th class="p-3 sortable" data-column="date">Tanggal</th>
+                                    <th class="p-3 sortable" data-column="nik">NIK</th>
+                                    <th class="p-3 sortable" data-column="nama">Nama</th>
+                                    <th class="p-3 sortable" data-column="jabatan">Jabatan</th>
+                                    <th class="p-3 sortable" data-column="perusahaan">Perusahaan</th>
+                                    <th class="p-3 sortable" data-column="statusInduksi">Status</th>
+                                    <th class="p-3 sortable" data-column="score">Skor</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pasca-cuti-table-body"></tbody>
+                        </table>
                     </div>
-                    <div id="visitor-content" class="tab-content">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold">Data Induksi Visitor</h3>
-                        </div>
-                        <div class="table-controls mobile-stack"><input type="text" id="visitor-search"
-                                placeholder="Cari dalam tabel..."
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full"><select
-                                id="visitor-filter"
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="">Semua Status</option>
-                                <option value="ok">OK</option>
-                                <option value="hold">Hold</option>
-                                <option value="need">Need</option>
-                            </select><select id="visitor-per-page"
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="10">10 per halaman</option>
-                                <option value="25">25 per halaman</option>
-                                <option value="50" selected>50 per halaman</option>
-                            </select></div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead>
-                                    <tr class="text-xs text-gray-500 uppercase border-b">
-                                        <th class="py-3 px-4 sortable" data-column="date">Tanggal</th>
-                                        <th class="py-3 px-4 sortable" data-column="nik">NIK</th>
-                                        <th class="py-3 px-4 sortable" data-column="nama">Nama</th>
-                                        <th class="py-3 px-4 sortable" data-column="jabatan">Jabatan</th>
-                                        <th class="py-3 px-4 sortable" data-column="perusahaan">Perusahaan</th>
-                                        <th class="py-3 px-4 sortable" data-column="status">Status</th>
-                                        <th class="py-3 px-4 sortable" data-column="score">Skor</th>
-                                        <th class="py-3 px-4">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="visitor-table-body" class="text-sm text-gray-700"></tbody>
-                            </table>
-                        </div>
-                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
-                            <div id="visitor-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
-                            <div id="visitor-pagination" class="pagination"></div>
-                        </div>
+                    <div class="flex justify-between items-center mt-4">
+                        <div id="pasca-cuti-summary"></div>
+                        <div id="pasca-cuti-pagination" class="pagination"></div>
                     </div>
-                    <div id="absensi-content" class="tab-content">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold">Data Pendaftaran Induksi</h3>
-                        </div>
-                        <div class="table-controls mobile-stack"><input type="text" id="absensi-search"
-                                placeholder="Cari dalam tabel..."
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mobile-full"><select
-                                id="absensi-per-page"
-                                class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="10">10 per halaman</option>
-                                <option value="25">25 per halaman</option>
-                                <option value="50" selected>50 per halaman</option>
-                            </select></div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead>
-                                    <tr class="text-xs text-gray-500 uppercase border-b">
-                                        <th class="py-3 px-4 sortable" data-column="timestamp">Waktu</th>
-                                        <th class="py-3 px-4 sortable" data-column="nama">Nama</th>
-                                        <th class="py-3 px-4 sortable" data-column="nikKtp">NIK</th>
-                                        <th class="py-3 px-4 sortable" data-column="perusahaan">Perusahaan</th>
-                                        <th class="py-3 px-4 sortable" data-column="jenisInduksi">Jenis Induksi</th>
-                                        <th class="py-3 px-4">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="absensi-table-body" class="text-sm text-gray-700"></tbody>
-                            </table>
-                        </div>
-                        <div class="flex flex-col sm:flex-row justify-between items-center mt-4">
-                            <div id="absensi-summary" class="text-sm text-gray-500 mb-2 sm:mb-0"></div>
-                            <div id="absensi-pagination" class="pagination"></div>
-                        </div>
+                </div>
+                <div id="temporary-content" class="tab-content">
+                    <div class="table-controls"><input id="temporary-search" placeholder="Cari..."
+                            class="px-3 py-2 border rounded-md"><select id="temporary-filter">
+                            <option value="">Status</option>
+                            <option value="ok">OK</option>
+                            <option value="hold">Hold</option>
+                            <option value="need">Need</option>
+                        </select><select id="temporary-per-page">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                        </select></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-xs uppercase border-b">
+                                    <th class="p-3 sortable" data-column="date">Tanggal</th>
+                                    <th class="p-3 sortable" data-column="nik">NIK</th>
+                                    <th class="p-3 sortable" data-column="nama">Nama</th>
+                                    <th class="p-3 sortable" data-column="jabatan">Jabatan</th>
+                                    <th class="p-3 sortable" data-column="perusahaan">Perusahaan</th>
+                                    <th class="p-3 sortable" data-column="status">Status</th>
+                                    <th class="p-3 sortable" data-column="score">Skor</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="temporary-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-between items-center mt-4">
+                        <div id="temporary-summary"></div>
+                        <div id="temporary-pagination" class="pagination"></div>
+                    </div>
+                </div>
+                <div id="visitor-content" class="tab-content">
+                    <div class="table-controls"><input id="visitor-search" placeholder="Cari..."
+                            class="px-3 py-2 border rounded-md"><select id="visitor-filter">
+                            <option value="">Status</option>
+                            <option value="ok">OK</option>
+                            <option value="hold">Hold</option>
+                            <option value="need">Need</option>
+                        </select><select id="visitor-per-page">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                        </select></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-xs uppercase border-b">
+                                    <th class="p-3 sortable" data-column="date">Tanggal</th>
+                                    <th class="p-3 sortable" data-column="nik">NIK</th>
+                                    <th class="p-3 sortable" data-column="nama">Nama</th>
+                                    <th class="p-3 sortable" data-column="jabatan">Jabatan</th>
+                                    <th class="p-3 sortable" data-column="perusahaan">Perusahaan</th>
+                                    <th class="p-3 sortable" data-column="status">Status</th>
+                                    <th class="p-3 sortable" data-column="score">Skor</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="visitor-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-between items-center mt-4">
+                        <div id="visitor-summary"></div>
+                        <div id="visitor-pagination" class="pagination"></div>
+                    </div>
+                </div>
+                <div id="absensi-content" class="tab-content">
+                    <div class="table-controls"><input id="pendaftaranInduksi-search" placeholder="Cari..."
+                            class="px-3 py-2 border rounded-md"><select id="pendaftaranInduksi-per-page">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                        </select></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-xs uppercase border-b">
+                                    <th class="p-3 sortable" data-column="timestamp">Waktu</th>
+                                    <th class="p-3 sortable" data-column="nama">Nama</th>
+                                    <th class="p-3 sortable" data-column="nikKtp">NIK</th>
+                                    <th class="p-3 sortable" data-column="perusahaan">Perusahaan</th>
+                                    <th class="p-3 sortable" data-column="jenisInduksi">Jenis Induksi</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendaftaranInduksi-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-between items-center mt-4">
+                        <div id="pendaftaranInduksi-summary"></div>
+                        <div id="pendaftaranInduksi-pagination" class="pagination"></div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-
-    <!-- Password Modal from index.html -->
     <div id="password-modal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[101] p-4">
         <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm">
             <div class="flex justify-between items-center mb-4">
-                <h4 class="font-bold text-lg">Akses Terbatas</h4>
-                <button class="modal-close-btn text-gray-500 hover:text-gray-800 p-2 rounded-full"><i data-lucide="x"
-                        class="w-5 h-5"></i></button>
+                <h4 class="font-bold text-lg">Akses Terbatas</h4><button class="modal-close-btn"><i
+                        data-lucide="x"></i></button>
             </div>
-            <p class="text-sm text-gray-600 mb-4">Silakan masukkan password untuk mengakses halaman ini.</p>
+            <p class="text-sm text-gray-600 mb-4">Masukkan password.</p>
             <form id="password-form">
-                <div>
-                    <label for="password-input" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="password-input"
-                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        required>
+                <div><input type="password" id="password-input" class="w-full px-3 py-2 border rounded-md" required>
                     <p id="password-error" class="text-red-500 text-sm mt-1 hidden">Password salah!</p>
                 </div>
-                <div class="flex gap-2 pt-4">
-                    <button type="submit"
-                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">Buka</button>
-                    <button type="button"
-                        class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 modal-close-btn">Batal</button>
+                <div class="flex gap-2 pt-4"><button type="submit"
+                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md">Buka</button><button type="button"
+                        class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md modal-close-btn">Batal</button>
                 </div>
             </form>
         </div>
     </div>
-
     <div id="detail-modal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[100] p-4">
-        <div
-            class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h4 id="detail-modal-title" class="font-bold text-lg">Detail Data</h4>
-                <button class="modal-close-btn text-gray-500 hover:text-gray-800 p-2 rounded-full"><i data-lucide="x"
-                        class="w-5 h-5"></i></button>
+                <h4 class="font-bold text-lg">Detail Data</h4><button class="modal-close-btn"><i
+                        data-lucide="x"></i></button>
             </div>
             <div id="detail-modal-body" class="space-y-1 text-sm"></div>
         </div>
@@ -728,571 +617,199 @@
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[100] p-4">
         <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
-                <h4 class="font-bold text-lg">Tambah Data Baru</h4>
-                <button class="modal-close-btn text-gray-500 hover:text-gray-800 p-2 rounded-full"><i data-lucide="x"
-                        class="w-5 h-5"></i></button>
+                <h4 class="font-bold text-lg">Tambah Data Baru</h4><button class="modal-close-btn"><i
+                        data-lucide="x"></i></button>
             </div>
             <form id="add-data-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-                    <input type="text" name="nama"
-                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">NIK</label>
-                    <input type="text" name="nik"
-                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Jabatan</label>
-                    <input type="text" name="jabatan"
-                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Perusahaan</label>
-                    <input type="text" name="perusahaan"
-                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        required>
-                </div>
-                <div class="flex gap-2 pt-4">
-                    <button type="submit"
-                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">Simpan</button>
-                    <button type="button"
-                        class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 modal-close-btn">Batal</button>
+                <div><label class="block text-sm">Nama</label><input type="text" name="nama"
+                        class="w-full px-3 py-2 border rounded-md" required></div>
+                <div><label class="block text-sm">NIK</label><input type="text" name="nik"
+                        class="w-full px-3 py-2 border rounded-md" required></div>
+                <div><label class="block text-sm">Jabatan</label><input type="text" name="jabatan"
+                        class="w-full px-3 py-2 border rounded-md" required></div>
+                <div><label class="block text-sm">Perusahaan</label><input type="text" name="perusahaan"
+                        class="w-full px-3 py-2 border rounded-md" required></div>
+                <div class="flex gap-2 pt-4"><button type="submit"
+                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md">Simpan</button><button
+                        type="button"
+                        class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md modal-close-btn">Batal</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // ========== GLOBAL STATE & UTILITIES ==========
-        const appState = {
-            data: {},
-            currentTheme: localStorage.getItem('theme') || 'light',
-            cache: {
-                key: 'induksi_data_cache',
-                expiry: 30 * 60 * 1000 // 30 minutes
-            },
-            tables: {},
-            lastUpdated: null,
-            // Tambahan dari index.html untuk password
-            targetPage: null,
-            targetUrl: null
-        };
+        const appState = { currentTheme: localStorage.getItem('theme') || 'light', charts: {}, tables: {}, targetUrl: null };
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw8juk3u3DhVpqyNtISFWpLEUDZXG0imkn44fOTVBbLvJils2r-NTjfctIPXod_RSxduw/exec';
+        const debounce = (fn, delay) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); }; };
+        const showError = (msg) => { const el = document.getElementById('error-banner'); if (el) { el.classList.remove('hidden'); el.querySelector('#error-message-content').textContent = msg; } };
 
-        const API_INDUKSI_URL = 'https://script.google.com/macros/s/AKfycbwCCaANsivS48PiOIMIMSexlnbM1-fc3mtuiCzFbrnjcGEw2IgipIqQrGxjPsDld7Ohkw/exec';
+        function updateLastUpdated(ts) { const el = document.getElementById('last-updated'); if (el) el.textContent = ts ? `Diperbarui: ${new Date(ts).toLocaleString('id-ID')}` : 'Memperbarui...'; }
+        function updateClock() { const el = document.getElementById('clock'); if (!el) return; const now = new Date(); document.getElementById('day-name').textContent = now.toLocaleDateString('id-ID', { weekday: 'long' }).toUpperCase(); document.getElementById('date-number').textContent = now.getDate(); document.getElementById('month-year').textContent = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }); el.textContent = now.toLocaleTimeString('id-ID', { hour12: false }).replace(/\./g, ':'); }
 
-        const debounce = (func, wait) => { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; };
-
-        function showErrorBanner(message) {
-            const banner = document.getElementById('error-banner');
-            const messageContent = document.getElementById('error-message-content');
-            if (banner && messageContent) {
-                messageContent.innerHTML = message;
-                banner.classList.remove('hidden');
-            }
-        }
-
-        function updateLastUpdatedTimestamp(timestamp) {
-            const el = document.getElementById('last-updated');
-            if (!el) return;
-            if (timestamp) {
-                appState.lastUpdated = timestamp;
-                const date = new Date(timestamp);
-                el.textContent = `Terakhir diperbarui: ${date.toLocaleDateString('id-ID')} ${date.toLocaleTimeString('id-ID')}`;
-            } else {
-                el.textContent = 'Memperbarui data...';
-            }
-        }
-
-        // ========== CACHING FUNCTIONS ==========
-        function getCachedData() {
-            const cachedItem = localStorage.getItem(appState.cache.key);
-            if (!cachedItem) return null;
-            try {
-                const { data, timestamp } = JSON.parse(cachedItem);
-                if (Date.now() - timestamp > appState.cache.expiry) {
-                    localStorage.removeItem(appState.cache.key);
-                    return null;
-                }
-                return { data, timestamp };
-            } catch (error) {
-                localStorage.removeItem(appState.cache.key);
-                return null;
-            }
-        }
-
-        function setCachedData(data) {
-            const timestamp = Date.now();
-            const itemToCache = { data, timestamp };
-            try {
-                localStorage.setItem(appState.cache.key, JSON.stringify(itemToCache));
-                updateLastUpdatedTimestamp(timestamp);
-            } catch (error) {
-                console.error(`Error saving cache:`, error);
-            }
-        }
-
-        // ========== DATA FETCHING (JSONP METHOD) ==========
-        function fetchAllInduksiData() {
+        function fetchData(action, params = {}) {
             return new Promise((resolve, reject) => {
-                const callbackName = 'jsonp_callback_induksi_' + Math.round(100000 * Math.random());
-
-                window[callbackName] = function (data) {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-
-                    if (data.error) {
-                        return reject(new Error(`API Error: ${data.error}. Details: ${data.details || ''}`));
-                    }
-
-                    resolve(data);
-                };
-
-                const script = document.createElement('script');
-                script.src = `${API_INDUKSI_URL}?callback=${callbackName}`;
-
-                script.onerror = function () {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    const error = new Error('Permintaan data gagal. Server tidak merespons atau terjadi kesalahan jaringan.');
-                    showErrorBanner(`Gagal mengambil data dari server: ${error.message}`);
-                    reject(error);
-                };
-
-                document.body.appendChild(script);
+                const cb = 'c' + Math.random().toString(36).slice(-8);
+                const url = new URL(API_URL); url.search = new URLSearchParams({ action, callback: cb, ...params }).toString();
+                const s = document.createElement('script'); s.src = url.href;
+                window[cb] = (d) => { delete window[cb]; s.remove(); d.error ? reject(new Error(d.details || d.error)) : resolve(d); };
+                s.onerror = () => { delete window[cb]; s.remove(); reject(new Error('Gagal menghubungi server.')); };
+                document.head.appendChild(s);
             });
         }
 
-        // ========== UI UPDATE FUNCTIONS ==========
-        function updateUI(data) {
-            if (!data) return;
-            appState.data = data;
-            updateInduksiDashboard(data);
-            initializeTables(data);
-            document.querySelectorAll('.component-loading').forEach(el => el.classList.remove('component-loading'));
-            const companyName = data.setting?.[0]?.namaPerusahaan;
-            if (companyName) {
-                const initial = companyName.charAt(0);
-                document.getElementById('company-name-sidebar').innerHTML = `<span class="text-purple-600">${initial}</span>${companyName.slice(1)}`;
-            }
+        function updateDashboardUI(data) {
+            if (!data) return; const { dashboard: d, setting: s } = data;
+            const u = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val ?? '0'; };
+            if (s?.namaPerusahaan) { const n = s.namaPerusahaan; document.getElementById('company-name-sidebar').innerHTML = `<span class="text-purple-600">${n[0]}</span>${n.slice(1)}`; }
+            u('induksi-core-today', d.induksiCoreToday); u('induksi-mitra-today', d.induksiMitraToday); u('induksi-visitor-today', d.induksiVisitorToday);
+            u('status-new-hire', d.statusNewHireToday); u('status-cuti', d.statusCutiToday); u('kode-akses-value', d.kodeAkses);
+            const sc = document.getElementById('score-stats-container'); if (sc) sc.innerHTML = `<div><p class="text-xs">Terendah</p><p class="font-bold text-xl">${(d.scoreStats?.terendah || 0).toFixed(1)}</p></div><div><p class="text-xs">Tertinggi</p><p class="font-bold text-xl">${(d.scoreStats?.tertinggi || 0).toFixed(1)}</p></div><div><p class="text-xs">Rata-rata</p><p class="font-bold text-xl">${(d.scoreStats?.rata || 0).toFixed(1)}</p></div>`;
+            const rb = (id, t, b) => { const e = document.getElementById(`${id}-breakdown`); if (!e) return; document.getElementById(`total-${id}`).textContent = t; e.querySelector('div').innerHTML = Object.entries(b || {}).sort((a, c) => c[1] - a[1]).map(([n, c]) => `<span class="mx-2">${n}(<span class="font-semibold">${c}</span>)</span>`).join(''); };
+            rb('pendaftaran', d.totalPendaftaran, d.pendaftaranBreakdown); rb('approval', d.totalApproval, d.approvalBreakdown); rb('temporary', d.totalTemporary, d.temporaryBreakdown);
         }
 
-        function updateInduksiDashboard(data) {
-            const settingData = data.setting || [];
-            const newHireData = data.newHire || [];
-            const pascaCutiData = data.pascaCuti || [];
-            const temporaryData = data.temporary || [];
-            const visitorData = data.visitor || [];
-            const pendaftaranInduksiData = data.pendaftaranInduksi || [];
-            const kodeAksesData = data.kodeAkses || [];
-
-            const getRowDate = (row) => row.date || '';
-            const todayStr = new Date().toLocaleDateString('en-CA');
-            const mainCompany = settingData.length > 0 ? settingData[0].namaPerusahaan : "PT. GAM";
-            const allInduksiData = [...newHireData, ...pascaCutiData, ...temporaryData];
-            const induksiToday = allInduksiData.filter(d => getRowDate(d) === todayStr);
-            const visitorsToday = visitorData.filter(d => getRowDate(d) === todayStr);
-
-            updateCard('induksi-core', induksiToday.filter(d => d.perusahaan === mainCompany));
-            updateCard('induksi-mitra', induksiToday.filter(d => d.perusahaan !== mainCompany));
-            updateCard('induksi-visitor', visitorsToday);
-
-            document.getElementById('status-new-hire').textContent = newHireData.filter(d => getRowDate(d) === todayStr).length;
-            document.getElementById('status-cuti').textContent = pascaCutiData.filter(d => getRowDate(d) === todayStr).length;
-
-            const todayScores = [...induksiToday, ...visitorsToday].map(d => parseFloat(d.score)).filter(s => !isNaN(s));
-            updateScoreCard('skor-terendah', todayScores, Math.min);
-            updateScoreCard('skor-tertinggi', todayScores, Math.max);
-            updateScoreCard('skor-rata', todayScores, arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
-
-            const todayAccessCode = kodeAksesData.find(k => getRowDate(k) === todayStr);
-            document.getElementById('kode-akses-value').textContent = todayAccessCode ? todayAccessCode.kodeAkses : 'N/A';
-
-            updateBreakdownCard('pendaftaran', pendaftaranInduksiData, 'perusahaan');
-            const approvedData = allInduksiData.filter(d => d.status && String(d.status).toLowerCase() !== 'pending');
-            updateBreakdownCard('approval', approvedData, 'perusahaan');
-            updateBreakdownCard('temporary', temporaryData, 'perusahaan');
+        function renderCharts(chartData) {
+            if (!chartData) return;
+            const colors = ['#9333ea', '#10b981', '#3b82f6', '#f97316', '#ef4444', '#6b7280'];
+            const opts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } };
+            const render = (id, type, data, extraOpts = {}) => {
+                const ctx = document.getElementById(id)?.getContext('2d'); if (!ctx) return;
+                if (appState.charts[id]) appState.charts[id].destroy();
+                appState.charts[id] = new Chart(ctx, { type, data, options: { ...opts, ...extraOpts } });
+            };
+            render('chartByType', 'bar', { labels: Object.keys(chartData.byType), datasets: [{ data: Object.values(chartData.byType), backgroundColor: colors }] }, { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } });
+            const coData = Object.entries(chartData.byCompany || {}).sort((a, b) => b[1] - a[1]).slice(0, 7);
+            render('chartByCompany', 'pie', { labels: coData.map(d => d[0]), datasets: [{ data: coData.map(d => d[1]), backgroundColor: colors }] }, { scales: { y: { display: false } } });
         }
 
-        function updateCard(id, todayData) {
-            document.getElementById(`${id}-today`).textContent = todayData.length;
-            const detailEl = document.getElementById(`${id}-detail`);
-            if (detailEl) detailEl.innerHTML = '';
-        }
-
-        function updateScoreCard(id, todayScores, aggregator) {
-            const el = document.getElementById(id); if (!el) return;
-            const value = todayScores.length > 0 ? aggregator(todayScores) : 0;
-            const score = typeof value === 'number' ? value.toFixed(1) : 0;
-            el.innerHTML = `<div><p class="text-xs capitalize">${id.replace('skor-', '')}</p><p class="text-xl font-bold">${score}</p></div>`;
-            lucide.createIcons();
-        }
-
-        function updateBreakdownCard(id, data, companyField) {
-            document.getElementById(`total-${id}`).textContent = data.length;
-            const counts = data.reduce((acc, item) => {
-                const companyName = item[companyField] || 'Lainnya';
-                acc[companyName] = (acc[companyName] || 0) + 1;
-                return acc;
-            }, {});
-            const sortedCounts = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-            document.getElementById(`${id}-breakdown`).querySelector('div').innerHTML = sortedCounts.map(([company, count]) => `<span class="mx-4 whitespace-nowrap">${company} (<span class="font-semibold">${count}</span>)</span>`).join('');
-        }
-
-        function updateClock() {
-            const clockElement = document.getElementById('clock');
-            if (clockElement) {
-                const now = new Date();
-                document.getElementById('day-name').textContent = now.toLocaleDateString('id-ID', { weekday: 'long' }).toUpperCase();
-                document.getElementById('date-number').textContent = now.getDate();
-                document.getElementById('month-year').textContent = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-                clockElement.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/\./g, ':');
-            }
-        }
-
-        // ========== TABLE MANAGEMENT ==========
         class TableManager {
-            constructor(tableId, data, headers, options = {}) {
-                this.tableId = tableId;
-                this.originalData = [...data];
-                this.headers = headers;
-                this.currentPage = 1;
-                this.itemsPerPage = parseInt(options.itemsPerPage || 50);
-                this.sortColumn = null;
-                this.sortDirection = 'asc';
-                this.searchTerm = '';
-                this.filterValue = '';
-                this.dateColumn = options.dateColumn;
-                this.statusColumn = options.statusColumn;
-
-                if (this.dateColumn) {
-                    this.originalData.sort((a, b) => {
-                        const dateA = new Date(a[this.dateColumn] || 0);
-                        const dateB = new Date(b[this.dateColumn] || 0);
-                        return dateB - dateA;
+            constructor(key, headers) { this.key = key; this.headers = headers; this.page = 1; this.limit = 50; this.search = ''; this.filter = ''; this.sortBy = null; this.sortOrder = 'desc'; this.loading = false; this.loaded = false; this.initControls(); }
+            initControls() {
+                const s = document.getElementById(`${this.key}-search`); if (s) s.addEventListener('input', debounce(() => { this.search = s.value; this.fetch(); }, 400));
+                const f = document.getElementById(`${this.key}-filter`); if (f) f.addEventListener('change', () => { this.filter = f.value; this.fetch(); });
+                const p = document.getElementById(`${this.key}-per-page`); if (p) { this.limit = parseInt(p.value); p.addEventListener('change', () => { this.limit = parseInt(p.value); this.fetch(); }); }
+                const pg = document.getElementById(`${this.key}-pagination`); if (pg) pg.addEventListener('click', e => { const b = e.target.closest('.pagination-btn'); if (b && !b.disabled) this.fetch(parseInt(b.dataset.page)); });
+                document.getElementById(`${this.key}-content`)?.querySelectorAll('th.sortable').forEach(th => {
+                    th.addEventListener('click', () => {
+                        const column = th.dataset.column;
+                        if (this.sortBy === column) { this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc'; }
+                        else { this.sortBy = column; this.sortOrder = 'asc'; }
+                        this.updateSortIcons(); this.fetch();
                     });
+                });
+            }
+            updateSortIcons() { document.getElementById(`${this.key}-content`)?.querySelectorAll('th.sortable').forEach(th => { th.classList.remove('sort-asc', 'sort-desc'); if (th.dataset.column === this.sortBy) th.classList.add(`sort-${this.sortOrder}`); }); }
+            async fetch(page = 1) {
+                if (this.loading) return; this.loading = true; this.loaded = true; this.page = page;
+                const tbody = document.getElementById(`${this.key}-table-body`); if (tbody) tbody.innerHTML = `<tr><td colspan="${this.headers.length + 1}" class="text-center p-4 text-gray-500">Memuat...</td></tr>`;
+                try {
+                    const result = await fetchData('getTableData', { table: this.key, page: this.page, limit: this.limit, search: this.search, filter: this.filter, sortBy: this.sortBy, sortOrder: this.sortOrder });
+                    this.render(result.data, result.totalFiltered);
+                } catch (error) {
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="${this.headers.length + 1}" class="text-center p-4 text-red-500">${error.message}</td></tr>`;
+                } finally { this.loading = false; }
+            }
+            render(data, total) {
+                const tbody = document.getElementById(`${this.key}-table-body`); if (!tbody) return;
+                const getStatusClass = (value) => {
+                    const lower = String(value).toLowerCase();
+                    if (lower === 'ok') return 'text-green-600 font-semibold';
+                    if (lower === 'hold') return 'text-orange-500 font-semibold';
+                    if (lower === 'need') return 'text-red-600 font-semibold';
+                    return '';
+                };
+                tbody.innerHTML = data.length ? data.map(r => `<tr class="border-b hover:bg-gray-50">${this.headers.map(h => {
+                    const val = r[h] || '-';
+                    const isStatus = h.toLowerCase().includes('status');
+                    return `<td class="p-3 ${isStatus ? getStatusClass(val) : ''}">${val}</td>`;
+                }).join('')}<td class="p-3"><button class="text-purple-600 hover:underline text-sm detail-btn" data-details='${JSON.stringify(r)}'>Detail</button></td></tr>`).join('') : `<tr><td colspan="${this.headers.length + 1}" class="text-center p-4">Tidak ada data.</td></tr>`;
+                const summary = document.getElementById(`${this.key}-summary`); if (summary) summary.textContent = total > 0 ? `Menampilkan ${Math.min((this.page - 1) * this.limit + 1, total)}-${Math.min(this.page * this.limit, total)} dari ${total}` : '0 data';
+                const pagination = document.getElementById(`${this.key}-pagination`); if (pagination) {
+                    const totalPages = Math.ceil(total / this.limit); if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+                    let html = `<button class="pagination-btn" ${this.page === 1 ? 'disabled' : ''} data-page="${this.page - 1}">‹</button>`;
+                    for (let i = 1; i <= totalPages; i++) { if (i === this.page) html += `<button class="pagination-btn active" data-page="${i}">${i}</button>`; else if (Math.abs(i - this.page) < 2 || i === 1 || i === totalPages) html += `<button class="pagination-btn" data-page="${i}">${i}</button>`; else if (Math.abs(i - this.page) === 2) html += `<span>...</span>`; }
+                    pagination.innerHTML = html + `<button class="pagination-btn" ${this.page === totalPages ? 'disabled' : ''} data-page="${this.page + 1}">›</button>`;
                 }
-                this.filteredData = [...this.originalData];
-                this.init();
             }
-            init() { this.setupControls(); this.render(); }
-            setupControls() {
-                const searchInput = document.getElementById(this.tableId.replace('-table-body', '-search'));
-                if (searchInput) searchInput.addEventListener('input', debounce((e) => { this.searchTerm = e.target.value.toLowerCase(); this.applyFilters(); }, 300));
-                const filterSelect = document.getElementById(this.tableId.replace('-table-body', '-filter'));
-                if (filterSelect) filterSelect.addEventListener('change', (e) => { this.filterValue = e.target.value.toLowerCase(); this.applyFilters(); });
-                const perPageSelect = document.getElementById(this.tableId.replace('-table-body', '-per-page'));
-                if (perPageSelect) perPageSelect.addEventListener('change', (e) => { this.itemsPerPage = parseInt(e.target.value); this.currentPage = 1; this.render(); });
-                const table = document.getElementById(this.tableId).closest('table');
-                table.querySelectorAll('th.sortable').forEach(header => { header.addEventListener('click', () => { const column = header.dataset.column; if (this.sortColumn === column) { this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'; } else { this.sortColumn = column; this.sortDirection = 'asc'; } this.updateSortIcons(header); this.applySort(); }); });
-            }
-            updateSortIcons(activeHeader) {
-                const table = document.getElementById(this.tableId).closest('table');
-                table.querySelectorAll('th.sortable').forEach(header => { header.classList.remove('sort-asc', 'sort-desc'); });
-                activeHeader.classList.add(this.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
-            }
-            applyFilters() {
-                this.filteredData = this.originalData.filter(item => {
-                    if (this.searchTerm && !Object.values(item).some(value => String(value).toLowerCase().includes(this.searchTerm))) return false;
-                    if (this.filterValue) {
-                        const statusFields = this.statusColumn ? [this.statusColumn] : ['status', 'statusInduksi'];
-                        if (!statusFields.some(field => item[field] && String(item[field]).toLowerCase().includes(this.filterValue))) return false;
-                    }
-                    return true;
-                });
-                this.currentPage = 1;
-                this.applySort();
-            }
-            applySort() {
-                if (!this.sortColumn) { this.render(); return; };
-                this.filteredData.sort((a, b) => {
-                    let aVal = a[this.sortColumn] || '', bVal = b[this.sortColumn] || '';
-                    const aNum = parseFloat(aVal), bNum = parseFloat(bVal);
-                    if (!isNaN(aNum) && !isNaN(bNum)) { aVal = aNum; bVal = bNum; } else { aVal = String(aVal).toLowerCase(); bVal = String(bVal).toLowerCase(); }
-                    if (this.sortDirection === 'asc') return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-                    else return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
-                });
-                this.render();
-            }
-            render() { this.renderTable(); this.renderPagination(); }
-            renderTable() {
-                const tbody = document.getElementById(this.tableId);
-                if (!tbody) return;
-                const start = (this.currentPage - 1) * this.itemsPerPage, end = start + this.itemsPerPage;
-                const pageData = this.filteredData.slice(start, end);
-                if (pageData.length === 0) { tbody.innerHTML = `<tr><td colspan="${this.headers.length + 1}" class="text-center py-4 text-gray-500">Tidak ada data.</td></tr>`; return; }
-                tbody.innerHTML = pageData.map((row, index) => {
-                    const filteredIndex = start + index;
-                    let cells = this.headers.map(header => {
-                        const value = row[header] || '-';
-                        let cellClass = 'py-3 px-4';
-                        const lowerCaseValue = String(value).toLowerCase();
-                        if (header.toLowerCase().includes('status')) {
-                            if (['ok', 'closed'].includes(lowerCaseValue)) cellClass += ' text-green-600 font-semibold';
-                            else if (['hold', 'open'].includes(lowerCaseValue)) cellClass += ' text-orange-500 font-semibold';
-                            else if (lowerCaseValue === 'need') cellClass += ' text-red-600 font-semibold';
-                        }
-                        else if (header.toLowerCase().includes('score')) { const score = parseFloat(value); if (!isNaN(score)) { if (score < 75) cellClass += ' text-red-600 font-bold'; else cellClass += ' text-green-600 font-bold'; } }
-                        return `<td class="${cellClass}">${value}</td>`;
-                    }).join('');
-                    cells += `<td class="py-3 px-4"><button class="text-purple-600 hover:underline text-sm detail-btn" data-tbody-id="${this.tableId}" data-index="${filteredIndex}">Detail</button></td>`;
-                    return `<tr class="border-b hover:bg-gray-50">${cells}</tr>`;
-                }).join('');
-            }
-            renderPagination() {
-                const paginationId = this.tableId.replace('-table-body', '-pagination');
-                const paginationContainer = document.getElementById(paginationId);
-                const summaryId = this.tableId.replace('-table-body', '-summary');
-                const summaryContainer = document.getElementById(summaryId);
-                if (!paginationContainer) return;
-                const totalEntries = this.filteredData.length;
-                const totalPages = Math.ceil(totalEntries / this.itemsPerPage);
-                const startEntry = totalEntries > 0 ? (this.currentPage - 1) * this.itemsPerPage + 1 : 0;
-                const endEntry = Math.min(startEntry + this.itemsPerPage - 1, totalEntries);
-                if (summaryContainer) {
-                    if (totalEntries > 0) { summaryContainer.textContent = `Menampilkan ${startEntry} sampai ${endEntry} dari ${totalEntries} data`; }
-                    else { summaryContainer.textContent = 'Tidak ada data untuk ditampilkan'; }
-                }
-                if (totalPages <= 1) { paginationContainer.innerHTML = ''; return; }
-                let html = `<button class="pagination-btn ${this.currentPage === 1 ? 'disabled' : ''}" ${this.currentPage === 1 ? 'disabled' : ''} data-page="${this.currentPage - 1}">‹</button>`;
-                for (let i = 1; i <= totalPages; i++) { html += `<button class="pagination-btn ${i === this.currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`; }
-                html += `<button class="pagination-btn ${this.currentPage === totalPages ? 'disabled' : ''}" ${this.currentPage === totalPages ? 'disabled' : ''} data-page="${this.currentPage + 1}">›</button>`;
-                paginationContainer.innerHTML = html;
-                paginationContainer.addEventListener('click', (e) => { if (e.target.classList.contains('pagination-btn') && !e.target.disabled) { this.currentPage = parseInt(e.target.dataset.page); this.render(); } });
-            }
-            updateData(newData) { this.originalData = [...newData]; this.applyFilters(); }
         }
 
-        function initializeTables(data) {
-            appState.tables['newHire'] = new TableManager('new-hire-table-body', data.newHire || [],
-                ['date', 'nik', 'nama', 'jabatan', 'perusahaan', 'status', 'score'],
-                { dateColumn: 'date', statusColumn: 'status' }
-            );
-
-            appState.tables['pascaCuti'] = new TableManager('pasca-cuti-table-body', data.pascaCuti || [],
-                ['date', 'nik', 'nama', 'jabatan', 'perusahaan', 'statusInduksi', 'score'],
-                { dateColumn: 'date', statusColumn: 'statusInduksi' }
-            );
-
-            appState.tables['temporary'] = new TableManager('temporary-table-body', data.temporary || [],
-                ['date', 'nik', 'nama', 'jabatan', 'perusahaan', 'status', 'score'],
-                { dateColumn: 'date', statusColumn: 'status' }
-            );
-
-            appState.tables['visitor'] = new TableManager('visitor-table-body', data.visitor || [],
-                ['date', 'nik', 'nama', 'jabatan', 'perusahaan', 'status', 'score'],
-                { dateColumn: 'date', statusColumn: 'status' }
-            );
-
-            appState.tables['pendaftaranInduksi'] = new TableManager('absensi-table-body', data.pendaftaranInduksi || [],
-                ['timestamp', 'nama', 'nikKtp', 'perusahaan', 'jenisInduksi'],
-                { dateColumn: 'timestamp' }
-            );
+        function showDetailsInModal(data) {
+            const m = document.getElementById('detail-modal'); if (!m) return;
+            const getStatusClass = (value) => {
+                const lower = String(value).toLowerCase();
+                if (lower === 'ok') return 'text-green-600 font-semibold';
+                if (lower === 'hold') return 'text-orange-500 font-semibold';
+                if (lower === 'need') return 'text-red-600 font-semibold';
+                return '';
+            };
+            m.querySelector('#detail-modal-body').innerHTML = '<dl class="grid grid-cols-1 md:grid-cols-2 gap-4">' + Object.entries(data).map(([k, v]) => {
+                const isStatus = k.toLowerCase().includes('status');
+                return `<div class="bg-gray-50 p-2 rounded"><dt class="font-semibold text-xs text-gray-500">${k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</dt><dd class="text-gray-800 break-words ${isStatus ? getStatusClass(v) : ''}">${v || '-'}</dd></div>`;
+            }).join('') + '</dl>';
+            m.classList.remove('hidden');
         }
-
-        function showDetailsInModal(dataObject) {
-            const modal = document.getElementById('detail-modal');
-            const modalBody = document.getElementById('detail-modal-body');
-            if (!modal || !modalBody) return;
-
-            let contentHtml = '<dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">';
-            for (const key in dataObject) {
-                contentHtml += `<div class="bg-gray-50 px-3 py-2 rounded-md"><dt class="font-semibold text-gray-600">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</dt><dd class="text-gray-800">${dataObject[key] || '-'}</dd></div>`;
-            }
-            modalBody.innerHTML = contentHtml + '</dl>';
-            modal.classList.remove('hidden');
-        }
-
-        // ========== THEME & NAVIGATION ==========
-        function setupTabs(tabContainerId) {
-            const tabContainer = document.getElementById(tabContainerId); if (!tabContainer) return;
-            const tabLinks = tabContainer.querySelectorAll('.tab-link'), tabContents = tabContainer.closest('.bg-white').querySelectorAll('.tab-content');
-            tabLinks.forEach(link => {
-                link.addEventListener('click', e => {
-                    e.preventDefault();
-                    const tabId = link.dataset.tab;
-                    tabLinks.forEach(l => { l.classList.remove('border-purple-500', 'text-purple-600'); l.classList.add('border-transparent', 'text-gray-500'); });
-                    link.classList.add('border-purple-500', 'text-purple-600'); link.classList.remove('border-transparent', 'text-gray-500');
-                    tabContents.forEach(content => content.classList.remove('active'));
-                    document.getElementById(tabId + '-content')?.classList.add('active');
-                });
-            });
-        }
-        function toggleTheme() {
-            appState.currentTheme = appState.currentTheme === "light" ? "dark" : "light";
-            document.body.classList.remove("theme-light", "theme-dark");
-            document.body.classList.add(`theme-${appState.currentTheme}`);
-            localStorage.setItem("theme", appState.currentTheme);
-            const themeToggleButton = document.getElementById("theme-toggle");
-            if (themeToggleButton) {
-                const newIconName = appState.currentTheme === "light" ? "moon" : "sun";
-                themeToggleButton.innerHTML = `<i data-lucide="${newIconName}" class="w-5 h-5 text-gray-600"></i>`;
-            }
-            lucide.createIcons();
-        }
-
-        // ========== PASSWORD PROTECTION (Tambahan dari index.html) ==========
+        function toggleTheme() { appState.currentTheme = appState.currentTheme === "light" ? "dark" : "light"; document.body.classList.toggle("theme-dark", appState.currentTheme === "dark"); localStorage.setItem("theme", appState.currentTheme); document.getElementById("theme-toggle").innerHTML = `<i data-lucide="${appState.currentTheme === 'light' ? 'moon' : 'sun'}"></i>`; lucide.createIcons(); forceRefreshData(true); }
         const CORRECT_PASSWORD = "gamitas2025";
-        function requestPasswordAndSwitchPage(pageId, externalUrl = null) {
-            if (sessionStorage.getItem('gamitas_access_granted') === 'true') {
-                if (externalUrl) { window.open(externalUrl, '_blank'); }
-                // Since this is not an SPA, we don't switch pages, we just allow the link to work
-            } else {
-                showPasswordModal(pageId, externalUrl);
+        function requestPassword(url) { if (sessionStorage.getItem('gamitas_access_granted')) { if (url) window.open(url, '_blank'); return; } const m = document.getElementById('password-modal'); appState.targetUrl = url; m.querySelector('#password-input').value = ''; m.querySelector('#password-error').classList.add('hidden'); m.classList.remove('hidden'); m.querySelector('#password-input').focus(); }
+        async function forceRefreshData(isThemeChange = false) { const b = document.getElementById('refresh-button'); if (!b) return; b.firstElementChild?.classList.add('animate-spin'); b.disabled = true; if (!isThemeChange) updateLastUpdated(null); try { const data = await fetchData('getDashboardData'); localStorage.setItem('gamitas_dashboard_cache', JSON.stringify({ data, timestamp: Date.now() })); updateDashboardUI(data); renderCharts(data.chartData); updateLastUpdated(Date.now()); } catch (error) { if (!isThemeChange) showError(error.message); } finally { b.firstElementChild?.classList.remove('animate-spin'); b.disabled = false; } }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons({ attrs: { 'stroke-width': 1.5 } });
+            const themeToggle = document.getElementById("theme-toggle");
+            if (themeToggle) {
+                document.body.classList.toggle("theme-dark", appState.currentTheme === "dark");
+                themeToggle.innerHTML = `<i data-lucide="${appState.currentTheme === 'light' ? 'moon' : 'sun'}"></i>`;
+                lucide.createIcons();
             }
-        }
-        function showPasswordModal(pageId, externalUrl = null) {
-            appState.targetPage = pageId;
-            appState.targetUrl = externalUrl;
-            const modal = document.getElementById('password-modal');
-            const passwordInput = document.getElementById('password-input');
-            const passwordError = document.getElementById('password-error');
-            passwordInput.value = '';
-            passwordError.classList.add('hidden');
-            modal.classList.remove('hidden');
-            passwordInput.focus();
-        }
-        function handlePasswordSubmit(e) {
-            e.preventDefault();
-            const passwordInput = document.getElementById('password-input');
-            const passwordError = document.getElementById('password-error');
-            if (passwordInput.value === CORRECT_PASSWORD) {
-                sessionStorage.setItem('gamitas_access_granted', 'true');
-                document.getElementById('password-modal').classList.add('hidden');
-                if (appState.targetUrl) {
-                    window.open(appState.targetUrl, '_blank');
-                }
-                appState.targetPage = null;
-                appState.targetUrl = null;
-            } else {
-                passwordError.classList.remove('hidden');
-                passwordInput.value = '';
-                passwordInput.focus();
-            }
-        }
 
+            const tableKeyMap = { 'dashboard-induksi': null, 'new-hire': 'new-hire', 'pasca-cuti': 'pasca-cuti', 'temporary': 'temporary', 'visitor': 'visitor', 'absensi': 'pendaftaranInduksi' };
+            appState.tables = {
+                'new-hire': new TableManager('new-hire', ['date', 'nik', 'nama', 'jabatan', 'perusahaan', 'status', 'score']),
+                'pasca-cuti': new TableManager('pasca-cuti', ['date', 'nik', 'nama', 'jabatan', 'perusahaan', 'statusInduksi', 'score']),
+                'temporary': new TableManager('temporary', ['date', 'nik', 'nama', 'jabatan', 'perusahaan', 'status', 'score']),
+                'visitor': new TableManager('visitor', ['date', 'nik', 'nama', 'jabatan', 'perusahaan', 'status', 'score']),
+                'pendaftaranInduksi': new TableManager('pendaftaranInduksi', ['timestamp', 'nama', 'nikKtp', 'perusahaan', 'jenisInduksi'])
+            };
 
-        // ========== EVENT LISTENERS ==========
-        function setupEventListeners() {
-            // PERUBAHAN: Menambahkan fungsionalitas password ke sidebar
-            document.querySelectorAll('.sidebar-link').forEach(link => {
-                const pageId = link.dataset.page;
-                const externalUrl = link.dataset.externalUrl;
-                // Hanya link yang dilindungi yang perlu event listener khusus
-                const isProtected = pageId === 'pelatihan' || pageId === 'laporan_insiden' || pageId === 'observasi';
-
-                if (isProtected) {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault(); // Mencegah navigasi langsung
-                        requestPasswordAndSwitchPage(pageId, externalUrl);
+            const induksiTabs = document.getElementById('induksi-tabs');
+            if (induksiTabs) {
+                induksiTabs.querySelectorAll('.tab-link').forEach(link => {
+                    link.addEventListener('click', e => {
+                        e.preventDefault(); const tabId = link.dataset.tab;
+                        document.querySelectorAll('.tab-link.active').forEach(l => l.classList.remove('active', 'border-purple-500', 'text-purple-600'));
+                        link.classList.add('active', 'border-purple-500', 'text-purple-600');
+                        document.querySelectorAll('.tab-content.active').forEach(c => c.classList.remove('active'));
+                        document.getElementById(tabId + '-content')?.classList.add('active');
+                        const tableKey = tableKeyMap[tabId];
+                        if (tableKey && appState.tables[tableKey] && !appState.tables[tableKey].loaded) { appState.tables[tableKey].fetch(1); }
                     });
-                }
-                // Link lain (seperti Dashboard) akan berfungsi sebagai link biasa (href)
-            });
+                });
+            }
 
-            // Tandai link Induksi sebagai aktif
-            document.querySelector('.sidebar-link[data-page="induksi"]')?.classList.add('active');
+            document.querySelectorAll('.sidebar-link[data-external-url]').forEach(l => l.addEventListener('click', e => { e.preventDefault(); requestPassword(l.dataset.externalUrl); }));
+            if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+            document.getElementById('refresh-button')?.addEventListener('click', () => forceRefreshData(false));
+            document.getElementById('add-new-hire-btn')?.addEventListener('click', () => document.getElementById('add-data-modal')?.classList.remove('hidden'));
+            document.getElementById('password-form')?.addEventListener('submit', e => { e.preventDefault(); const i = document.getElementById('password-input'); if (i.value === CORRECT_PASSWORD) { sessionStorage.setItem('gamitas_access_granted', 'true'); document.getElementById('password-modal').classList.add('hidden'); if (appState.targetUrl) window.open(appState.targetUrl, '_blank'); } else { document.getElementById('password-error').classList.remove('hidden'); } });
 
-            setupTabs('induksi-tabs');
-            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-            document.getElementById('refresh-button').addEventListener('click', forceRefreshData);
-
-            document.getElementById('induksi-page').addEventListener('click', (e) => {
+            document.body.addEventListener('click', e => {
                 const detailButton = e.target.closest('.detail-btn');
-                if (detailButton) {
-                    const tbodyId = detailButton.dataset.tbodyId;
-                    const rowIndex = parseInt(detailButton.dataset.index);
-                    const tableKeyMap = {
-                        'new-hire-table-body': 'newHire',
-                        'pasca-cuti-table-body': 'pascaCuti',
-                        'temporary-table-body': 'temporary',
-                        'visitor-table-body': 'visitor',
-                        'absensi-table-body': 'pendaftaranInduksi'
-                    };
-                    const tableKey = tableKeyMap[tbodyId];
-                    const tableManager = appState.tables[tableKey];
-                    if (tableManager) {
-                        const dataObject = tableManager.filteredData[rowIndex];
-                        if (dataObject) showDetailsInModal(dataObject);
-                    }
+                if (detailButton?.dataset.details) {
+                    showDetailsInModal(JSON.parse(detailButton.dataset.details));
+                }
+                if (e.target.matches('.modal-close-btn,.modal-close-btn *,#detail-modal,#password-modal,#add-data-modal')) {
+                    document.querySelectorAll('#detail-modal,#password-modal,#add-data-modal').forEach(m => m.classList.add('hidden'));
                 }
             });
 
-            document.body.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn') || e.target.id === 'detail-modal' || e.target.id === 'add-data-modal' || e.target.id === 'password-modal') {
-                    document.querySelectorAll('.fixed.inset-0').forEach(modal => modal.classList.add('hidden'));
-                }
-            });
-
-            document.getElementById('add-new-hire-btn')?.addEventListener('click', () => document.getElementById('add-data-modal').classList.remove('hidden'));
-
-            // Sidebar mobile toggle
-            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-            const sidebar = document.getElementById('sidebar');
-            mobileMenuToggle.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('show'); });
-            document.addEventListener('click', (e) => { if (!sidebar.contains(e.target) && !mobileMenuToggle.contains(e.target)) { sidebar.classList.remove('show'); } });
-
-            // Event listener untuk form password
-            document.getElementById('password-form')?.addEventListener('submit', handlePasswordSubmit);
-        }
-
-        async function forceRefreshData() {
-            const refreshButton = document.getElementById('refresh-button');
-            if (!refreshButton) return;
-            const icon = refreshButton.firstElementChild;
-
-            if (icon) icon.classList.add('animate-spin');
-            refreshButton.disabled = true;
-
-            updateLastUpdatedTimestamp(null);
-
-            try {
-                const freshData = await fetchAllInduksiData();
-                console.log("Forced refresh successful. Updating UI and cache.");
-                updateUI(freshData);
-                setCachedData(freshData);
-            } catch (error) {
-                console.log("Forced refresh failed to retrieve new data.", error);
-            } finally {
-                if (icon) icon.classList.remove('animate-spin');
-                refreshButton.disabled = false;
-            }
-        }
-
-        // ========== MAIN INITIALIZATION ==========
-        async function initializePage() {
-            const cached = getCachedData();
-
-            if (cached) {
-                console.log("All data loaded from cache. Rendering initial UI.");
-                updateUI(cached.data);
-                updateLastUpdatedTimestamp(cached.timestamp);
-                // Fetch new data in background
-                forceRefreshData();
-            } else {
-                // No cache, so do a full fetch
-                await forceRefreshData();
-            }
-        }
-
-
-        document.addEventListener('DOMContentLoaded', async function () {
-            document.body.classList.add(`theme-${appState.currentTheme}`);
-            const themeToggleButton = document.getElementById("theme-toggle");
-            if (themeToggleButton) {
-                const iconName = appState.currentTheme === 'light' ? 'moon' : 'sun';
-                themeToggleButton.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 text-gray-600"></i>`;
+            const sb = document.getElementById('sidebar'), tg = document.getElementById('mobile-menu-toggle');
+            if (tg && sb) {
+                tg.addEventListener('click', e => { e.stopPropagation(); sb.classList.toggle('show'); });
+                document.addEventListener('click', e => { if (!sb.contains(e.target) && !tg.contains(e.target)) sb.classList.remove('show'); });
             }
 
-            lucide.createIcons();
-
-            await initializePage();
-
-            setupEventListeners();
+            forceRefreshData(false);
             setInterval(updateClock, 1000);
             updateClock();
         });
