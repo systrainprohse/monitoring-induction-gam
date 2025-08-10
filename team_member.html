@@ -6,269 +6,530 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meet Our Expert Team - Gamitas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Swiper.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #fdf8f6;
+            background-color: #111827;
+            /* Dark background for neon effect */
+            color: #e5e7eb;
             overflow-x: hidden;
         }
 
-        /* Background Animation */
-        .animated-bg {
-            background: linear-gradient(-45deg, #f3e7e9, #e3eeff, #f3e7e9, #e3eeff);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            position: fixed;
-            top: 0;
-            left: 0;
+        /* --- NEON & CAROUSEL STYLES --- */
+
+        .team-section-container {
             width: 100%;
-            height: 100%;
-            z-index: -1;
+            padding: 1rem 0 2rem 0;
         }
 
-        @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+        .swiper-container {
+            width: 100%;
+            padding-top: 50px;
+            padding-bottom: 50px;
         }
 
-        /* Intro Animation */
-        .intro-fade-in {
-            opacity: 0;
-            transform: translateY(-20px);
-            animation: fadeIn 1s ease-out 0.3s forwards;
+        .swiper-slide {
+            background-position: center;
+            background-size: cover;
+            width: 300px;
+            /* Base width for the cards */
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            opacity: 0.4;
+            /* Non-active slides are transparent */
+            transform: scale(0.85);
+            /* Non-active slides are smaller */
         }
 
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Card Animation - Initial State for Scroll Trigger */
-        .animate-on-scroll {
-            opacity: 0;
-            transform: translateY(50px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-        }
-
-        /* Card Animation - Final State when Visible */
-        .animate-on-scroll.is-visible {
+        .swiper-slide-active {
             opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Staggered transition delays for cards */
-        .delay-1 {
-            transition-delay: 0.0s;
-        }
-
-        .delay-2 {
-            transition-delay: 0.2s;
-        }
-
-        .delay-3 {
-            transition-delay: 0.4s;
-        }
-
-        .delay-4 {
-            transition-delay: 0.6s;
+            /* Active slide is fully visible */
+            transform: scale(1);
+            /* Active slide is full size */
         }
 
         /* Card Styling */
         .team-card {
-            background-color: white;
+            background-color: #1f2937;
+            /* Darker card background */
             border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            position: relative;
+            height: 100%;
+            /* Ensure card fills the slide */
         }
 
-        .team-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        /* Spotlight Effect */
+        .team-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 150%;
+            height: 100%;
+            transform: translateX(-50%) skewY(-25deg);
+            background: linear-gradient(to top, transparent, rgba(255, 255, 255, 0.1) 70%, transparent);
+            z-index: 3;
+            /* On top of the image */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
+        }
+
+        .swiper-slide-active .team-card::after {
+            opacity: 1;
+        }
+
+
+        /* Neon glow effect on hover for the active slide */
+        .swiper-slide-active .team-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .card-yellow:hover {
+            box-shadow: 0 0 15px #f59e0b, 0 0 30px #f59e0b, 0 0 45px #fde047;
+        }
+
+        .card-purple:hover {
+            box-shadow: 0 0 15px #8b5cf6, 0 0 30px #8b5cf6, 0 0 45px #c4b5fd;
+        }
+
+        .card-orange:hover {
+            box-shadow: 0 0 15px #f97316, 0 0 30px #f97316, 0 0 45px #fdba74;
+        }
+
+        .card-green:hover {
+            box-shadow: 0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 45px #86efac;
         }
 
         .card-content {
-            padding: 1.5rem;
+            padding: 0 1.5rem 1.5rem 1.5rem;
             text-align: center;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+            position: relative;
+            z-index: 2;
         }
 
-        .card-image-wrapper {
-            margin-top: -3.5rem;
-            margin-bottom: 1rem;
+        .card-image-container {
             position: relative;
+            height: 12rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            z-index: 2;
+        }
+
+        .background-name {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            /* Adjusted for responsiveness */
+            font-weight: 900;
+            line-height: 1;
+            z-index: 1;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 2px;
+            animation: neon-flicker 4s ease-in-out infinite;
+        }
+
+        .neon-yellow {
+            color: #fde047;
+            text-shadow: 0 0 5px #fde047, 0 0 10px #fde047, 0 0 20px #f59e0b, 0 0 30px #f59e0b;
+        }
+
+        .neon-purple {
+            color: #c4b5fd;
+            text-shadow: 0 0 5px #c4b5fd, 0 0 10px #c4b5fd, 0 0 20px #8b5cf6, 0 0 30px #8b5cf6;
+        }
+
+        .neon-orange {
+            color: #fdba74;
+            text-shadow: 0 0 5px #fdba74, 0 0 10px #fdba74, 0 0 20px #f97316, 0 0 30px #f97316;
+        }
+
+        .neon-green {
+            color: #86efac;
+            text-shadow: 0 0 5px #86efac, 0 0 10px #86efac, 0 0 20px #22c55e, 0 0 30px #22c55e;
+        }
+
+        @keyframes neon-flicker {
+
+            0%,
+            18%,
+            22%,
+            25%,
+            53%,
+            57%,
+            100% {
+                opacity: 1;
+            }
+
+            20%,
+            24%,
+            55% {
+                opacity: 0.6;
+            }
+        }
+
+        .background-name span {
+            display: block;
         }
 
         .card-image {
-            width: 7rem;
-            /* 112px */
-            height: 7rem;
-            /* 112px */
-            border-radius: 9999px;
-            margin-left: auto;
-            margin-right: auto;
-            border: 4px solid white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            object-cover;
+            position: relative;
+            z-index: 2;
+            width: 10rem;
+            height: 10rem;
+            object-fit: contain;
+            filter: drop-shadow(0px 5px 15px rgba(0, 0, 0, 0.3));
+            transition: transform 0.4s ease;
+        }
+
+        .swiper-slide-active .team-card:hover .card-image {
+            transform: scale(1.1);
         }
 
         .card-footer {
             padding: 0 1.5rem 1.5rem 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .view-profile-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .view-profile-btn:hover {
+            background-color: rgba(255, 255, 255, 1);
+            color: #111827;
+        }
+
+        /* Responsive Adjustments */
+        @media (min-width: 640px) {
+            .background-name {
+                font-size: 3.5rem;
+            }
+
+            .swiper-slide {
+                width: 320px;
+            }
+        }
+
+        /* Button Pulse Animation */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(107, 114, 128, 0.7);
+            }
+
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(107, 114, 128, 0);
+            }
+        }
+
+        .pulse-button {
+            animation: pulse 2.5s infinite;
         }
     </style>
 </head>
 
 <body>
-    <div class="animated-bg"></div>
-    <div class="relative min-h-screen container mx-auto px-4 py-12 sm:py-20">
+    <!-- Back to Index Button (Top Right) -->
+    <div class="absolute top-0 right-0 p-4 sm:p-6 z-50">
+        <a href="index.html"
+            class="text-gray-400 hover:text-white transition-colors duration-300 font-semibold flex items-center text-sm sm:text-base">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                    clip-rule="evenodd" />
+            </svg>
+            Kembali
+        </a>
+    </div>
+
+    <div class="relative min-h-screen container mx-auto px-4 py-12 sm:py-20 flex flex-col items-center">
 
         <!-- Header -->
-        <header class="text-center mb-16 intro-fade-in">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">Meet Our Expert Team</h1>
+        <header class="text-center mb-4 sm:mb-8">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight">Meet Our Expert Team</h1>
         </header>
 
         <!-- Intro Text -->
-        <div class="text-center mb-20 intro-fade-in" style="animation-delay: 0.5s;">
-            <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+        <div class="text-center mb-4 sm:mb-8">
+            <p class="text-base sm:text-lg text-gray-300 max-w-3xl mx-auto">
                 The Gamitas team combines expertise in safety training and system development to provide cutting-edge
                 solutions and ensure the highest workplace safety standards. Our coordinators work closely with
                 contractors to implement effective safety practices and foster a safe working environment for all.
             </p>
         </div>
 
-        <!-- Team Members Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-
-            <!-- Ahmad Faqih I -->
-            <div class="team-card animate-on-scroll delay-1">
-                <div class="h-20 bg-gradient-to-r from-yellow-300 to-amber-400"></div>
-                <div class="card-content">
-                    <div class="card-image-wrapper">
-                        <img class="card-image" src="https://placehold.co/200x200/d1d5db/ffffff?text=AFI"
-                            alt="Ahmad Faqih I">
+        <!-- Team Members Carousel -->
+        <div class="team-section-container">
+            <!-- Swiper -->
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    <!-- Ahmad Faqih I -->
+                    <div class="swiper-slide">
+                        <div class="team-card card-yellow">
+                            <div class="h-20 bg-gradient-to-r from-yellow-400 to-amber-500"
+                                style="position: relative; z-index: 1;"></div>
+                            <div class="card-image-container">
+                                <div class="background-name neon-yellow"><span>Ahmad</span><span>Faqih</span></div>
+                                <img class="card-image" src="assets/faqih.png" alt="Ahmad Faqih I"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/200x200/d1d5db/ffffff?text=AFI';">
+                            </div>
+                            <div class="card-content">
+                                <h3 class="text-xl font-bold text-white">Ahmad Faqih I</h3>
+                                <p class="text-gray-400 text-sm italic mt-1">Safety Trainer</p>
+                                <p class="mt-4 text-gray-300 text-sm flex-grow">
+                                    Responsible for the development and delivery of safety training programs, ensuring
+                                    workers are equipped with the necessary safety skills.
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900">Ahmad Faqih I</h3>
-                    <p class="text-gray-500 text-sm italic mt-1">Safety Trainer</p>
-                    <p class="mt-4 text-gray-600 text-sm flex-grow">
-                        Responsible for the development and delivery of safety training programs, ensuring workers are
-                        equipped with the necessary safety skills.
-                    </p>
+
+                    <!-- Jonatahan Teah M -->
+                    <div class="swiper-slide">
+                        <div class="team-card card-purple">
+                            <div class="h-20 bg-gradient-to-r from-purple-400 to-indigo-500"
+                                style="position: relative; z-index: 1;"></div>
+                            <div class="card-image-container">
+                                <div class="background-name neon-purple"><span>Jonatahan</span><span>Teah</span></div>
+                                <img class="card-image" src="assets/jonathan.png" alt="Jonatahan Teah M"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/200x200/c4b5fd/ffffff?text=JTM';">
+                            </div>
+                            <div class="card-content">
+                                <h3 class="text-xl font-bold text-white">Jonatahan Teah M</h3>
+                                <p class="text-gray-400 text-sm italic mt-1">Safety Trainer</p>
+                                <p class="mt-4 text-gray-300 text-sm flex-grow">
+                                    A specialist in safety training, focusing on risk mitigation and safe work
+                                    practices.
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="#"
+                                    class="view-profile-btn w-full text-white py-2.5 px-4 rounded-lg flex items-center justify-center font-semibold">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sisca Chairain -->
+                    <div class="swiper-slide">
+                        <div class="team-card card-orange">
+                            <div class="h-20 bg-gradient-to-r from-orange-400 to-red-500"
+                                style="position: relative; z-index: 1;"></div>
+                            <div class="card-image-container">
+                                <div class="background-name neon-orange"><span>Sisca</span><span>Chairain</span></div>
+                                <img class="card-image" src="assets/sisca.png" alt="Sisca Chairain"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/200x200/fed7aa/ffffff?text=SC';">
+                            </div>
+                            <div class="card-content">
+                                <h3 class="text-xl font-bold text-white">Sisca Chairain</h3>
+                                <p class="text-gray-400 text-sm italic mt-1">Supporting Coordinator</p>
+                                <p class="mt-4 text-gray-300 text-sm flex-grow">
+                                    Coordinating the team's activities and working closely with contractors to implement
+                                    safety protocols.
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="#"
+                                    class="view-profile-btn w-full text-white py-2.5 px-4 rounded-lg flex items-center justify-center font-semibold">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rindu Nur F -->
+                    <div class="swiper-slide">
+                        <div class="team-card card-green">
+                            <div class="h-20 bg-gradient-to-r from-green-400 to-emerald-500"
+                                style="position: relative; z-index: 1;"></div>
+                            <div class="card-image-container">
+                                <div class="background-name neon-green"><span>Rindu</span><span>Nur F</span></div>
+                                <img class="card-image" src="assets/rindu.png" alt="Rindu Nur F"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/200x200/a7f3d0/ffffff?text=RNF';">
+                            </div>
+                            <div class="card-content">
+                                <h3 class="text-xl font-bold text-white">Rindu Nur F</h3>
+                                <p class="text-gray-400 text-sm italic mt-1">Supporting Coordinator</p>
+                                <p class="mt-4 text-gray-300 text-sm flex-grow">
+                                    Plays an essential role in organizing and streamlining safety training and system
+                                    development processes in various projects.
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="#"
+                                    class="view-profile-btn w-full text-white py-2.5 px-4 rounded-lg flex items-center justify-center font-semibold">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DUPLICATED SLIDES FOR SEAMLESS LOOP -->
+                    <!-- Ahmad Faqih I -->
+                    <div class="swiper-slide">
+                        <div class="team-card card-yellow">
+                            <div class="h-20 bg-gradient-to-r from-yellow-400 to-amber-500"
+                                style="position: relative; z-index: 1;"></div>
+                            <div class="card-image-container">
+                                <div class="background-name neon-yellow"><span>Ahmad</span><span>Faqih</span></div>
+                                <img class="card-image" src="assets/faqih.png" alt="Ahmad Faqih I"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/200x200/d1d5db/ffffff?text=AFI';">
+                            </div>
+                            <div class="card-content">
+                                <h3 class="text-xl font-bold text-white">Ahmad Faqih I</h3>
+                                <p class="text-gray-400 text-sm italic mt-1">Safety Trainer</p>
+                                <p class="mt-4 text-gray-300 text-sm flex-grow">
+                                    Responsible for the development and delivery of safety training programs, ensuring
+                                    workers are equipped with the necessary safety skills.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Jonatahan Teah M -->
+                    <div class="swiper-slide">
+                        <div class="team-card card-purple">
+                            <div class="h-20 bg-gradient-to-r from-purple-400 to-indigo-500"
+                                style="position: relative; z-index: 1;"></div>
+                            <div class="card-image-container">
+                                <div class="background-name neon-purple"><span>Jonatahan</span><span>Teah</span></div>
+                                <img class="card-image" src="assets/jonathan.png" alt="Jonatahan Teah M"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/200x200/c4b5fd/ffffff?text=JTM';">
+                            </div>
+                            <div class="card-content">
+                                <h3 class="text-xl font-bold text-white">Jonatahan Teah M</h3>
+                                <p class="text-gray-400 text-sm italic mt-1">Safety Trainer</p>
+                                <p class="mt-4 text-gray-300 text-sm flex-grow">
+                                    A specialist in safety training, focusing on risk mitigation and safe work
+                                    practices.
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="#"
+                                    class="view-profile-btn w-full text-white py-2.5 px-4 rounded-lg flex items-center justify-center font-semibold">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sisca Chairain -->
+                    <div class="swiper-slide">
+                        <div class="team-card card-orange">
+                            <div class="h-20 bg-gradient-to-r from-orange-400 to-red-500"
+                                style="position: relative; z-index: 1;"></div>
+                            <div class="card-image-container">
+                                <div class="background-name neon-orange"><span>Sisca</span><span>Chairain</span></div>
+                                <img class="card-image" src="assets/sisca.png" alt="Sisca Chairain"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/200x200/fed7aa/ffffff?text=SC';">
+                            </div>
+                            <div class="card-content">
+                                <h3 class="text-xl font-bold text-white">Sisca Chairain</h3>
+                                <p class="text-gray-400 text-sm italic mt-1">Supporting Coordinator</p>
+                                <p class="mt-4 text-gray-300 text-sm flex-grow">
+                                    Coordinating the team's activities and working closely with contractors to implement
+                                    safety protocols.
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="#"
+                                    class="view-profile-btn w-full text-white py-2.5 px-4 rounded-lg flex items-center justify-center font-semibold">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rindu Nur F -->
+                    <div class="swiper-slide">
+                        <div class="team-card card-green">
+                            <div class="h-20 bg-gradient-to-r from-green-400 to-emerald-500"
+                                style="position: relative; z-index: 1;"></div>
+                            <div class="card-image-container">
+                                <div class="background-name neon-green"><span>Rindu</span><span>Nur F</span></div>
+                                <img class="card-image" src="assets/rindu.png" alt="Rindu Nur F"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/200x200/a7f3d0/ffffff?text=RNF';">
+                            </div>
+                            <div class="card-content">
+                                <h3 class="text-xl font-bold text-white">Rindu Nur F</h3>
+                                <p class="text-gray-400 text-sm italic mt-1">Supporting Coordinator</p>
+                                <p class="mt-4 text-gray-300 text-sm flex-grow">
+                                    Plays an essential role in organizing and streamlining safety training and system
+                                    development processes in various projects.
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="#"
+                                    class="view-profile-btn w-full text-white py-2.5 px-4 rounded-lg flex items-center justify-center font-semibold">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Jonatahan Teah M -->
-            <div class="team-card animate-on-scroll delay-2">
-                <div class="h-20 bg-gradient-to-r from-purple-300 to-indigo-400"></div>
-                <div class="card-content">
-                    <div class="card-image-wrapper">
-                        <img class="card-image" src="https://placehold.co/200x200/c4b5fd/ffffff?text=JTM"
-                            alt="Jonatahan Teah M">
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900">Jonatahan Teah M</h3>
-                    <p class="text-gray-500 text-sm italic mt-1">Safety Trainer</p>
-                    <p class="mt-4 text-gray-600 text-sm flex-grow">
-                        A specialist in safety training, focusing on risk mitigation and safe work practices.
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <a href="#"
-                        class="w-full bg-gray-800 text-white py-2.5 px-4 rounded-lg hover:bg-gray-900 transition-colors duration-300 flex items-center justify-center font-semibold">
-                        View Profile
-                    </a>
-                </div>
-            </div>
-
-            <!-- Sisca Chairain -->
-            <div class="team-card animate-on-scroll delay-3">
-                <div class="h-20 bg-gradient-to-r from-orange-300 to-red-400"></div>
-                <div class="card-content">
-                    <div class="card-image-wrapper">
-                        <img class="card-image" src="https://placehold.co/200x200/fed7aa/ffffff?text=SC"
-                            alt="Sisca Chairain">
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900">Sisca Chairain</h3>
-                    <p class="text-gray-500 text-sm italic mt-1">Supporting Coordinator</p>
-                    <p class="mt-4 text-gray-600 text-sm flex-grow">
-                        Coordinating the team's activities and working closely with contractors to implement safety
-                        protocols.
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <a href="#"
-                        class="w-full bg-gray-800 text-white py-2.5 px-4 rounded-lg hover:bg-gray-900 transition-colors duration-300 flex items-center justify-center font-semibold">
-                        View Profile
-                    </a>
-                </div>
-            </div>
-
-            <!-- Rindu Nur F -->
-            <div class="team-card animate-on-scroll delay-4">
-                <div class="h-20 bg-gradient-to-r from-green-300 to-emerald-400"></div>
-                <div class="card-content">
-                    <div class="card-image-wrapper">
-                        <img class="card-image" src="https://placehold.co/200x200/a7f3d0/ffffff?text=RNF"
-                            alt="Rindu Nur F">
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900">Rindu Nur F</h3>
-                    <p class="text-gray-500 text-sm italic mt-1">Supporting Coordinator</p>
-                    <p class="mt-4 text-gray-600 text-sm flex-grow">
-                        Plays an essential role in organizing and streamlining safety training and system development
-                        processes in various projects.
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <a href="#"
-                        class="w-full bg-gray-800 text-white py-2.5 px-4 rounded-lg hover:bg-gray-900 transition-colors duration-300 flex items-center justify-center font-semibold">
-                        View Profile
-                    </a>
-                </div>
-            </div>
-
+        <!-- Skip to Index Button -->
+        <div class="text-center mt-4 sm:mt-8">
+            <a href="index.html"
+                class="pulse-button bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-600 transition-all duration-300 inline-flex items-center justify-center">
+                Masuk ke Dasbor Monitoring
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+            </a>
         </div>
     </div>
 
+    <!-- Swiper.js JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
-        // This script triggers the animation for cards when they are scrolled into view.
         document.addEventListener("DOMContentLoaded", function () {
-            const options = {
-                root: null, // Use the viewport as the root
-                rootMargin: '0px',
-                threshold: 0.2 // Trigger when 20% of the element is visible
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    // If the element is intersecting (visible)
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                    } else {
-                        // If you want the animation to repeat every time it scrolls in
-                        entry.target.classList.remove('is-visible');
-                    }
-                });
-            }, options);
-
-            // Select all elements to be animated on scroll
-            const targets = document.querySelectorAll('.animate-on-scroll');
-            targets.forEach(target => {
-                observer.observe(target);
+            const swiper = new Swiper('.swiper-container', {
+                // Carousel settings
+                effect: 'coverflow',
+                grabCursor: true,
+                centeredSlides: true,
+                slidesPerView: 'auto',
+                loop: true,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false, // Carousel will NOT stop on user interaction
+                },
+                coverflowEffect: {
+                    rotate: 0,
+                    stretch: 50,
+                    depth: 200,
+                    modifier: 1,
+                    slideShadows: false,
+                },
             });
         });
     </script>
