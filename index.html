@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -22,15 +22,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        /* Basic Setup */
         :root {
             --bg-light: #f8fafc;
             --bg-dark: #1e293b;
@@ -45,7 +40,6 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Dark Theme */
         .theme-dark {
             background-color: var(--bg-dark);
             color: var(--text-dark);
@@ -83,31 +77,6 @@
             border-color: #475569 !important;
         }
 
-        .theme-dark .hover\:bg-gray-100:hover {
-            background-color: #475569 !important;
-        }
-
-        .theme-dark .hover\:bg-gray-50:hover {
-            background-color: #4b5a70 !important;
-        }
-
-        .theme-dark .shadow-md,
-        .theme-dark .shadow-lg {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
-        }
-
-        .theme-dark input,
-        .theme-dark select {
-            background-color: #475569;
-            border-color: #64748b;
-            color: #f1f5f9;
-        }
-
-        .theme-dark input::placeholder {
-            color: #94a3b8;
-        }
-
-        /* Active States */
         .sidebar-link.active {
             background-color: #f3e8ff;
             color: #9333ea;
@@ -119,24 +88,11 @@
             color: white;
         }
 
-        .tab-link.active {
-            color: #9333ea !important;
-            border-color: #9333ea !important;
-        }
-
-        .theme-dark .tab-link.active {
-            color: #a78bfa !important;
-            border-color: #a78bfa !important;
-        }
-
-        /* Animations */
-        .page-content,
-        .tab-content {
+        .page-content {
             display: none;
         }
 
-        .page-content.active,
-        .tab-content.active {
+        .page-content.active {
             display: block;
             animation: fadeIn 0.5s ease-out;
         }
@@ -153,7 +109,6 @@
             }
         }
 
-        /* Loading States */
         .component-loading {
             position: relative;
             min-height: 100px;
@@ -202,25 +157,6 @@
             }
         }
 
-        /* Banners */
-        .offline-banner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            padding: 0.5rem;
-            text-align: center;
-            z-index: 2000;
-            transform: translateY(-100%);
-            transition: transform 0.3s ease;
-        }
-
-        .offline-banner.show {
-            transform: translateY(0);
-        }
-
         .error-banner {
             background-color: #fef2f2;
             border: 1px solid #fecaca;
@@ -236,7 +172,6 @@
             color: #fecaca;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             main {
                 margin-left: 0 !important;
@@ -280,12 +215,6 @@
         </div>
     </div>
 
-    <!-- Banners -->
-    <div id="offline-banner" class="offline-banner">
-        <i data-lucide="wifi-off" class="w-4 h-4 inline mr-2"></i>
-        Mode Offline - Data mungkin tidak terbaru
-    </div>
-
     <!-- Sidebar -->
     <aside id="sidebar"
         class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-50 transition-transform flex flex-col">
@@ -297,53 +226,35 @@
         </div>
         <nav class="mt-4 flex-1 overflow-y-auto">
             <ul class="space-y-1 px-4">
-                <li>
-                    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg"
-                        data-page="dashboard">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#"
+                <li><a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg"
+                        data-page="dashboard"><i data-lucide="layout-dashboard" class="w-5 h-5"></i><span
+                            data-translate-key="sidebar_dashboard">Dashboard</span></a></li>
+                <li><a href="#"
                         class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
-                        data-page="induksi" data-external-url="./induksi.html">
-                        <i data-lucide="user-check" class="w-5 h-5"></i>
-                        <span>Induksi</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#"
+                        data-page="induksi" data-external-url="./induksi.html"><i data-lucide="user-check"
+                            class="w-5 h-5"></i><span data-translate-key="sidebar_induksi">Induksi</span></a></li>
+                <li><a href="#"
                         class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
-                        data-page="pelatihan" data-external-url="./pelatihan.html">
-                        <i data-lucide="award" class="w-5 h-5"></i>
-                        <span>Pelatihan Internal</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#"
+                        data-page="pelatihan" data-external-url="./pelatihan.html"><i data-lucide="award"
+                            class="w-5 h-5"></i><span data-translate-key="sidebar_pelatihan">Pelatihan
+                            Internal</span></a></li>
+                <li><a href="#"
                         class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
-                        data-page="laporan_insiden" data-external-url="./laporan_insiden.html">
-                        <i data-lucide="file-warning" class="w-5 h-5"></i>
-                        <span>Laporan Insiden</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#"
+                        data-page="laporan_insiden" data-external-url="./laporan_insiden.html"><i
+                            data-lucide="file-warning" class="w-5 h-5"></i><span
+                            data-translate-key="sidebar_laporan_insiden">Laporan Insiden</span></a></li>
+                <li><a href="#"
                         class="sidebar-link flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100"
-                        data-page="observasi">
-                        <i data-lucide="search-check" class="w-5 h-5"></i>
-                        <span>Laporan Observasi</span>
-                    </a>
+                        data-page="team_member" data-external-url="./team_member.html"><i data-lucide="users-2"
+                            class="w-5 h-5"></i><span data-translate-key="sidebar_team_member">Team Member</span></a>
                 </li>
             </ul>
         </nav>
         <div class="p-4 border-t">
             <button id="theme-toggle"
-                class="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
-                <i data-lucide="sun" class="w-5 h-5"></i>
-                <span>Ganti Tema</span>
-            </button>
+                class="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100"><i
+                    data-lucide="sun" class="w-5 h-5"></i><span data-translate-key="sidebar_theme">Ganti
+                    Tema</span></button>
         </div>
     </aside>
 
@@ -359,6 +270,22 @@
                 <p id="last-updated" class="text-gray-500 text-sm">Memuat data...</p>
             </div>
             <div class="flex items-center space-x-2 sm:space-x-4">
+                <div class="relative" id="language-switcher">
+                    <button id="language-toggle-btn" class="p-2 rounded-full hover:bg-gray-100"><i data-lucide="globe"
+                            class="w-5 h-5 text-gray-600"></i></button>
+                    <div id="language-menu"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl hidden z-20">
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            data-lang="en"><img src="https://flagcdn.com/gb.svg" class="w-5 h-auto mr-3"
+                                alt="English Flag"><span>English</span></a>
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            data-lang="id"><img src="https://flagcdn.com/id.svg" class="w-5 h-auto mr-3"
+                                alt="Indonesia Flag"><span>Bahasa Indonesia</span></a>
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            data-lang="ko"><img src="https://flagcdn.com/kr.svg" class="w-5 h-auto mr-3"
+                                alt="Korean Flag"><span>한국어</span></a>
+                    </div>
+                </div>
                 <button id="refresh-button" class="p-2 rounded-full hover:bg-gray-100" title="Muat Ulang Data">
                     <i data-lucide="refresh-cw" class="w-5 h-5 text-gray-600"></i>
                 </button>
@@ -375,74 +302,84 @@
 
         <!-- Page Container -->
         <div id="page-container"></div>
+
+        <footer class="mt-8 pt-4 border-t text-center text-xs text-gray-500">
+            <p>HSE Team Training Promotion and System development</p>
+            <p>Develop by <a href="https://ahmadfaqihdidin.github.io/" target="_blank" rel="noopener noreferrer"
+                    class="text-purple-600 hover:underline">Ahmad Faqih I</a></p>
+        </footer>
     </main>
 
     <!-- Page Templates -->
     <template id="page-templates">
         <div id="dashboard-page" class="page-content">
             <!-- Induksi Summary -->
-            <h3 class="text-xl font-semibold text-gray-800 mb-4">Ringkasan Induksi Hari Ini</h3>
+            <h3 class="text-xl font-semibold text-gray-800 mb-4" data-translate-key="dashboard_title_induksi">Ringkasan
+                Induksi Hari Ini</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Card Induksi Core -->
-                <div id="card-induksi-core" class="bg-white p-4 rounded-lg shadow">
+                <div class="bg-white p-4 rounded-lg shadow">
                     <div class="flex items-center"><i data-lucide="building-2" class="w-8 h-8 text-purple-500 mr-4"></i>
                         <div>
                             <p id="induksi-core-today" class="text-2xl font-bold">-</p>
-                            <p class="text-sm text-gray-500">Induksi (Core)</p>
+                            <p class="text-sm text-gray-500" data-translate-key="card_induksi_core">Induksi (Core)</p>
                         </div>
                     </div>
                 </div>
-                <!-- Card Induksi Mitra -->
-                <div id="card-induksi-mitra" class="bg-white p-4 rounded-lg shadow">
+                <div class="bg-white p-4 rounded-lg shadow">
                     <div class="flex items-center"><i data-lucide="users" class="w-8 h-8 text-green-500 mr-4"></i>
                         <div>
                             <p id="induksi-mitra-today" class="text-2xl font-bold">-</p>
-                            <p class="text-sm text-gray-500">Induksi (Mitra)</p>
+                            <p class="text-sm text-gray-500" data-translate-key="card_induksi_mitra">Induksi (Mitra)</p>
                         </div>
                     </div>
                 </div>
-                <!-- Card Induksi Visitor -->
-                <div id="card-induksi-visitor" class="bg-white p-4 rounded-lg shadow">
+                <div class="bg-white p-4 rounded-lg shadow">
                     <div class="flex items-center"><i data-lucide="user" class="w-8 h-8 text-blue-500 mr-4"></i>
                         <div>
                             <p id="induksi-visitor-today" class="text-2xl font-bold">-</p>
-                            <p class="text-sm text-gray-500">Induksi (Visitor)</p>
+                            <p class="text-sm text-gray-500" data-translate-key="card_induksi_visitor">Induksi (Visitor)
+                            </p>
                         </div>
                     </div>
                 </div>
-                <!-- Card Kode Akses -->
-                <div id="card-kode-akses" class="bg-white p-4 rounded-lg shadow">
+                <div class="bg-white p-4 rounded-lg shadow">
                     <div class="flex items-center"><i data-lucide="key-round" class="w-8 h-8 text-orange-500 mr-4"></i>
                         <div>
                             <p id="kode-akses-value" class="text-2xl font-bold">-</p>
-                            <p class="text-sm text-gray-500">Kode Akses Hari Ini</p>
+                            <p class="text-sm text-gray-500" data-translate-key="card_kode_akses">Kode Akses Hari Ini
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Pelatihan Summary -->
-            <h3 class="text-xl font-semibold text-gray-800 mb-4">Ringkasan Pelatihan</h3>
-            <div id="pelatihan-stats-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4" data-translate-key="dashboard_title_pelatihan">
+                Ringkasan Pelatihan</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
                 <div class="bg-white p-4 rounded-lg shadow">
-                    <p class="text-sm text-gray-500">Total Kompetensi</p>
+                    <p class="text-sm text-gray-500" data-translate-key="card_total_kompetensi">Total Kompetensi</p>
                     <p id="total-kompetensi" class="text-3xl font-bold text-gray-800">-</p>
                 </div>
                 <div class="bg-white p-4 rounded-lg shadow">
-                    <p class="text-sm text-gray-500">Total Manpower Terlatih</p>
+                    <p class="text-sm text-gray-500" data-translate-key="card_total_manpower">Total Manpower Terlatih
+                    </p>
                     <p id="total-manpower-terlatih" class="text-3xl font-bold text-gray-800">-</p>
                 </div>
                 <div class="bg-white p-4 rounded-lg shadow">
-                    <p class="text-sm text-gray-500">Total Kebutuhan Pelatihan</p>
+                    <p class="text-sm text-gray-500" data-translate-key="card_total_kebutuhan">Total Kebutuhan Pelatihan
+                    </p>
                     <p id="total-kebutuhan-pelatihan" class="text-3xl font-bold text-gray-800">-</p>
                 </div>
             </div>
 
             <!-- Insiden Summary -->
-            <h3 class="text-xl font-semibold text-gray-800 mb-4">Top 5 Penyebab Insiden</h3>
+            <h3 class="text-xl font-semibold text-gray-800 mb-4" data-translate-key="dashboard_title_insiden">Top 5
+                Penyebab Insiden</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow">
-                    <h4 class="font-semibold text-gray-700 mb-3">Penyebab Langsung</h4>
+                    <h4 class="font-semibold text-gray-700 mb-3" data-translate-key="card_penyebab_langsung">Penyebab
+                        Langsung</h4>
                     <ul id="top-risk-langsung" class="space-y-2 text-sm text-gray-600">
                         <li class="h-6 rounded bg-gray-200"></li>
                         <li class="h-6 rounded bg-gray-200"></li>
@@ -450,7 +387,8 @@
                     </ul>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow">
-                    <h4 class="font-semibold text-gray-700 mb-3">Penyebab Dasar</h4>
+                    <h4 class="font-semibold text-gray-700 mb-3" data-translate-key="card_penyebab_dasar">Penyebab Dasar
+                    </h4>
                     <ul id="top-risk-dasar" class="space-y-2 text-sm text-gray-600">
                         <li class="h-6 rounded bg-gray-200"></li>
                         <li class="h-6 rounded bg-gray-200"></li>
@@ -462,13 +400,17 @@
             <!-- Charts -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Tren Insiden Bulanan</h3>
-                    <div class="h-72 component-loading" id="insiden-chart-container"><canvas
-                            id="insidenTrendChart"></canvas></div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4" data-translate-key="chart_title_insiden">Tren
+                        Insiden Bulanan</h3>
+                    <div class="h-72 component-loading relative" id="insiden-chart-wrapper">
+                        <canvas id="insidenTrendChart"></canvas>
+                        <div id="insiden-chart-message"
+                            class="absolute inset-0 items-center justify-center h-full text-gray-500 hidden"></div>
+                    </div>
                 </div>
-
                 <div class="bg-white p-6 rounded-xl shadow">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Jadwal Training Mendatang</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4" data-translate-key="chart_title_jadwal">Jadwal
+                        Training Mendatang</h3>
                     <div id="jadwal-training-list" class="space-y-3 max-h-72 overflow-y-auto">
                         <div class="h-8 rounded w-full bg-gray-200"></div>
                         <div class="h-8 rounded w-full bg-gray-200"></div>
@@ -477,422 +419,254 @@
                 </div>
             </div>
         </div>
-
-        <div id="observasi-page" class="page-content">
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0"><i data-lucide="info" class="h-5 w-5 text-blue-400"></i></div>
-                        <div class="ml-3">
-                            <p class="text-sm text-blue-700"><strong>Halaman Observasi</strong> - Fitur ini sedang dalam
-                                pengembangan.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </template>
 
     <script>
+        // #############################################################################
+        // ### KODE UNTUK FILE: api_gabungan.gs (FINAL & OPTIMAL) ###
+        // #############################################################################
+        /*
+        const CONFIG = {
+          induksi: { id: "19SWnTTs34iX-fnrqovnCwwLcS2oAMt4Yu0apIdB5wV8", sheets: { "new-hire": { name: "Induksi_NewHire", headers: ["date", "nik", "nama", "jabatan", "perusahaan", "checklist", "spdk", "apvSystem", "status", "score"] }, "pasca-cuti": { name: "Induksi_PascaCuti", headers: ["date", "nik", "nama", "jabatan", "perusahaan", "statusInduksi", "score", "spdkChecklist"] }, "temporary": { name: "Induksi_Temporary", headers: ["date", "nik", "nama", "jabatan", "perusahaan", "status", "score"] }, "visitor": { name: "Induksi_Visitor", headers: ["date", "nik", "nama", "jabatan", "perusahaan", "status", "score"] }, "kodeAkses": { name: "KodeAkses", headers: ["date", "kodeAkses"] }, "setting": { name: "Setting", headers: ["namaPerusahaan"] }, } },
+          insiden: { id: "1bFevC9EGzYmyQTLSCMxu53_7sH7Ab24GT4O0A4nZXTA", sheets: { "dataDasbor": { name: "Data_Dasbor", headers: ["id", "judulInsiden", "tanggalKejadian", "tahun", "hariKejadian", "jamMulaiKecelakaan", "jamSelesaiKecelakaan", "kategoriKecelakaan", "kategoriCedera", "kategoriPdUnit", "jenisKontakInsiden", "penyebabLangsung", "penyebabDasar", "perusahaan", "jabatan", "unitTerlibat", "usia", "masaKerja", "statusKaryawan", "poh", "tempatTinggal", "lokasiKejadian", "lokasiRincian", "latitude", "longitude", "biayaPengobatan", "biayaPerbaikan", "biayaTidakLangsung", "totalBiaya", "kategoriPd", "statusLpi", "sanksi", "tipeCedera", "bagianCidera"] } } },
+          pelatihan: { id: "1rYjpyZMyvOHibsF-z_y-sAH9PZd1m79KNk_UB8_K5lM", sheets: { "monitoring-internal": { name: "monitoring_internal", headers: ["internalTraining", "code", "done", "allMp", "off", "progress", "needTraining"] }, "jadwal-training": { name: "jadwal_training", headers: ["tanggalMulai", "tanggalSelesai", "namaKegiatan", "ruangan", "jumlahPeserta", "pic", "kode", "totalHari"] }, "kompetensi-manpower": { name: "kompetensi_manpower", headers: ["noPermit", "nik", "nama", "dept", "section", "jabatan", "kompetensi", "status"] }, } }
+        };
+        function getSheetDataAsObjects(ss, sheetKey, config) { const conf = config.sheets[sheetKey]; if (!conf) return []; const sheet = ss.getSheetByName(conf.name); if (!sheet || sheet.getLastRow() < 2) return []; const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, conf.headers.length).getValues(); return values.map(row => conf.headers.reduce((obj, key, i) => { let cell = row[i]; obj[key] = cell instanceof Date && !isNaN(cell) ? Utilities.formatDate(cell, Session.getScriptTimeZone(), "yyyy-MM-dd") : cell; return obj; }, {}));}
+        function getInduksiData(ss) { const today = new Date().toLocaleDateString("en-CA"); const d = { nh: getSheetDataAsObjects(ss, "new-hire", CONFIG.induksi), pc: getSheetDataAsObjects(ss, "pasca-cuti", CONFIG.induksi), t: getSheetDataAsObjects(ss, "temporary", CONFIG.induksi), v: getSheetDataAsObjects(ss, "visitor", CONFIG.induksi), ka: getSheetDataAsObjects(ss, "kodeAkses", CONFIG.induksi), s: getSheetDataAsObjects(ss, "setting", CONFIG.induksi) }; const mc = "PT. GAM"; const it = [...d.nh, ...d.pc, ...d.t].filter(i => i.date === today); const vt = d.v.filter(i => i.date === today); return { setting: d.s[0] || {}, dashboard: { induksiCoreToday: it.filter(i => i.perusahaan?.toLowerCase() === mc.toLowerCase()).length, induksiMitraToday: it.filter(i => i.perusahaan?.toLowerCase() !== mc.toLowerCase()).length, induksiVisitorToday: vt.length, kodeAkses: (d.ka.find(k => k.date === today) || { kodeAkses: "N/A" }).kodeAkses, } }; }
+        function getInsidenData(ss) { const d = getSheetDataAsObjects(ss, "dataDasbor", CONFIG.insiden); const c = (data, key) => data.reduce((a, item) => { const v = item[key] || "N/A"; if (v !== "N/A") a[v] = (a[v] || 0) + 1; return a; }, {}); const t = (data, key, n = 5) => Object.fromEntries(Object.entries(c(data, key)).sort(([, a], [, b]) => b - a).slice(0, n)); return { monthlyTrend: d.reduce((a, i) => { if (!i.tanggalKejadian) return a; try { const dt = new Date(i.tanggalKejadian); const y = dt.getFullYear(); const m = dt.getMonth(); if (!isNaN(y) && !isNaN(m)) { if (!a[y]) a[y] = Array(12).fill(0); a[y][m]++; } } catch (e) {} return a; }, {}), byPenyebabLangsung: t(d, "penyebabLangsung"), byPenyebabDasar: t(d, "penyebabDasar"), }; }
+        function getPelatihanStatsData(ss) { const km = getSheetDataAsObjects(ss, "kompetensi-manpower", CONFIG.pelatihan); const mi = getSheetDataAsObjects(ss, "monitoring-internal", CONFIG.pelatihan); return { totalCompetencies: new Set(km.map(i => i.kompetensi).filter(Boolean)).size, totalTrainedManpower: new Set(km.map(i => i.nik).filter(Boolean)).size, totalTrainingNeeds: mi.reduce((a, i) => a + (parseInt(i.needTraining) || 0), 0) }; }
+        function getPelatihanScheduleData(ss) { const d = getSheetDataAsObjects(ss, "jadwal-training", CONFIG.pelatihan); const t = new Date(); t.setHours(0, 0, 0, 0); return d.filter(i => i.tanggalMulai && new Date(i.tanggalMulai) >= t).sort((a, b) => new Date(a.tanggalMulai) - new Date(b.tanggalMulai)).slice(0, 5); }
+        function doGet(e) { const c = e.parameter.callback; let d = {}; let err = []; try { d.induksi = getInduksiData(SpreadsheetApp.openById(CONFIG.induksi.id)); } catch (e) { err.push(`Induksi: ${e.message}`); } try { d.insiden = getInsidenData(SpreadsheetApp.openById(CONFIG.insiden.id)); } catch (e) { err.push(`Insiden: ${e.message}`); } try { const ss = SpreadsheetApp.openById(CONFIG.pelatihan.id); d.pelatihanStats = getPelatihanStatsData(ss); d.pelatihanSchedule = getPelatihanScheduleData(ss); } catch (e) { err.push(`Pelatihan: ${e.message}`); } return ContentService.createTextOutput(`${c}(${JSON.stringify({ data: d, errors: err })})`).setMimeType(ContentService.MimeType.JAVASCRIPT); }
+        */
+        // #############################################################################
+
         // ========== GLOBAL STATE & CONFIGURATION ==========
         const appState = {
             data: {},
             currentPage: 'dashboard',
             currentTheme: localStorage.getItem('theme') || 'light',
-            cache: {
-                key: 'gamitas_dashboard_cache_v2',
-                expiry: 15 * 60 * 1000 // 15 minutes
-            },
-            lastUpdated: null
+            currentLanguage: localStorage.getItem('language') || 'en',
+            cache: { key: 'gamitas_dashboard_cache_v8', expiry: 15 * 60 * 1000 },
         };
 
-        // URLs for your deployed Apps Script Web Apps
-        const API_URLS = {
-            induksi: "https://script.google.com/macros/s/AKfycbwCCaANsivS48PiOIMIMSexlnbM1-fc3mtuiCzFbrnjcGEw2IgipIqQrGxjPsDld7Ohkw/exec",
-            insiden: "https://script.google.com/macros/s/AKfycbx9D4Dcb3G6OdaxduqS-po676WJVI-WTonTSrOAZasab55lguTW2bLAYinMHPzrYr141Q/exec",
-            pelatihan: "https://script.google.com/macros/s/AKfycbyJcIIUFiW7IKAX4FJN__eOvFMU6PE508Q465NZ-O0qwc0CGunG7SQui3X2P9K1XJAsuQ/exec"
+        const API_GABUNGAN_URL = "https://script.google.com/macros/s/AKfycbyrXX07iEXdzFrcfKnysazEiXR7LAdBz5-IazWr67HAygIVj860c-jlWH3eEh_J-BTt/exec";
+
+        // ========== TRANSLATIONS ==========
+        const translations = {
+            en: { sidebar_dashboard: "Dashboard", sidebar_induksi: "Induction", sidebar_pelatihan: "Internal Training", sidebar_laporan_insiden: "Incident Report", sidebar_team_member: "Team Member", sidebar_theme: "Change Theme", dashboard_title_induksi: "Today's Induction Summary", card_induksi_core: "Induction (Core)", card_induksi_mitra: "Induction (Partner)", card_induksi_visitor: "Induction (Visitor)", card_kode_akses: "Today's Access Code", dashboard_title_pelatihan: "Training Summary", card_total_kompetensi: "Total Competencies", card_total_manpower: "Total Trained Manpower", card_total_kebutuhan: "Total Training Needs", dashboard_title_insiden: "Top 5 Incident Causes", card_penyebab_langsung: "Direct Causes", card_penyebab_dasar: "Root Causes", chart_title_insiden: "Monthly Incident Trend", chart_title_jadwal: "Upcoming Training Schedule", team_intro_title: "Meet Our Team", team_intro_subtitle: "The team behind the development of this system." },
+            id: { sidebar_dashboard: "Dasbor", sidebar_induksi: "Induksi", sidebar_pelatihan: "Pelatihan Internal", sidebar_laporan_insiden: "Laporan Insiden", sidebar_team_member: "Anggota Tim", sidebar_theme: "Ganti Tema", dashboard_title_induksi: "Ringkasan Induksi Hari Ini", card_induksi_core: "Induksi (Core)", card_induksi_mitra: "Induksi (Mitra)", card_induksi_visitor: "Induksi (Visitor)", card_kode_akses: "Kode Akses Hari Ini", dashboard_title_pelatihan: "Ringkasan Pelatihan", card_total_kompetensi: "Total Kompetensi", card_total_manpower: "Total Manpower Terlatih", card_total_kebutuhan: "Total Kebutuhan Pelatihan", dashboard_title_insiden: "Top 5 Penyebab Insiden", card_penyebab_langsung: "Penyebab Langsung", card_penyebab_dasar: "Penyebab Dasar", chart_title_insiden: "Tren Insiden Bulanan", chart_title_jadwal: "Jadwal Training Mendatang", team_intro_title: "Perkenalkan Tim Kami", team_intro_subtitle: "Tim di balik pengembangan sistem ini." },
+            ko: { sidebar_dashboard: "대시보드", sidebar_induksi: "입문 교육", sidebar_pelatihan: "내부 훈련", sidebar_laporan_insiden: "사고 보고서", sidebar_team_member: "팀원", sidebar_theme: "테마 변경", dashboard_title_induksi: "오늘의 입문 교육 요약", card_induksi_core: "입문 교육 (핵심)", card_induksi_mitra: "입문 교육 (파트너)", card_induksi_visitor: "입문 교육 (방문자)", card_kode_akses: "오늘의 액세스 코드", dashboard_title_pelatihan: "훈련 요약", card_total_kompetensi: "총 역량", card_total_manpower: "총 훈련된 인력", card_total_kebutuhan: "총 훈련 필요", dashboard_title_insiden: "상위 5개 사고 원인", card_penyebab_langsung: "직접적인 원인", card_penyebab_dasar: "근본 원인", chart_title_insiden: "월간 사고 동향", chart_title_jadwal: "예정된 훈련 일정", team_intro_title: "우리 팀을 만나보세요", team_intro_subtitle: "이 시스템 개발의 배후에 있는 팀입니다." }
         };
 
         // ========== CORE DATA FETCHING LOGIC ==========
-
-        /**
-         * Fetches data from Apps Scripts that use doGet (Induksi, Insiden).
-         * @param {string} url - The base URL of the Web App.
-         * @param {string} action - The action parameter for the script.
-         * @returns {Promise<any>}
-         */
-        function fetchGetData(url, action) {
+        function fetchGetData(url) {
             return new Promise((resolve, reject) => {
-                const callbackName = `jsonp_callback_${action}_${Math.round(100000 * Math.random())}`;
-                const script = document.createElement('script'); // Define script here to be in scope
-
-                window[callbackName] = (data) => {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    if (data.error) {
-                        reject(new Error(`API Error [${action}]: ${data.details || data.error}`));
-                    } else {
-                        resolve(data);
-                    }
-                };
-
-                script.src = `${url}?action=${action}&callback=${callbackName}`;
-                script.onerror = () => {
-                    delete window[callbackName];
-                    if (script.parentNode) {
-                        document.body.removeChild(script);
-                    }
-                    reject(new Error(`Network or script error for ${action}.`));
-                };
-                document.body.appendChild(script);
+                if (url.includes("GANTI_DENGAN_URL")) { return reject(new Error("URL API Gabungan belum diatur.")); }
+                const cb = `cb_${Date.now()}`;
+                const script = document.createElement('script');
+                const timer = setTimeout(() => { cleanup(); reject(new Error("Request timed out.")); }, 60000);
+                const cleanup = () => { clearTimeout(timer); delete window[cb]; if (script.parentElement) script.parentElement.removeChild(script); };
+                window[cb] = (res) => { cleanup(); if (res.data) resolve(res); else reject(new Error("Format respons tidak valid.")); };
+                script.src = `${url}?callback=${cb}`;
+                script.onerror = () => { cleanup(); reject(new Error("Gagal menghubungi API Gabungan.")); };
+                document.head.appendChild(script);
             });
         }
 
-        /**
-         * Orchestrates fetching all data from the three separate APIs.
-         */
         async function fetchAllData() {
-            updateSplashScreen(40, "Mengambil data Induksi...");
-            const induksiPromise = fetchGetData(API_URLS.induksi, 'getDashboardData');
-
-            updateSplashScreen(60, "Mengambil data Insiden...");
-            const insidenPromise = fetchGetData(API_URLS.insiden, 'getChartData');
-
-            updateSplashScreen(80, "Mengambil data Pelatihan...");
-            const pelatihanStatsPromise = fetchGetData(API_URLS.pelatihan, 'getStatsData');
-            const pelatihanSchedulePromise = fetchGetData(API_URLS.pelatihan, 'getUpcomingScheduleData');
-
-            const results = await Promise.allSettled([
-                induksiPromise,
-                insidenPromise,
-                pelatihanStatsPromise,
-                pelatihanSchedulePromise
-            ]);
-
-            const combinedData = {};
-            const errors = [];
-
-            // Process Induksi Data (Index 0)
-            if (results[0].status === 'fulfilled') {
-                combinedData.induksi = results[0].value;
-            } else {
-                errors.push(`Induksi: ${results[0].reason.message}`);
-            }
-
-            // Process Insiden Data (Index 1)
-            if (results[1].status === 'fulfilled') {
-                combinedData.insiden = results[1].value;
-            } else {
-                errors.push(`Insiden: ${results[1].reason.message}`);
-            }
-
-            // Process Pelatihan Stats Data (Index 2)
-            if (results[2].status === 'fulfilled') {
-                combinedData.pelatihanStats = results[2].value;
-            } else {
-                errors.push(`Statistik Pelatihan: ${results[2].reason.message}`);
-            }
-
-            // Process Pelatihan Schedule Data (Index 3)
-            if (results[3].status === 'fulfilled') {
-                combinedData.pelatihanSchedule = results[3].value;
-            } else {
-                errors.push(`Jadwal Pelatihan: ${results[3].reason.message}`);
-            }
-
-            if (errors.length > 0) {
-                showError(`Gagal memuat sebagian atau semua data: ${errors.join(', ')}.`, true);
-            }
-
-            // FIX: Always return the combinedData object, even if it's empty.
-            // This prevents the application from crashing if all fetches fail.
-            // The calling function (initializeApp) will handle the empty case.
-            return combinedData;
+            updateSplashScreen(50, "Menghubungi server...");
+            const response = await fetchGetData(API_GABUNGAN_URL);
+            if (response.errors && response.errors.length > 0) { showError(`Error dari server: ${response.errors.join('; ')}`, true); }
+            if (response.data && Object.keys(response.data).length > 0) { return response.data; }
+            else { throw new Error("Gagal mengambil data dari server."); }
         }
 
         // ========== UI UPDATE FUNCTIONS ==========
-
         function updateUI(data) {
-            if (!data || Object.keys(data).length === 0) {
-                showError("Tidak ada data untuk ditampilkan.", false);
-                return;
-            }
+            if (!data) return;
             appState.data = data;
-            hideError();
-
-            // Call individual UI update functions
             updateInduksiSummary(data.induksi);
             updatePelatihanSummary(data.pelatihanStats);
             updateInsidenSummary(data.insiden);
             updateJadwalTraining(data.pelatihanSchedule);
             updateInsidenChart(data.insiden);
-
-            // Remove loading placeholders
-            document.querySelectorAll('.component-loading').forEach(el => el.classList.remove('component-loading'));
+            document.querySelectorAll('.component-loading').forEach(el => { el.classList.remove('component-loading'); el.style.minHeight = 'auto'; });
             document.querySelectorAll('.bg-gray-200').forEach(el => el.classList.remove('bg-gray-200'));
         }
 
-        function updateInduksiSummary(induksiData) {
-            if (!induksiData || !induksiData.dashboard) {
-                console.warn("Data induksi tidak ditemukan untuk pembaruan UI.");
-                return;
-            }
-            const dash = induksiData.dashboard;
-            document.getElementById('induksi-core-today').textContent = dash.induksiCoreToday ?? '-';
-            document.getElementById('induksi-mitra-today').textContent = dash.induksiMitraToday ?? '-';
-            document.getElementById('induksi-visitor-today').textContent = dash.induksiVisitorToday ?? '-';
-            document.getElementById('kode-akses-value').textContent = dash.kodeAkses ?? 'N/A';
-            document.getElementById('company-name-sidebar').innerHTML = `<span class="text-purple-600">${(induksiData.setting?.namaPerusahaan || 'G').charAt(0)}</span>${(induksiData.setting?.namaPerusahaan || 'AMITAS').slice(1)}`;
+        function updateInduksiSummary(d) {
+            if (!d || !d.dashboard) return;
+            document.getElementById('induksi-core-today').textContent = d.dashboard.induksiCoreToday ?? '-';
+            document.getElementById('induksi-mitra-today').textContent = d.dashboard.induksiMitraToday ?? '-';
+            document.getElementById('induksi-visitor-today').textContent = d.dashboard.induksiVisitorToday ?? '-';
+            document.getElementById('kode-akses-value').textContent = d.dashboard.kodeAkses ?? 'N/A';
+            const name = d.setting?.namaPerusahaan || 'GAMITAS';
+            document.getElementById('company-name-sidebar').innerHTML = `<span class="text-purple-600">${name.charAt(0)}</span>${name.slice(1)}`;
         }
 
-        function updatePelatihanSummary(statsData) {
-            if (!statsData) {
-                console.warn("Data statistik pelatihan tidak ditemukan.");
-                return;
-            }
-            document.getElementById('total-kompetensi').textContent = statsData.totalCompetencies ?? '-';
-            document.getElementById('total-manpower-terlatih').textContent = statsData.totalTrainedManpower ?? '-';
-            document.getElementById('total-kebutuhan-pelatihan').textContent = statsData.totalTrainingNeeds ?? '-';
+        function updatePelatihanSummary(d) {
+            if (!d) return;
+            document.getElementById('total-kompetensi').textContent = d.totalCompetencies ?? '-';
+            document.getElementById('total-manpower-terlatih').textContent = d.totalTrainedManpower ?? '-';
+            document.getElementById('total-kebutuhan-pelatihan').textContent = d.totalTrainingNeeds ?? '-';
         }
 
-        function updateInsidenSummary(insidenData) {
-            if (!insidenData) {
-                console.warn("Data insiden tidak ditemukan.");
-                return;
-            }
-            const renderList = (elementId, data) => {
-                const container = document.getElementById(elementId);
+        function updateInsidenSummary(d) {
+            if (!d) return;
+            const renderList = (id, data) => {
+                const container = document.getElementById(id);
                 if (!container) return;
                 container.innerHTML = '';
-                if (!data || Object.keys(data).length === 0) {
-                    container.innerHTML = '<li class="text-gray-500">Tidak ada data.</li>';
-                    return;
-                }
-                Object.entries(data).forEach(([cause, count]) => {
-                    const li = document.createElement('li');
-                    li.className = 'flex justify-between items-center';
-                    li.innerHTML = `<span>${cause}</span><span class="font-bold text-purple-600">${count}</span>`;
-                    container.appendChild(li);
-                });
+                if (!data || Object.keys(data).length === 0) { container.innerHTML = '<li class="text-gray-500">Tidak ada data.</li>'; return; }
+                Object.entries(data).forEach(([cause, count]) => { container.innerHTML += `<li class="flex justify-between items-center"><span>${cause}</span><span class="font-bold text-purple-600">${count}</span></li>`; });
             };
-            renderList('top-risk-langsung', insidenData.byPenyebabLangsung);
-            renderList('top-risk-dasar', insidenData.byPenyebabDasar);
+            renderList('top-risk-langsung', d.byPenyebabLangsung);
+            renderList('top-risk-dasar', d.byPenyebabDasar);
         }
 
-        function updateJadwalTraining(scheduleData) {
-            const listContainer = document.getElementById('jadwal-training-list');
-            if (!listContainer) return;
-            if (!scheduleData || scheduleData.length === 0) {
-                listContainer.innerHTML = '<p class="text-sm text-gray-500">Tidak ada jadwal training mendatang.</p>';
-                return;
-            }
-            listContainer.innerHTML = scheduleData.map(item => `
+        function updateJadwalTraining(d) {
+            const container = document.getElementById('jadwal-training-list');
+            if (!container || !d) return;
+            if (d.length === 0) { container.innerHTML = '<p class="text-sm text-gray-500">Tidak ada jadwal.</p>'; return; }
+            container.innerHTML = d.map(item => `
                 <div class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100">
                     <div class="bg-purple-100 p-2 rounded-full"><i data-lucide="calendar" class="w-5 h-5 text-purple-600"></i></div>
-                    <div>
-                        <p class="font-semibold text-sm text-gray-800">${item.namaKegiatan}</p>
-                        <p class="text-xs text-gray-500">${new Date(item.tanggalMulai).toLocaleDateString('id-ID')} - ${new Date(item.tanggalSelesai).toLocaleDateString('id-ID')}</p>
-                    </div>
-                </div>
-            `).join('');
+                    <div><p class="font-semibold text-sm text-gray-800">${item.namaKegiatan}</p><p class="text-xs text-gray-500">${new Date(item.tanggalMulai).toLocaleDateString('id-ID')}</p></div>
+                </div>`).join('');
             lucide.createIcons();
         }
 
         // ========== CHART MANAGEMENT ==========
         const chartInstances = {};
-
         function initializeCharts() {
-            const defaultOptions = {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { ticks: { color: appState.currentTheme === 'dark' ? '#cbd5e1' : '#1f2937' }, grid: { color: 'rgba(128, 128, 128, 0.1)' } },
-                    y: { ticks: { color: appState.currentTheme === 'dark' ? '#cbd5e1' : '#1f2937' }, grid: { color: 'rgba(128, 128, 128, 0.1)' }, beginAtZero: true }
-                }
-            };
+            const options = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: appState.currentTheme === 'dark' ? '#cbd5e1' : '#1f2937' }, grid: { color: 'rgba(128, 128, 128, 0.1)' } }, y: { ticks: { color: appState.currentTheme === 'dark' ? '#cbd5e1' : '#1f2937' }, grid: { color: 'rgba(128, 128, 128, 0.1)' }, beginAtZero: true } } };
             const ctx = document.getElementById('insidenTrendChart')?.getContext('2d');
-            if (ctx) {
-                if (chartInstances.insidenTrend) chartInstances.insidenTrend.destroy();
-                chartInstances.insidenTrend = new Chart(ctx, {
-                    type: 'line',
-                    data: { labels: [], datasets: [] },
-                    options: defaultOptions
-                });
-            }
+            if (ctx) { if (chartInstances.insidenTrend) chartInstances.insidenTrend.destroy(); chartInstances.insidenTrend = new Chart(ctx, { type: 'line', data: { labels: [], datasets: [] }, options }); }
         }
 
-        function updateInsidenChart(insidenData) {
+        function updateInsidenChart(d) {
             const chart = chartInstances.insidenTrend;
-            if (!chart || !insidenData || !insidenData.monthlyTrend) {
-                console.warn("Chart atau data tren insiden tidak ditemukan.");
-                return;
-            }
-            const trendData = insidenData.monthlyTrend;
-            const currentYear = new Date().getFullYear();
-            const yearData = trendData[currentYear] || Array(12).fill(0);
-
+            const messageEl = document.getElementById('insiden-chart-message');
+            const canvasEl = document.getElementById('insidenTrendChart');
+            if (!chart || !messageEl || !canvasEl) return;
+            if (!d || !d.monthlyTrend) { messageEl.textContent = 'Data tren insiden tidak tersedia.'; messageEl.style.display = 'flex'; canvasEl.style.display = 'none'; return; }
+            const yearData = d.monthlyTrend[new Date().getFullYear()] || Array(12).fill(0);
+            if (yearData.every(item => item === 0)) { messageEl.textContent = 'Tidak ada data insiden untuk tahun ini.'; messageEl.style.display = 'flex'; canvasEl.style.display = 'none'; return; }
+            messageEl.style.display = 'none'; canvasEl.style.display = 'block';
             chart.data.labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-            chart.data.datasets = [{
-                label: `Insiden Tahun ${currentYear}`,
-                data: yearData,
-                borderColor: '#ef4444',
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                tension: 0.4,
-                fill: true
-            }];
+            chart.data.datasets = [{ label: 'Insiden', data: yearData, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', tension: 0.4, fill: true }];
             chart.update();
         }
 
         // ========== HELPERS & UTILITIES ==========
-        const updateSplashScreen = (progress, text) => { document.getElementById("splash-progress").style.width = `${progress}%`; document.getElementById("splash-text").textContent = text; };
-        const showError = (message, canRetry) => { document.getElementById('error-message').textContent = message; document.getElementById('retry-btn').style.display = canRetry ? 'block' : 'none'; document.getElementById('error-banner').classList.remove('hidden'); };
+        const updateSplashScreen = (p, t) => { document.getElementById("splash-progress").style.width = `${p}%`; document.getElementById("splash-text").textContent = t; };
+        const showError = (m, r) => { document.getElementById('error-message').innerHTML = `<ul class="list-disc list-inside text-sm">${m.split(';').map(e => `<li>${e.trim()}</li>`).join('')}</ul>`; document.getElementById('retry-btn').style.display = r ? 'block' : 'none'; document.getElementById('error-banner').classList.remove('hidden'); };
         const hideError = () => { document.getElementById('error-banner').classList.add('hidden'); };
-        function updateLastUpdatedTimestamp(timestamp) {
-            const el = document.getElementById('last-updated');
-            if (!el) return;
-            if (timestamp) {
-                appState.lastUpdated = timestamp;
-                const date = new Date(timestamp);
-                el.textContent = `Diperbarui: ${date.toLocaleTimeString('id-ID')}`;
-            } else {
-                el.textContent = 'Memperbarui...';
-            }
-        }
-        function getCachedData() {
-            const item = localStorage.getItem(appState.cache.key);
-            if (!item) return null;
-            const { data, timestamp } = JSON.parse(item);
-            if (Date.now() - timestamp > appState.cache.expiry) {
-                localStorage.removeItem(appState.cache.key);
-                return null;
-            }
-            return { data, timestamp };
-        }
-        function setCachedData(data) {
-            const timestamp = Date.now();
-            localStorage.setItem(appState.cache.key, JSON.stringify({ data, timestamp }));
-            updateLastUpdatedTimestamp(timestamp);
+        const updateLastUpdatedTimestamp = (t) => { const el = document.getElementById('last-updated'); if (el) { if (t) { appState.lastUpdated = t; el.textContent = `Diperbarui: ${new Date(t).toLocaleTimeString('id-ID')}`; } else { el.textContent = 'Memperbarui...'; } } };
+        const getCachedData = () => { const i = localStorage.getItem(appState.cache.key); if (!i) return null; try { const { d, t } = JSON.parse(i); if (Date.now() - t > appState.cache.expiry) { localStorage.removeItem(appState.cache.key); return null; } return { d, t }; } catch (e) { return null; } };
+        const setCachedData = (d) => { const t = Date.now(); try { localStorage.setItem(appState.cache.key, JSON.stringify({ d, t })); updateLastUpdatedTimestamp(t); } catch (e) { console.error("Gagal menyimpan cache:", e); } };
+
+        // ========== PAGE & LANGUAGE MANAGEMENT ==========
+        function setLanguage(lang) {
+            appState.currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            document.documentElement.lang = lang;
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.dataset.translateKey;
+                const translation = translations[lang][key];
+                if (translation) {
+                    el.innerText = translation;
+                }
+            });
+            switchPage(appState.currentPage); // Refresh page title
         }
 
-        // ========== PAGE & THEME MANAGEMENT ==========
         function switchPage(pageId) {
             appState.currentPage = pageId;
             document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
             document.getElementById(`${pageId}-page`)?.classList.add('active');
             document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
             document.querySelector(`.sidebar-link[data-page="${pageId}"]`)?.classList.add('active');
-            document.getElementById('header-title').querySelector('h2').textContent = pageId.charAt(0).toUpperCase() + pageId.slice(1);
-            if (document.getElementById('sidebar').classList.contains('show')) {
-                document.getElementById('sidebar').classList.remove('show');
-            }
+            const headerTitle = document.querySelector('#header-title h2');
+            if (headerTitle) { headerTitle.textContent = translations[appState.currentLanguage][`sidebar_${pageId}`] || "Dashboard"; }
+            if (document.getElementById('sidebar').classList.contains('show')) { document.getElementById('sidebar').classList.remove('show'); }
         }
         function toggleTheme() {
             appState.currentTheme = appState.currentTheme === "light" ? "dark" : "light";
             document.body.classList.toggle("theme-dark", appState.currentTheme === "dark");
             localStorage.setItem("theme", appState.currentTheme);
-            document.getElementById("theme-toggle").innerHTML = `<i data-lucide="${appState.currentTheme === 'light' ? 'moon' : 'sun'}" class="w-5 h-5"></i><span>Ganti Tema</span>`;
+            document.getElementById("theme-toggle").innerHTML = `<i data-lucide="${appState.currentTheme === 'light' ? 'moon' : 'sun'}" class="w-5 h-5"></i><span data-translate-key="sidebar_theme">Ganti Tema</span>`;
+            setLanguage(appState.currentLanguage);
             lucide.createIcons();
             initializeCharts();
             updateUI(appState.data);
         }
 
-        // ========== EVENT LISTENERS ==========
+        // ========== EVENT LISTENERS & INTRO ==========
         function setupEventListeners() {
-            document.querySelectorAll('.sidebar-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const pageId = link.dataset.page;
-                    const externalUrl = link.dataset.externalUrl;
-                    if (externalUrl) {
-                        window.open(externalUrl, '_blank');
-                    } else {
-                        switchPage(pageId);
-                    }
-                });
-            });
+            document.querySelectorAll('.sidebar-link').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const pageId = link.dataset.page; if (link.dataset.externalUrl) { window.open(link.dataset.externalUrl, '_blank'); } else { switchPage(pageId); } }); });
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('refresh-button').addEventListener('click', forceRefreshData);
             document.getElementById('retry-btn').addEventListener('click', forceRefreshData);
-            document.getElementById('mobile-menu-toggle').addEventListener('click', (e) => {
-                e.stopPropagation();
-                document.getElementById('sidebar').classList.toggle('show');
-            });
-            document.addEventListener('click', (e) => {
-                const sidebar = document.getElementById('sidebar');
-                const toggle = document.getElementById('mobile-menu-toggle');
-                if (sidebar.classList.contains('show') && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('show');
-                }
-            });
-            window.addEventListener("offline", () => document.getElementById("offline-banner").classList.add("show"));
-            window.addEventListener("online", () => document.getElementById("offline-banner").classList.remove("show"));
+            document.getElementById('mobile-menu-toggle').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('sidebar').classList.toggle('show'); });
+            document.addEventListener('click', (e) => { const s = document.getElementById('sidebar'), t = document.getElementById('mobile-menu-toggle'); if (s.classList.contains('show') && !s.contains(e.target) && !t.contains(e.target)) { s.classList.remove('show'); } });
+
+            const langToggle = document.getElementById('language-toggle-btn');
+            const langMenu = document.getElementById('language-menu');
+            langToggle.addEventListener('click', (e) => { e.stopPropagation(); langMenu.classList.toggle('hidden'); });
+            document.addEventListener('click', (e) => { if (!langToggle.parentElement.contains(e.target)) langMenu.classList.add('hidden'); });
+            langMenu.addEventListener('click', (e) => { if (e.target.closest('[data-lang]')) { setLanguage(e.target.closest('[data-lang]').dataset.lang); langMenu.classList.add('hidden'); } });
         }
 
         // ========== INITIALIZATION ==========
         async function forceRefreshData() {
-            const refreshButton = document.getElementById('refresh-button');
-            const icon = refreshButton.firstElementChild;
-            icon.classList.add('animate-spin');
-            refreshButton.disabled = true;
+            const btn = document.getElementById('refresh-button'), icon = btn.firstElementChild;
+            icon.classList.add('animate-spin'); btn.disabled = true;
             updateLastUpdatedTimestamp(null);
-
+            localStorage.removeItem(appState.cache.key); // Clear cache on force refresh
             try {
                 const freshData = await fetchAllData();
                 updateUI(freshData);
                 setCachedData(freshData);
+                hideError();
             } catch (error) {
                 console.error("Force refresh failed:", error);
                 showError(error.message, true);
             } finally {
-                icon.classList.remove('animate-spin');
-                refreshButton.disabled = false;
+                icon.classList.remove('animate-spin'); btn.disabled = false;
             }
         }
 
         async function initializeApp() {
-            const splashScreen = document.getElementById('splash-screen');
+            const splash = document.getElementById('splash-screen');
             updateSplashScreen(10, "Mempersiapkan antarmuka...");
-
             const cached = getCachedData();
-            if (cached) {
-                console.log("Memuat data dari cache.");
-                updateSplashScreen(20, "Memuat data dari cache...");
-                updateUI(cached.data);
-                updateLastUpdatedTimestamp(cached.timestamp);
-            }
-
+            if (cached) { updateSplashScreen(20, "Memuat data dari cache..."); updateUI(cached.d); updateLastUpdatedTimestamp(cached.t); }
             try {
                 const freshData = await fetchAllData();
                 updateSplashScreen(95, "Menyelesaikan...");
-
-                if (freshData && Object.keys(freshData).length > 0) {
-                    updateUI(freshData);
-                    setCachedData(freshData);
-                } else if (!cached) {
-                    console.error("Initial fetch failed and no cache is available.");
-                    showError("Gagal memuat data awal. Silakan periksa koneksi Anda dan coba lagi.", true);
-                }
-
+                updateUI(freshData);
+                setCachedData(freshData);
+                hideError();
             } catch (error) {
                 console.error("Initialization error:", error);
-                if (!cached) {
-                    showError(error.message, true);
-                }
+                if (!cached) { showError(error.message, true); }
             } finally {
-                switchPage('dashboard');
-                splashScreen.style.opacity = "0";
-                setTimeout(() => splashScreen.style.display = "none", 500);
+                splash.style.opacity = "0";
+                setTimeout(() => {
+                    splash.style.display = "none";
+                    switchPage('dashboard');
+                }, 500);
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.toggle("theme-dark", appState.currentTheme === "dark");
             document.getElementById('page-container').innerHTML = document.getElementById('page-templates').innerHTML;
-
             lucide.createIcons();
             initializeCharts();
             setupEventListeners();
-
+            setLanguage(appState.currentLanguage);
             initializeApp();
         });
     </script>
